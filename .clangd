@@ -1,0 +1,10 @@
+CompileFlags:
+  Add:
+    - "-xc"
+    - "-std=c23"
+    - "-I./include/"
+    - "-I/include/"
+    - "-I./source/"
+    - "-I/source/"
+    - "-I../../source/"
+  CompilationDatabase: build/dev

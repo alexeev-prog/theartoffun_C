@@ -1,3 +1,9 @@
+commit 372f376157d7b13c72941ac71dc7e31575b051a8
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Jul 28 21:05:23 2025 +0700
+
+    add shell.nix and improve structure
+
 commit 185413dbc9578a0868e27f825b59a576807600c3
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sat Jul 26 22:54:06 2025 +0700
