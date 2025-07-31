@@ -1,3 +1,9 @@
+commit 246b0ad747cabfc3372247fbfb9107fd6612a750
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Thu Jul 31 04:06:08 2025 +0700
+
+    add clangd configs
+
 commit 372f376157d7b13c72941ac71dc7e31575b051a8
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Jul 28 21:05:23 2025 +0700
