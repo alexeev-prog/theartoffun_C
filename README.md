@@ -22,7 +22,6 @@ This repository contains implementations of:
 ### Build Instructions
 ```bash
 make          # Build main executable (bin/theartoffun)
-make secret   # Build easter egg executable (bin/secret)
 make clean    # Remove build artifacts
 ```
 
