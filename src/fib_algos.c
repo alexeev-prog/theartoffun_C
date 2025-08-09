@@ -91,18 +91,18 @@ float fib_cache_convert(float miles) {
 }
 
 float fib_golden_ratio(float miles) {
-    const double phi = (1.0 + sqrt(5.0)) / 2.0;
+    const double PHI = (1.0 + sqrt(5.0)) / 2.0;
 
     if (miles < 1e-5) {
         return 0.0F;
     }
 
-    double n = log(miles * sqrt(5.0)) / log(phi);
+    double n = log(miles * sqrt(5.0)) / log(PHI);
     int k = (int)floor(n);
 
-    double Fk = (pow(phi, k) - pow(-phi, -k)) / sqrt(5.0);
-    double Fk1 = (pow(phi, k + 1) - pow(-phi, -k - 1)) / sqrt(5.0);
-    double Fk2 = (pow(phi, k + 2) - pow(-phi, -k - 2)) / sqrt(5.0);
+    double Fk = (pow(PHI, k) - pow(-PHI, -k)) / sqrt(5.0);
+    double Fk1 = (pow(PHI, k + 1) - pow(-PHI, -k - 1)) / sqrt(5.0);
+    double Fk2 = (pow(PHI, k + 2) - pow(-PHI, -k - 2)) / sqrt(5.0);
 
     if (Fk1 - Fk < DBL_EPSILON) {
         return basic_miles2km(miles);

@@ -1,5 +1,5 @@
-#ifndef ALGORITHMS_H
-#define ALGORITHMS_H
+#ifndef FIB_ALGORITHMS_H
+#define FIB_ALGORITHMS_H
 
 #include <stdint.h>
 

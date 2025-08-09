@@ -6,9 +6,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
+#include "algos.h"
 #include "cmdparser.h"
 #include "fib_algos.h"
+#include "pow_algos.h"
+
+uint64_t get_seed() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * (uint64_t)1000000 + tv.tv_usec;
+}
 
 int main(int argc, char** argv) {
 #ifdef _WIN32
@@ -20,43 +29,74 @@ int main(int argc, char** argv) {
     char* fib_interp_value = NULL;
     char* fib_cache_value = NULL;
     char* fib_golden_value = NULL;
+    char* binary_power = NULL;
+    char* xorshift_flag = 0;
+    char* xorshift_double_flag = 0;
 
-    struct CommandOption options[] = {{.help = "Show help information",
-                                       .long_name = "help",
-                                       .short_name = 'h',
-                                       .has_arg = 0,
-                                       .default_value = NULL,
-                                       .handler = &help_flag},
-                                      {.help = "Convert miles to km using basic Fibonacci",
-                                       .long_name = "fib",
-                                       .short_name = 'f',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &fib_value},
-                                      {.help = "Convert miles to km using standard formula",
-                                       .long_name = "basic",
-                                       .short_name = 'b',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &basic_value},
-                                      {.help = "Convert using Fibonacci interpolation",
-                                       .long_name = "fib-interp",
-                                       .short_name = 'i',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &fib_interp_value},
-                                      {.help = "Convert using cached Fibonacci",
-                                       .long_name = "fib-cache",
-                                       .short_name = 'c',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &fib_cache_value},
-                                      {.help = "Convert using golden ratio",
-                                       .long_name = "fib-golden",
-                                       .short_name = 'g',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &fib_golden_value}};
+    char* exponent = NULL;
+
+    struct CommandOption options[] = {
+        {.help = "Show help information",
+         .long_name = "help",
+         .short_name = 'h',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &help_flag},
+        {.help = "Convert miles to km using basic Fibonacci",
+         .long_name = "fib",
+         .short_name = 'f',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_value},
+        {.help = "Convert miles to km using standard formula",
+         .long_name = "basic",
+         .short_name = 'b',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &basic_value},
+        {.help = "Convert using Fibonacci interpolation",
+         .long_name = "fib-interp",
+         .short_name = 'i',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_interp_value},
+        {.help = "Convert using cached Fibonacci",
+         .long_name = "fib-cache",
+         .short_name = 'c',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_cache_value},
+        {.help = "Convert using golden ratio",
+         .long_name = "fib-golden",
+         .short_name = 'g',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_golden_value},
+        {.help = "Set exponent for pow-algos",
+         .long_name = "exponent",
+         .short_name = 'e',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &exponent},
+        {.help = "Power the number by binary power algorithm",
+         .long_name = "binary-power",
+         .short_name = 'p',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &binary_power},
+        {.help = "Generate pseudo random numbers",
+         .long_name = "xorshift-random",
+         .short_name = 'x',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &xorshift_flag},
+        {.help = "Generate pseudo random float numbers",
+         .long_name = "xorshift-double-random",
+         .short_name = 'd',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &xorshift_double_flag},
+    };
 
     struct CLIMetadata meta = {.prog_name = argv[0],
                                .description = "TheArtOfFun-C",
@@ -96,6 +136,44 @@ int main(int argc, char** argv) {
     if (basic_value && fib_methods_count > 0) {
         fprintf(stderr, "Error: Cannot combine basic and Fibonacci conversions\n");
         return EXIT_FAILURE;
+    }
+
+    // Handle --binary_power
+    if (binary_power && exponent) {
+        char* endptr;
+        double number = strtod(binary_power, &endptr);
+        double e = strtod(exponent, &endptr);
+        if (*endptr != '\0' || number < 0) {
+            fprintf(stderr, "Error: Invalid base value '%s'\n", binary_power);
+            return EXIT_FAILURE;
+        }
+
+        if (*endptr != '\0' || e < 0) {
+            fprintf(stderr, "Error: Invalid exponent value '%s'\n", binary_power);
+            return EXIT_FAILURE;
+        }
+
+        float powered_number = binary_pow(number, e);
+        printf("%.2f^%.2f = %.2f\n", number, e, powered_number);
+        return EXIT_SUCCESS;
+    }
+
+    if (xorshift_flag) {
+        uint64_t seed = get_seed();
+        uint64_t num = xorshift64(&seed);
+        uint64_t min_num = 10;
+        uint64_t max_num = 100;
+        uint64_t ranged_num = rand_range(&seed, min_num, max_num);
+        printf("xorshift64 random number: %lu\n", num);
+        printf("xorshift64 random num from 10 to 100: %lu\n", ranged_num);
+        return EXIT_SUCCESS;
+    }
+
+    if (xorshift_double_flag) {
+        uint64_t seed = get_seed();
+        double num = rand_double(&seed);
+        printf("xorshift64 double random number: %f\n", num);
+        return EXIT_SUCCESS;
     }
 
     // Handle --fib
