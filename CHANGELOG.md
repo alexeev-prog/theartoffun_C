@@ -1,3 +1,9 @@
+commit ca94901402a0f0b112cfe52aa0285fdded3590d6
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sat Aug 9 18:12:05 2025 +0700
+
+    add pow, and xorshift64 algos, update code and docs
+
 commit c286bb6f0e85a9b6f569fdf5dbd0ef77842a22d9
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sat Aug 9 15:48:14 2025 +0700
