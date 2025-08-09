@@ -1,3 +1,9 @@
+commit d1655607f37a6ec951b68c9f1c96226e0782e611
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Thu Jul 31 10:45:19 2025 +0700
+
+    add fib-based miles2km converter  and improve docs
+
 commit 246b0ad747cabfc3372247fbfb9107fd6612a750
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Thu Jul 31 04:06:08 2025 +0700

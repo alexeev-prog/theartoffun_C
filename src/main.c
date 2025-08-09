@@ -1,69 +1,68 @@
 #ifdef _WIN32
-#include <windows.h>
+#    include <windows.h>
 #endif
-#include "fib_algos.h"
-#include "cmdparser.h"
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char **argv) {
-    #ifdef _WIN32
+#include "cmdparser.h"
+#include "fib_algos.h"
+
+int main(int argc, char** argv) {
+#ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
-    #endif
+#endif
     int help_flag = 0;
-    char *fib_value = NULL;
-    char *basic_value = NULL;
-    char *fib_interp_value = NULL;
-    char *fib_cache_value = NULL;
-    char *fib_golden_value = NULL;
+    char* fib_value = NULL;
+    char* basic_value = NULL;
+    char* fib_interp_value = NULL;
+    char* fib_cache_value = NULL;
+    char* fib_golden_value = NULL;
 
-    struct CommandOption options[] = {
-            {.help = "Show help information",
-             .long_name = "help",
-             .short_name = 'h',
-             .has_arg = 0,
-             .default_value = NULL,
-             .handler = &help_flag},
-            {.help = "Convert miles to km using basic Fibonacci",
-             .long_name = "fib",
-             .short_name = 'f',
-             .has_arg = 1,
-             .default_value = NULL,
-             .handler = &fib_value},
-            {.help = "Convert miles to km using standard formula",
-             .long_name = "basic",
-             .short_name = 'b',
-             .has_arg = 1,
-             .default_value = NULL,
-             .handler = &basic_value},
-            {.help = "Convert using Fibonacci interpolation",
-             .long_name = "fib-interp",
-             .short_name = 'i',
-             .has_arg = 1,
-             .default_value = NULL,
-             .handler = &fib_interp_value},
-            {.help = "Convert using cached Fibonacci",
-             .long_name = "fib-cache",
-             .short_name = 'c',
-             .has_arg = 1,
-             .default_value = NULL,
-             .handler = &fib_cache_value},
-            {.help = "Convert using golden ratio",
-             .long_name = "fib-golden",
-             .short_name = 'g',
-             .has_arg = 1,
-             .default_value = NULL,
-             .handler = &fib_golden_value}};
+    struct CommandOption options[] = {{.help = "Show help information",
+                                       .long_name = "help",
+                                       .short_name = 'h',
+                                       .has_arg = 0,
+                                       .default_value = NULL,
+                                       .handler = &help_flag},
+                                      {.help = "Convert miles to km using basic Fibonacci",
+                                       .long_name = "fib",
+                                       .short_name = 'f',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &fib_value},
+                                      {.help = "Convert miles to km using standard formula",
+                                       .long_name = "basic",
+                                       .short_name = 'b',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &basic_value},
+                                      {.help = "Convert using Fibonacci interpolation",
+                                       .long_name = "fib-interp",
+                                       .short_name = 'i',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &fib_interp_value},
+                                      {.help = "Convert using cached Fibonacci",
+                                       .long_name = "fib-cache",
+                                       .short_name = 'c',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &fib_cache_value},
+                                      {.help = "Convert using golden ratio",
+                                       .long_name = "fib-golden",
+                                       .short_name = 'g',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &fib_golden_value}};
 
-    struct CLIMetadata meta = {
-            .prog_name = argv[0],
-            .description = "TheArtOfFun-C",
-            .usage_args = "[commands]",
-            .options = options,
-            .options_count = sizeof(options) / sizeof(options[0])};
+    struct CLIMetadata meta = {.prog_name = argv[0],
+                               .description = "TheArtOfFun-C",
+                               .usage_args = "[commands]",
+                               .options = options,
+                               .options_count = sizeof(options) / sizeof(options[0])};
 
     int pos_index = parse_options(argc, argv, meta.options, meta.options_count);
     if (pos_index < 0) {
@@ -77,14 +76,18 @@ int main(int argc, char **argv) {
 
     // Check for conflicts
     int fib_methods_count = 0;
-    if (fib_value)
+    if (fib_value) {
         fib_methods_count++;
-    if (fib_interp_value)
+    }
+    if (fib_interp_value) {
         fib_methods_count++;
-    if (fib_cache_value)
+    }
+    if (fib_cache_value) {
         fib_methods_count++;
-    if (fib_golden_value)
+    }
+    if (fib_golden_value) {
         fib_methods_count++;
+    }
 
     if (fib_methods_count > 1) {
         fprintf(stderr, "Error: Use only one Fibonacci conversion method\n");
@@ -97,7 +100,7 @@ int main(int argc, char **argv) {
 
     // Handle --fib
     if (fib_value) {
-        char *endptr;
+        char* endptr;
         double miles = strtod(fib_value, &endptr);
         if (*endptr != '\0' || miles < 0) {
             fprintf(stderr, "Error: Invalid distance value '%s'\n", fib_value);
@@ -111,7 +114,7 @@ int main(int argc, char **argv) {
 
     // Handle --fib-interp
     if (fib_interp_value) {
-        char *endptr;
+        char* endptr;
         float miles = strtof(fib_interp_value, &endptr);
         if (*endptr != '\0' || miles < 0) {
             fprintf(stderr, "Error: Invalid distance value '%s'\n", fib_interp_value);
@@ -125,7 +128,7 @@ int main(int argc, char **argv) {
 
     // Handle --fib-cache
     if (fib_cache_value) {
-        char *endptr;
+        char* endptr;
         float miles = strtof(fib_cache_value, &endptr);
         if (*endptr != '\0' || miles < 0) {
             fprintf(stderr, "Error: Invalid distance value '%s'\n", fib_cache_value);
@@ -139,7 +142,7 @@ int main(int argc, char **argv) {
 
     // Handle --fib-golden
     if (fib_golden_value) {
-        char *endptr;
+        char* endptr;
         float miles = strtof(fib_golden_value, &endptr);
         if (*endptr != '\0' || miles < 0) {
             fprintf(stderr, "Error: Invalid distance value '%s'\n", fib_golden_value);
@@ -153,7 +156,7 @@ int main(int argc, char **argv) {
 
     // Handle --basic
     if (basic_value) {
-        char *endptr;
+        char* endptr;
         float miles = strtod(basic_value, &endptr);
         if (*endptr != '\0' || miles < 0) {
             fprintf(stderr, "Error: Invalid distance value '%s'\n", basic_value);
@@ -168,12 +171,11 @@ int main(int argc, char **argv) {
     // Handle positional arguments
     if (pos_index < argc) {
         for (int i = pos_index; i < argc; i++) {
-            char *endptr;
+            char* endptr;
             double miles = strtod(argv[i], &endptr);
 
             if (*endptr != '\0' || miles < 0) {
-                fprintf(stderr, "Error: Invalid distance value '%s'. Skipping.\n",
-                                argv[i]);
+                fprintf(stderr, "Error: Invalid distance value '%s'. Skipping.\n", argv[i]);
                 continue;
             }
 
