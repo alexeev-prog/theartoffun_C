@@ -1,3 +1,15 @@
+commit 38e608879a3ee3359068033f1e02531e4ef42463
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sat Aug 9 18:22:44 2025 +0700
+
+    Create makefile.yml
+
+commit 36d30e0d3755b6fecd7c4ae95213db7f1d6258fc
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sat Aug 9 18:18:57 2025 +0700
+
+    update readme
+
 commit ca94901402a0f0b112cfe52aa0285fdded3590d6
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sat Aug 9 18:12:05 2025 +0700
