@@ -32,71 +32,76 @@ int main(int argc, char** argv) {
     char* binary_power = NULL;
     char* xorshift_flag = 0;
     char* xorshift_double_flag = 0;
+    char* q_rsqrt_quake = NULL;
 
     char* exponent = NULL;
 
-    struct CommandOption options[] = {
-        {.help = "Show help information",
-         .long_name = "help",
-         .short_name = 'h',
-         .has_arg = 0,
-         .default_value = NULL,
-         .handler = &help_flag},
-        {.help = "Convert miles to km using basic Fibonacci",
-         .long_name = "fib",
-         .short_name = 'f',
-         .has_arg = 1,
-         .default_value = NULL,
-         .handler = &fib_value},
-        {.help = "Convert miles to km using standard formula",
-         .long_name = "basic",
-         .short_name = 'b',
-         .has_arg = 1,
-         .default_value = NULL,
-         .handler = &basic_value},
-        {.help = "Convert using Fibonacci interpolation",
-         .long_name = "fib-interp",
-         .short_name = 'i',
-         .has_arg = 1,
-         .default_value = NULL,
-         .handler = &fib_interp_value},
-        {.help = "Convert using cached Fibonacci",
-         .long_name = "fib-cache",
-         .short_name = 'c',
-         .has_arg = 1,
-         .default_value = NULL,
-         .handler = &fib_cache_value},
-        {.help = "Convert using golden ratio",
-         .long_name = "fib-golden",
-         .short_name = 'g',
-         .has_arg = 1,
-         .default_value = NULL,
-         .handler = &fib_golden_value},
-        {.help = "Set exponent for pow-algos",
-         .long_name = "exponent",
-         .short_name = 'e',
-         .has_arg = 1,
-         .default_value = NULL,
-         .handler = &exponent},
-        {.help = "Power the number by binary power algorithm",
-         .long_name = "binary-power",
-         .short_name = 'p',
-         .has_arg = 1,
-         .default_value = NULL,
-         .handler = &binary_power},
-        {.help = "Generate pseudo random numbers",
-         .long_name = "xorshift-random",
-         .short_name = 'x',
-         .has_arg = 0,
-         .default_value = NULL,
-         .handler = &xorshift_flag},
-        {.help = "Generate pseudo random float numbers",
-         .long_name = "xorshift-double-random",
-         .short_name = 'd',
-         .has_arg = 0,
-         .default_value = NULL,
-         .handler = &xorshift_double_flag},
-    };
+    struct CommandOption options[] = {{.help = "Show help information",
+                                       .long_name = "help",
+                                       .short_name = 'h',
+                                       .has_arg = 0,
+                                       .default_value = NULL,
+                                       .handler = &help_flag},
+                                      {.help = "Convert miles to km using basic Fibonacci",
+                                       .long_name = "fib",
+                                       .short_name = 'f',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &fib_value},
+                                      {.help = "Convert miles to km using standard formula",
+                                       .long_name = "basic",
+                                       .short_name = 'b',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &basic_value},
+                                      {.help = "Convert using Fibonacci interpolation",
+                                       .long_name = "fib-interp",
+                                       .short_name = 'i',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &fib_interp_value},
+                                      {.help = "Convert using cached Fibonacci",
+                                       .long_name = "fib-cache",
+                                       .short_name = 'c',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &fib_cache_value},
+                                      {.help = "Convert using golden ratio",
+                                       .long_name = "fib-golden",
+                                       .short_name = 'g',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &fib_golden_value},
+                                      {.help = "Set exponent for pow-algos",
+                                       .long_name = "exponent",
+                                       .short_name = 'e',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &exponent},
+                                      {.help = "Power the number by binary power algorithm",
+                                       .long_name = "binary-power",
+                                       .short_name = 'p',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &binary_power},
+                                      {.help = "Generate pseudo random numbers",
+                                       .long_name = "xorshift-random",
+                                       .short_name = 'x',
+                                       .has_arg = 0,
+                                       .default_value = NULL,
+                                       .handler = &xorshift_flag},
+                                      {.help = "Generate pseudo random float numbers",
+                                       .long_name = "xorshift-double-random",
+                                       .short_name = 'd',
+                                       .has_arg = 0,
+                                       .default_value = NULL,
+                                       .handler = &xorshift_double_flag},
+                                      {.help = "Q_rsqrt from Quake III Arena",
+                                       .long_name = "q-rsqrt-quake",
+                                       .short_name = 'q',
+                                       .has_arg = 1,
+                                       .default_value = NULL,
+                                       .handler = &q_rsqrt_quake}};
 
     struct CLIMetadata meta = {.prog_name = argv[0],
                                .description = "TheArtOfFun-C",
@@ -173,6 +178,25 @@ int main(int argc, char** argv) {
         uint64_t seed = get_seed();
         double num = rand_double(&seed);
         printf("xorshift64 double random number: %f\n", num);
+        return EXIT_SUCCESS;
+    }
+
+    if (q_rsqrt_quake) {
+        char* endptr;
+        float number = strtof(q_rsqrt_quake, &endptr);
+
+        if (endptr == q_rsqrt_quake || *endptr != '\0') {
+            fprintf(stderr, "Error: Invalid number format for Q_rsqrt\n");
+            return EXIT_FAILURE;
+        }
+
+        if (number <= 0.0f) {
+            fprintf(stderr, "Error: Q_rsqrt requires positive number\n");
+            return EXIT_FAILURE;
+        }
+
+        float result = Q_rsqrt(number);
+        printf("Q_rsqrt(%.2f) = %f\n", number, result);
         return EXIT_SUCCESS;
     }
 

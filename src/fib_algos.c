@@ -5,10 +5,7 @@
 #define MAX_CACHE 94
 
 uint64_t fibonacci(int num) {
-    if (num < 0) {
-        return 0;
-    }
-    if (num == 0) {
+    if (num <= 0) {
         return 0;
     }
 

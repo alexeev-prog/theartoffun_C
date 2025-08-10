@@ -9,4 +9,6 @@ uint64_t rand_range(uint64_t* state, uint64_t min, uint64_t max);
 
 double rand_double(uint64_t* state);
 
+float Q_rsqrt(float number);
+
 #endif
