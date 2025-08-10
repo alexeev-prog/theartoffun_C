@@ -2,7 +2,13 @@
 #    include <windows.h>
 #endif
 #include <inttypes.h>
+#include <math.h>
 #include <stdint.h>
+#ifdef _WIN32
+#    include <windows.h>
+#else
+#    include <time.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +23,279 @@ uint64_t get_seed() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec * (uint64_t)1000000 + tv.tv_usec;
+}
+
+void benchmark_prngs() {
+    const int ITERATIONS = 10000000;
+    uint64_t seed = get_seed();
+
+#ifdef _WIN32
+    LARGE_INTEGER freq, start, end;
+    QueryPerformanceFrequency(&freq);
+#else
+    struct timespec start, end;
+#endif
+
+    // Xorshift64
+    uint64_t xorshift_state = seed;
+    uint64_t xorshift_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        xorshift_sum += xorshift64(&xorshift_state);
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_xorshift = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_xorshift = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // Lehmer64
+    lehmer64_seed(seed);
+    uint64_t lehmer_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        lehmer_sum += lehmer64();
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_lehmer = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_lehmer = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // Xoshiro256++
+    xoshiro256pp_state xoshiro_state;
+    xoshiro256pp_init(&xoshiro_state, seed);
+    uint64_t xoshiro_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        xoshiro_sum += xoshiro256pp_next(&xoshiro_state);
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_xoshiro = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_xoshiro = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    printf("PRNG Performance (10,000,000 iterations):\n");
+    printf("-----------------------------------------\n");
+    printf("xorshift64:   %8.2f ms  (%6.2fM numbers/s)\n",
+           time_xorshift,
+           ITERATIONS / (time_xorshift / 1000.0) / 1000000.0);
+    printf("lehmer64:     %8.2f ms  (%6.2fM numbers/s)\n",
+           time_lehmer,
+           ITERATIONS / (time_lehmer / 1000.0) / 1000000.0);
+    printf("xoshiro256pp: %8.2f ms  (%6.2fM numbers/s)\n",
+           time_xoshiro,
+           ITERATIONS / (time_xoshiro / 1000.0) / 1000000.0);
+    printf("-----------------------------------------\n\n");
+}
+
+void benchmark_conversions() {
+    const int TEST_POINTS = 20;
+    const int ITERATIONS = 10000;
+    float mile_values[TEST_POINTS];
+
+    float results[5][TEST_POINTS];
+    memset(results, 0, sizeof(results));
+
+    const char* method_names[] = {
+        "Basic", "Fibonacci Interpolation", "Fibonacci Cache", "Golden Ratio", "Golden Ratio (Binary)"};
+
+    for (int i = 0; i < TEST_POINTS; i++) {
+        mile_values[i] = 5.0f + i * 5.0f;
+    }
+
+#ifdef _WIN32
+    LARGE_INTEGER freq, start, end;
+    QueryPerformanceFrequency(&freq);
+#else
+    struct timespec start, end;
+#endif
+
+    printf("Conversion Methods Performance (each method called %d times per point):\n", ITERATIONS);
+    printf("----------------------------------------------------------------------\n");
+
+    // Basic
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < TEST_POINTS; i++) {
+        for (int j = 0; j < ITERATIONS; j++) {
+            results[0][i] = basic_miles2km(mile_values[i]);
+        }
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_basic = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_basic = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // Fibonacci Interpolation
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < TEST_POINTS; i++) {
+        for (int j = 0; j < ITERATIONS; j++) {
+            results[1][i] = fib_interpolate(mile_values[i]);
+        }
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_interp = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_interp = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // Fibonacci Cache
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < TEST_POINTS; i++) {
+        for (int j = 0; j < ITERATIONS; j++) {
+            results[2][i] = fib_cache_convert(mile_values[i]);
+        }
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_cache = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_cache = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // Golden Ratio
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < TEST_POINTS; i++) {
+        for (int j = 0; j < ITERATIONS; j++) {
+            results[3][i] = fib_golden_ratio(mile_values[i]);
+        }
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_golden = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_golden = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // Golden Ratio Binary
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < TEST_POINTS; i++) {
+        for (int j = 0; j < ITERATIONS; j++) {
+            results[4][i] = fib_golden_ratio_binary(mile_values[i]);
+        }
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_binary = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_binary = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    double total_calls = TEST_POINTS * ITERATIONS;
+    printf(
+        "%-25s: %8.2f ms  (%6.3f us/call)\n", method_names[0], time_basic, time_basic * 1000.0 / total_calls);
+    printf("%-25s: %8.2f ms  (%6.3f us/call)\n",
+           method_names[1],
+           time_interp,
+           time_interp * 1000.0 / total_calls);
+    printf(
+        "%-25s: %8.2f ms  (%6.3f us/call)\n", method_names[2], time_cache, time_cache * 1000.0 / total_calls);
+    printf("%-25s: %8.2f ms  (%6.3f us/call)\n",
+           method_names[3],
+           time_golden,
+           time_golden * 1000.0 / total_calls);
+    printf("%-25s: %8.2f ms  (%6.3f us/call)\n",
+           method_names[4],
+           time_binary,
+           time_binary * 1000.0 / total_calls);
+    printf("----------------------------------------------------------------------\n");
+
+    printf("\nAccuracy Comparison (5 sample points):\n");
+    printf("Miles |   Basic   | Interpol |  Cache   |  Golden  | GoldenBin\n");
+    printf("------+-----------+----------+----------+----------+-----------\n");
+
+    int sample_points[] = {0, 5, 10, 15, 19};
+    for (int i = 0; i < 5; i++) {
+        int idx = sample_points[i];
+        float miles = mile_values[idx];
+        float basic = basic_miles2km(miles);
+
+        printf("%5.0f | %9.2f", miles, basic);
+
+        for (int m = 1; m < 5; m++) {
+            float diff = fabsf(results[m][idx] - basic);
+            printf(" | %7.2f%%", (diff / basic) * 100.0f);
+        }
+        printf("\n");
+    }
+    printf("---------------------------------------------------------------\n");
+}
+
+void run_benchmarks() {
+    printf("======================================\n");
+    printf("      THE ARTOFFUN BENCHMARK SUITE     \n");
+    printf("======================================\n\n");
+
+    benchmark_prngs();
+    benchmark_conversions();
+
+    printf("Benchmark completed!\n");
 }
 
 int main(int argc, char** argv) {
@@ -36,6 +315,7 @@ int main(int argc, char** argv) {
     char* fib_golden_binary_value = NULL;
     char* lehmer64_value_flag = 0;
     char* xoshiro256pp_flag = 0;
+    char* benchmark_flag = 0;
 
     char* exponent = NULL;
 
@@ -124,6 +404,12 @@ int main(int argc, char** argv) {
          .has_arg = 0,
          .default_value = NULL,
          .handler = &xoshiro256pp_flag},
+        {.help = "Run benchmarks for PRNGs and conversion methods",
+         .long_name = "benchmark",
+         .short_name = 'B',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &benchmark_flag},
     };
 
     struct CLIMetadata meta = {.prog_name = argv[0],
@@ -155,6 +441,11 @@ int main(int argc, char** argv) {
     }
     if (fib_golden_value) {
         fib_methods_count++;
+    }
+
+    if (benchmark_flag) {
+        run_benchmarks();
+        return EXIT_SUCCESS;
     }
 
     if (fib_methods_count > 1) {

@@ -120,9 +120,17 @@ float fib_golden_ratio_binary(float miles) {
     double n = log(miles * sqrt(5.0)) / log(PHI);
     int k = (int)floor(n);
 
-    double Fk = (binary_pow(PHI, k) - binary_pow(-PHI, -k)) / sqrt(5.0);
-    double Fk1 = (binary_pow(PHI, k + 1) - binary_pow(-PHI, -k - 1)) / sqrt(5.0);
-    double Fk2 = (binary_pow(PHI, k + 2) - binary_pow(-PHI, -k - 2)) / sqrt(5.0);
+    double sign_k = (k % 2 == 0) ? 1.0 : -1.0;
+    double sign_k1 = ((k + 1) % 2 == 0) ? 1.0 : -1.0;
+    double sign_k2 = ((k + 2) % 2 == 0) ? 1.0 : -1.0;
+
+    double phi_k = binary_pow(PHI, k);
+    double phi_k1 = binary_pow(PHI, k + 1);
+    double phi_k2 = binary_pow(PHI, k + 2);
+
+    double Fk = (phi_k - sign_k / phi_k) / sqrt(5.0);
+    double Fk1 = (phi_k1 - sign_k1 / phi_k1) / sqrt(5.0);
+    double Fk2 = (phi_k2 - sign_k2 / phi_k2) / sqrt(5.0);
 
     if (Fk1 - Fk < DBL_EPSILON) {
         return basic_miles2km(miles);

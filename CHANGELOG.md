@@ -1,3 +1,9 @@
+commit 539e7b8eb9307b7140cdaaa35c10e5edbcebbaef
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Aug 11 00:10:36 2025 +0700
+
+    update article and add xoshiro256pp, lehmer64, fib miles2km golden ratio with binary pow
+
 commit 044dacaaa5202f18fc1ec50cb32c724200432938
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sun Aug 10 16:04:41 2025 +0700

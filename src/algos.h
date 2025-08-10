@@ -17,6 +17,8 @@ float Q_rsqrt(float number);
 
 uint64_t lehmer64(void);
 
+void lehmer64_seed(uint64_t seed);
+
 uint64_t xoshiro256pp_next(xoshiro256pp_state* state);
 
 void xoshiro256pp_init(xoshiro256pp_state* state, uint64_t seed);
