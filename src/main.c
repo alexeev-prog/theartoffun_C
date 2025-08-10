@@ -33,75 +33,98 @@ int main(int argc, char** argv) {
     char* xorshift_flag = 0;
     char* xorshift_double_flag = 0;
     char* q_rsqrt_quake = NULL;
+    char* fib_golden_binary_value = NULL;
+    char* lehmer64_value_flag = 0;
+    char* xoshiro256pp_flag = 0;
 
     char* exponent = NULL;
 
-    struct CommandOption options[] = {{.help = "Show help information",
-                                       .long_name = "help",
-                                       .short_name = 'h',
-                                       .has_arg = 0,
-                                       .default_value = NULL,
-                                       .handler = &help_flag},
-                                      {.help = "Convert miles to km using basic Fibonacci",
-                                       .long_name = "fib",
-                                       .short_name = 'f',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &fib_value},
-                                      {.help = "Convert miles to km using standard formula",
-                                       .long_name = "basic",
-                                       .short_name = 'b',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &basic_value},
-                                      {.help = "Convert using Fibonacci interpolation",
-                                       .long_name = "fib-interp",
-                                       .short_name = 'i',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &fib_interp_value},
-                                      {.help = "Convert using cached Fibonacci",
-                                       .long_name = "fib-cache",
-                                       .short_name = 'c',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &fib_cache_value},
-                                      {.help = "Convert using golden ratio",
-                                       .long_name = "fib-golden",
-                                       .short_name = 'g',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &fib_golden_value},
-                                      {.help = "Set exponent for pow-algos",
-                                       .long_name = "exponent",
-                                       .short_name = 'e',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &exponent},
-                                      {.help = "Power the number by binary power algorithm",
-                                       .long_name = "binary-power",
-                                       .short_name = 'p',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &binary_power},
-                                      {.help = "Generate pseudo random numbers",
-                                       .long_name = "xorshift-random",
-                                       .short_name = 'x',
-                                       .has_arg = 0,
-                                       .default_value = NULL,
-                                       .handler = &xorshift_flag},
-                                      {.help = "Generate pseudo random float numbers",
-                                       .long_name = "xorshift-double-random",
-                                       .short_name = 'd',
-                                       .has_arg = 0,
-                                       .default_value = NULL,
-                                       .handler = &xorshift_double_flag},
-                                      {.help = "Q_rsqrt from Quake III Arena",
-                                       .long_name = "q-rsqrt-quake",
-                                       .short_name = 'q',
-                                       .has_arg = 1,
-                                       .default_value = NULL,
-                                       .handler = &q_rsqrt_quake}};
+    struct CommandOption options[] = {
+        {.help = "Show help information",
+         .long_name = "help",
+         .short_name = 'h',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &help_flag},
+        {.help = "Convert miles to km miles to km using basic Fibonacci",
+         .long_name = "fib",
+         .short_name = 'f',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_value},
+        {.help = "Convert miles to km miles to km using standard formula",
+         .long_name = "miles-to-km",
+         .short_name = 'm',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &basic_value},
+        {.help = "Convert miles to km using Fibonacci interpolation",
+         .long_name = "fib-interp",
+         .short_name = 'i',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_interp_value},
+        {.help = "Convert miles to km using cached Fibonacci",
+         .long_name = "fib-cache",
+         .short_name = 'c',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_cache_value},
+        {.help = "Convert miles to km using golden ratio",
+         .long_name = "fib-golden",
+         .short_name = 'g',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_golden_value},
+        {.help = "Set exponent for pow-algos",
+         .long_name = "exponent",
+         .short_name = 'e',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &exponent},
+        {.help = "Power the number by binary power algorithm",
+         .long_name = "binary-power",
+         .short_name = 'p',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &binary_power},
+        {.help = "Generate pseudo random numbers by xorshift64",
+         .long_name = "xorshift-random",
+         .short_name = 'x',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &xorshift_flag},
+        {.help = "Generate pseudo random float numbers by xorshift64",
+         .long_name = "xorshift-double-random",
+         .short_name = 'd',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &xorshift_double_flag},
+        {.help = "Q_rsqrt from Quake III Arena",
+         .long_name = "q-rsqrt-quake",
+         .short_name = 'q',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &q_rsqrt_quake},
+        {.help = "Convert miles to km using golden ratio with binary pow",
+         .long_name = "fib-golden-binry",
+         .short_name = 'b',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fib_golden_binary_value},
+        {.help = "Generate pseudo random numbers by lehmer64",
+         .long_name = "lehmer-random",
+         .short_name = 'l',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &lehmer64_value_flag},
+        {.help = "Generate pseudo random numbers by xoshiro256pp",
+         .long_name = "xorshiro256pp-random",
+         .short_name = 'o',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &xoshiro256pp_flag},
+    };
 
     struct CLIMetadata meta = {.prog_name = argv[0],
                                .description = "TheArtOfFun-C",
@@ -181,6 +204,22 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
+    if (lehmer64_value_flag) {
+        uint64_t number = lehmer64();
+
+        printf("lehmer64 random number: %lu", number);
+        return EXIT_SUCCESS;
+    }
+
+    if (xoshiro256pp_flag) {
+        uint64_t seed = get_seed();
+        xoshiro256pp_state state;
+        xoshiro256pp_init(&state, seed);
+
+        printf("xorshiro256pp random number: %lu\n", xoshiro256pp_next(&state));
+        return EXIT_SUCCESS;
+    }
+
     if (q_rsqrt_quake) {
         char* endptr;
         float number = strtof(q_rsqrt_quake, &endptr);
@@ -239,6 +278,20 @@ int main(int argc, char** argv) {
 
         float km = fib_cache_convert(miles);
         printf("%.2f miles ≈ %.2f km (Cached Fibonacci)\n", miles, km);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --fib-golden-binary
+    if (fib_golden_binary_value) {
+        char* endptr;
+        float miles = strtof(fib_golden_binary_value, &endptr);
+        if (*endptr != '\0' || miles < 0) {
+            fprintf(stderr, "Error: Invalid distance value '%s'\n", fib_golden_binary_value);
+            return EXIT_FAILURE;
+        }
+
+        float km = fib_golden_ratio_binary(miles);
+        printf("%.2f miles ≈ %.2f km (Golden Ratio with Binary Pow)\n", miles, km);
         return EXIT_SUCCESS;
     }
 

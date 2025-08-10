@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdint.h>
 
+#include "pow_algos.h"
+
 #define MAX_CACHE 94
 
 uint64_t fibonacci(int num) {
@@ -100,6 +102,27 @@ float fib_golden_ratio(float miles) {
     double Fk = (pow(PHI, k) - pow(-PHI, -k)) / sqrt(5.0);
     double Fk1 = (pow(PHI, k + 1) - pow(-PHI, -k - 1)) / sqrt(5.0);
     double Fk2 = (pow(PHI, k + 2) - pow(-PHI, -k - 2)) / sqrt(5.0);
+
+    if (Fk1 - Fk < DBL_EPSILON) {
+        return basic_miles2km(miles);
+    }
+
+    return Fk1 + ((miles - Fk) * ((float)(Fk2 - Fk1) / (Fk1 - Fk)));
+}
+
+float fib_golden_ratio_binary(float miles) {
+    const double PHI = (1.0 + sqrt(5.0)) / 2.0;
+
+    if (miles < 1e-5) {
+        return 0.0F;
+    }
+
+    double n = log(miles * sqrt(5.0)) / log(PHI);
+    int k = (int)floor(n);
+
+    double Fk = (binary_pow(PHI, k) - binary_pow(-PHI, -k)) / sqrt(5.0);
+    double Fk1 = (binary_pow(PHI, k + 1) - binary_pow(-PHI, -k - 1)) / sqrt(5.0);
+    double Fk2 = (binary_pow(PHI, k + 2) - binary_pow(-PHI, -k - 2)) / sqrt(5.0);
 
     if (Fk1 - Fk < DBL_EPSILON) {
         return basic_miles2km(miles);

@@ -31,4 +31,6 @@ float fib_cache_convert(float miles);
  */
 float fib_golden_ratio(float miles);
 
+float fib_golden_ratio_binary(float miles);
+
 #endif
