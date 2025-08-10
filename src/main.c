@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
         }
 
         float powered_number = binary_pow(number, e);
-        printf("%.2f^%.2f = %.2f\n", number, e, powered_number);
+        printf("%.2f ** %.2f = %.2f\n", number, e, powered_number);
         return EXIT_SUCCESS;
     }
 

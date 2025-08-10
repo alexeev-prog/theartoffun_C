@@ -1,59 +1,49 @@
-# The Art of Fun C
+# The Art of Fun C - Algorithms Showcase
 
-A collection of interesting algorithms and programming techniques implemented in C, demonstrating mathematical concepts and efficient computation methods.
+## Overview
+This project implements several interesting algorithms in C, including Fibonacci-based miles to kilometers conversion, binary exponentiation, Xorshift pseudo-random number generation, and Quake III's fast inverse square root algorithm. The program provides a command-line interface to demonstrate these algorithms in action.
 
-## Project Overview
+## Features
 
-This repository contains implementations of:
-- Fibonacci-based distance conversion algorithms
-- Efficient binary exponentiation
-- Xorshift pseudo-random number generators
-- Command-line parsing utilities
-- Mathematical curiosities
+### Fibonacci-Based Conversion
+- **Basic Fibonacci**: Uses adjacent Fibonacci numbers for conversion
+- **Fibonacci Interpolation**: Linear interpolation between Fibonacci numbers
+- **Cached Fibonacci**: Pre-calculates Fibonacci sequence for faster lookup
+- **Golden Ratio**: Uses the golden ratio for conversion
+
+### Mathematical Algorithms
+- **Binary Exponentiation**: Efficient O(log n) exponentiation algorithm
+- **Xorshift PRNG**: Fast pseudo-random number generator
+- **Quake III Inverse Square Root**: Famous optimization trick from game development
+
+### Command-Line Interface
+- Intuitive command parser with help system
+- Support for multiple conversion methods
+- Input validation and error handling
 
 ## Building the Project
 
-### Prerequisites
+### Requirements
 - GCC compiler
 - GNU Make
-- Standard C library
 - Math library (`-lm`)
 
 ### Build Instructions
 ```bash
-make          # Build main executable (bin/theartoffun)
-make clean    # Remove build artifacts
+# Clone repository
+git clone https://github.com/your-username/theartoffun_c.git
+cd theartoffun_c
+
+# Build project
+make
+
+# Run executable
+./bin/theartoffun
 ```
 
-### Build Outputs
-- `bin/theartoffun`: Main CLI program
+## Usage Examples
 
-## Algorithms
-
-### Fibonacci-based Conversions
-- **Basic Implementation**: `fibonacci()`
-- **Miles to Kilometers**:
-  - Standard conversion: `basic_miles2km()`
-  - Fibonacci interpolation: `fib_interpolate()`
-  - Cached Fibonacci: `fib_cache_convert()`
-  - Golden ratio method: `fib_golden_ratio()`
-
-### Efficient Exponentiation
-- **Binary Power Algorithm**: `binary_pow()`
-  - Computes b^e in O(log n) time
-  - Supports positive integer exponents
-
-### Random Number Generation
-- **Xorshift64 PRNG**:
-  - Core generator: `xorshift64()`
-  - Range-based integers: `rand_range()`
-  - Double-precision floats: `rand_double()`
-  - Seed from system time: `get_seed()`
-
-## Command Line Interface
-
-### Usage
-```bash
+```
 TheArtOfFun-C
 Usage: ./bin/theartoffun [OPTIONS] [commands]
 
@@ -68,70 +58,90 @@ Options:
   -p, --binary-power=ARG         Power the number by binary power algorithm
   -x, --xorshift-random          Generate pseudo random numbers
   -d, --xorshift-double-random   Generate pseudo random float numbers
+  -q, --q-rsqrt-quake=ARG        Q_rsqrt from Quake III Arena
 ```
 
-### Conversion Options
-```
---basic VALUE       Convert miles to km using standard formula
---fib VALUE         Convert using basic Fibonacci method
---fib-interp VALUE  Convert using Fibonacci interpolation
---fib-cache VALUE   Convert using cached Fibonacci values
---fib-golden VALUE  Convert using golden ratio method
-```
-
-### Computational Options
-```
---binary-power BASE --exponent EXP  Compute power using binary exponentiation
---xorshift-random                   Generate random integers
---xorshift-double-random            Generate random doubles
-```
-
-### Examples
+### Fibonacci Conversion
 ```bash
-# Convert 5 miles to km using golden ratio method
-./bin/theartoffun --fib-golden 5
+# Basic Fibonacci conversion (5 miles ≈ 8 km)
+./bin/theartoffun --fib 5
 
-# Compute 10.5^4 using binary exponentiation
-./bin/theartoffun --binary-power 10.5 --exponent 4
+# Fibonacci interpolation conversion
+./bin/theartoffun --fib-interp 10
+
+# Golden ratio conversion
+./bin/theartoffun --fib-golden 20
+```
+
+### Mathematical Operations
+```bash
+# Binary exponentiation (calculate 10^5)
+./bin/theartoffun --binary-power 10 --exponent 5
 
 # Generate random numbers
 ./bin/theartoffun --xorshift-random
+
+# Calculate inverse square root (Quake III algorithm)
+./bin/theartoffun --q-rsqrt-quake 25
 ```
 
-### Easter Egg
+### Getting Help
 ```bash
-clang secret.c -o secret
-./secret  # Outputs a surprise message
+# Show help message
+bin/theartoffun --help
 ```
 
-## File Structure
-```
-src/
-├── algos.c           # Random number implementations
-├── algos.h
-├── cmdparser.h       # Command-line parsing
-├── fib_algos.c       # Fibonacci algorithms
-├── fib_algos.h
-├── main.c            # Entry point
-├── pow_algos.c       # Exponentiation
-├── pow_algos.h
-└── secret.c          # Easter egg
-bin/                  # Build output directory
-Makefile              # Build configuration
-```
+## Algorithm Details
+
+### Fibonacci Conversion
+- Uses properties of Fibonacci sequence and golden ratio
+- Approximation error ≈ 0.54%
+- Multiple implementations for comparison
+
+### Binary Exponentiation
+- Efficient O(log n) algorithm
+- Avoids expensive repeated multiplication
+- Suitable for large exponents
+
+### Xorshift PRNG
+- Extremely fast O(1) generation
+- Passes statistical randomness tests
+- Period of 2⁶⁴ - 1
+
+### Fast Inverse Square Root
+- From Quake III Arena source code
+- Uses bit manipulation and Newton-Raphson iteration
+- Accuracy within 0.2%
 
 ## Technical Notes
-- All floating-point operations use IEEE 754 double precision
-- Fibonacci implementations handle values up to 2^64-1
-- Random number generator passes basic statistical tests
-- Safe input validation for all user-provided values
+- 64-bit integers used for Fibonacci calculations to prevent overflow
+- IEEE 754 floating-point representation compliance
+- Input validation for all parameters
+- Platform-independent code with Windows compatibility
 
-## Dependencies
-- Standard C library (C11)
-- Math library (-lm)
+## Repository Structure
+```
+├── bin/              # Build output directory
+├── src/              # Source code
+│   ├── algos.c       # Xorshift and Q_rsqrt implementations
+│   ├── algos.h       # Header for algos.c
+│   ├── cmdparser.h   # Command-line parser
+│   ├── fib_algos.c   # Fibonacci conversion implementations
+│   ├── fib_algos.h   # Header for fib_algos.c
+│   ├── main.c        # Main program
+│   ├── pow_algos.c   # Binary exponentiation
+│   └── pow_algos.h   # Header for pow_algos.c
+├── Makefile          # Build configuration
+└── shell.nix         # Nix development environment
+```
 
 ## Contributing
-Issues and pull requests are welcome. Please ensure:
-- Code follows project style conventions
-- Documentation is updated
+Contributions are welcome! Please follow these guidelines:
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request with clear description
+4. Maintain consistent coding style
+5. Include tests for new functionality
 
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
