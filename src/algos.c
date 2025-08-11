@@ -2,6 +2,12 @@
 
 #include <stdint.h>
 
+#define Q_RSQRT_MAGIC_NUMBER 0x5f3759df
+#define HALF_FLOAT 0.5F
+#define LEHMER64_MAGIC_NUMBER 0xda942042e4dd58b5ULL
+#define XORSHIRO256PP_MAGIC_FIRST_NUMBER 0xbf58476d1ce4e5b9
+#define XORSHIRO256PP_MAGIC_SECOND_NUMBER 0x94d049bb133111eb
+
 static __uint128_t g_lehmer64_state;
 
 uint64_t xorshift64(uint64_t* state) {
@@ -14,7 +20,7 @@ uint64_t xorshift64(uint64_t* state) {
 }
 
 uint64_t rand_range(uint64_t* state, uint64_t min, uint64_t max) {
-    return min + xorshift64(state) % (max - min + 1);
+    return min + (xorshift64(state) % (max - min + 1));
 }
 
 double rand_double(uint64_t* state) {
@@ -23,21 +29,22 @@ double rand_double(uint64_t* state) {
 
 float Q_rsqrt(float number) {
     int32_t i;
-    float x2, y;
-    const float threehalfs = 1.5F;
+    float x2;
+    float y;
+    const float THREEHALFS = 1.5F;
 
-    x2 = number * 0.5F;
+    x2 = number * HALF_FLOAT;
     y = number;
     i = *(int32_t*)&y;
-    i = 0x5f3759df - (i >> 1);
+    i = Q_RSQRT_MAGIC_NUMBER - (i >> 1);
     y = *(float*)&i;
-    y = y * (threehalfs - (x2 * y * y));
-    y = y * (threehalfs - (x2 * y * y));
+    y = y * (THREEHALFS - (x2 * y * y));
+    y = y * (THREEHALFS - (x2 * y * y));
     return y;
 }
 
 uint64_t lehmer64(void) {
-    g_lehmer64_state *= 0xda942042e4dd58b5ULL;
+    g_lehmer64_state *= LEHMER64_MAGIC_NUMBER;
     return g_lehmer64_state >> 64;
 }
 
@@ -68,9 +75,9 @@ void xoshiro256pp_init(xoshiro256pp_state* state, uint64_t seed) {
     uint64_t tmp = seed;
     for (int i = 0; i < 4; i++) {
         tmp ^= tmp >> 30;
-        tmp *= 0xbf58476d1ce4e5b9;
+        tmp *= XORSHIRO256PP_MAGIC_FIRST_NUMBER;
         tmp ^= tmp >> 27;
-        tmp *= 0x94d049bb133111eb;
+        tmp *= XORSHIRO256PP_MAGIC_SECOND_NUMBER;
         tmp ^= tmp >> 31;
         state->s[i] = tmp;
     }

@@ -1,4 +1,5 @@
-# The Art of Fun C - Algorithms Showcase
+# The Art of Fun C
+Article in russian [here](./docs/article.md).
 
 ## Overview
 This project implements several interesting algorithms in C, including Fibonacci-based miles to kilometers conversion, binary exponentiation, Xorshift pseudo-random number generation, and Quake III's fast inverse square root algorithm. The program provides a command-line interface to demonstrate these algorithms in action.
@@ -49,16 +50,19 @@ Usage: ./bin/theartoffun [OPTIONS] [commands]
 
 Options:
   -h, --help                     Show help information
-  -f, --fib=ARG                  Convert miles to km using basic Fibonacci
-  -b, --basic=ARG                Convert miles to km using standard formula
-  -i, --fib-interp=ARG           Convert using Fibonacci interpolation
-  -c, --fib-cache=ARG            Convert using cached Fibonacci
-  -g, --fib-golden=ARG           Convert using golden ratio
+  -f, --fib=ARG                  Convert miles to km miles to km using basic Fibonacci
+  -m, --miles-to-km=ARG          Convert miles to km miles to km using standard formula
+  -i, --fib-interp=ARG           Convert miles to km using Fibonacci interpolation
+  -c, --fib-cache=ARG            Convert miles to km using cached Fibonacci
+  -g, --fib-golden=ARG           Convert miles to km using golden ratio
   -e, --exponent=ARG             Set exponent for pow-algos
   -p, --binary-power=ARG         Power the number by binary power algorithm
-  -x, --xorshift-random          Generate pseudo random numbers
-  -d, --xorshift-double-random   Generate pseudo random float numbers
+  -x, --xorshift-random          Generate pseudo random numbers by xorshift64
+  -d, --xorshift-double-random   Generate pseudo random float numbers by xorshift64
   -q, --q-rsqrt-quake=ARG        Q_rsqrt from Quake III Arena
+  -b, --fib-golden-binry=ARG     Convert miles to km using golden ratio with binary pow
+  -l, --lehmer-random            Generate pseudo random numbers by lehmer64
+  -o, --xorshiro256pp-random     Generate pseudo random numbers by xoshiro256pp
 ```
 
 ### Fibonacci Conversion
@@ -89,6 +93,12 @@ Options:
 ```bash
 # Show help message
 bin/theartoffun --help
+```
+
+### Launch Benchmark
+```bash
+# Run benchmark
+bin/theartoffun -B
 ```
 
 ## Algorithm Details
