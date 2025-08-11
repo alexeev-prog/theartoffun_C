@@ -1,35 +1,53 @@
-# The Art of Fun C
-Article in russian [here](./docs/article.md).
+# The Art of Fun C - Algorithm Exploration Toolkit
 
-## Overview
-This project implements several interesting algorithms in C, including Fibonacci-based miles to kilometers conversion, binary exponentiation, Xorshift pseudo-random number generation, and Quake III's fast inverse square root algorithm. The program provides a command-line interface to demonstrate these algorithms in action.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Features
+Explore fascinating algorithms implemented in C with this educational toolkit. The project demonstrates various mathematical tricks, optimization techniques, and clever programming approaches through a practical command-line interface.
 
-### Fibonacci-Based Conversion
-- **Basic Fibonacci**: Uses adjacent Fibonacci numbers for conversion
-- **Fibonacci Interpolation**: Linear interpolation between Fibonacci numbers
-- **Cached Fibonacci**: Pre-calculates Fibonacci sequence for faster lookup
-- **Golden Ratio**: Uses the golden ratio for conversion
+## Table of Contents
+- [Key Features](#key-features)
+- [Setup Instructions](#setup-instructions)
+- [Usage Examples](#usage-examples)
+- [Algorithm Details](#algorithm-details)
+- [Performance Benchmarks](#performance-benchmarks)
+- [Project Structure](#project-structure)
+- [Development Environment](#development-environment)
+- [Contribution Guidelines](#contribution-guidelines)
 
-### Mathematical Algorithms
-- **Binary Exponentiation**: Efficient O(log n) exponentiation algorithm
-- **Xorshift PRNG**: Fast pseudo-random number generator
-- **Quake III Inverse Square Root**: Famous optimization trick from game development
+## Key Features
 
-### Command-Line Interface
+### 🧮 Mathematical Algorithms
+- **Fibonacci-based conversions**:
+  - Basic adjacent number conversion
+  - Linear interpolation between Fibonacci numbers
+  - Pre-calculated sequence caching
+  - Golden ratio approximation
+- **Binary Exponentiation** - Efficient O(log n) exponentiation
+- **Xorshift PRNG** - Fast 64-bit pseudorandom generator
+- **Quake III Inverse Square Root** - Famous bit-manipulation trick
+- **Lehmer64 & Xoshiro256++** - Advanced PRNG implementations
+
+### ⚙️ Command-Line Interface
 - Intuitive command parser with help system
-- Support for multiple conversion methods
 - Input validation and error handling
+- Benchmarking mode for performance testing
+- Cross-platform support (Windows/Linux/macOS)
 
-## Building the Project
+### 📊 Performance Tracking
+- Built-in benchmark suite
+- Timing measurements for all algorithms
+- Accuracy comparisons
+- Memory usage analysis
 
-### Requirements
-- GCC compiler
+## Setup Instructions
+
+### Prerequisites
+- GCC compiler (min version 9.0)
 - GNU Make
 - Math library (`-lm`)
+- (Optional) Nix for reproducible builds
 
-### Build Instructions
+### Building from Source
 ```bash
 # Clone repository
 git clone https://github.com/your-username/theartoffun_c.git
@@ -39,42 +57,27 @@ cd theartoffun_c
 make
 
 # Run executable
-./bin/theartoffun
+./bin/theartoffun --help
+```
+
+### Using Nix Development Environment
+```bash
+nix-shell shell.nix  # Enters development environment
+make                # Build inside environment
 ```
 
 ## Usage Examples
 
-```
-TheArtOfFun-C
-Usage: ./bin/theartoffun [OPTIONS] [commands]
-
-Options:
-  -h, --help                     Show help information
-  -f, --fib=ARG                  Convert miles to km miles to km using basic Fibonacci
-  -m, --miles-to-km=ARG          Convert miles to km miles to km using standard formula
-  -i, --fib-interp=ARG           Convert miles to km using Fibonacci interpolation
-  -c, --fib-cache=ARG            Convert miles to km using cached Fibonacci
-  -g, --fib-golden=ARG           Convert miles to km using golden ratio
-  -e, --exponent=ARG             Set exponent for pow-algos
-  -p, --binary-power=ARG         Power the number by binary power algorithm
-  -x, --xorshift-random          Generate pseudo random numbers by xorshift64
-  -d, --xorshift-double-random   Generate pseudo random float numbers by xorshift64
-  -q, --q-rsqrt-quake=ARG        Q_rsqrt from Quake III Arena
-  -b, --fib-golden-binry=ARG     Convert miles to km using golden ratio with binary pow
-  -l, --lehmer-random            Generate pseudo random numbers by lehmer64
-  -o, --xorshiro256pp-random     Generate pseudo random numbers by xoshiro256pp
-```
-
-### Fibonacci Conversion
+### Conversion Methods
 ```bash
 # Basic Fibonacci conversion (5 miles ≈ 8 km)
 ./bin/theartoffun --fib 5
 
-# Fibonacci interpolation conversion
-./bin/theartoffun --fib-interp 10
-
 # Golden ratio conversion
 ./bin/theartoffun --fib-golden 20
+
+# Cached Fibonacci conversion
+./bin/theartoffun --fib-cache 100
 ```
 
 ### Mathematical Operations
@@ -82,76 +85,186 @@ Options:
 # Binary exponentiation (calculate 10^5)
 ./bin/theartoffun --binary-power 10 --exponent 5
 
-# Generate random numbers
+# Generate random numbers (Xorshift)
 ./bin/theartoffun --xorshift-random
 
-# Calculate inverse square root (Quake III algorithm)
+# Calculate inverse square root (Quake III)
 ./bin/theartoffun --q-rsqrt-quake 25
 ```
 
-### Getting Help
+### Benchmarking
 ```bash
-# Show help message
-bin/theartoffun --help
-```
+# Run full benchmark suite
+./bin/theartoffun -B
 
-### Launch Benchmark
-```bash
-# Run benchmark
-bin/theartoffun -B
+# Sample benchmark output:
+# PRNG Performance (10,000,000 iterations):
+# -----------------------------------------
+# xorshift64:      14.18 ms  (705.37M numbers/s)
+# lehmer64:        20.71 ms  (482.89M numbers/s)
+# xoshiro256pp:    15.95 ms  (626.77M numbers/s)
 ```
 
 ## Algorithm Details
 
 ### Fibonacci Conversion
-- Uses properties of Fibonacci sequence and golden ratio
-- Approximation error ≈ 0.54%
-- Multiple implementations for comparison
+- **Mathematical Basis**: Uses relationship between Fibonacci sequence (Fₙ₊₁/Fₙ → φ ≈ 1.618) and miles/km ratio (1.609)
+- **Error Analysis**: Consistent ~0.54% error due to golden ratio approximation
+- **Four Implementations**:
+  1. Basic adjacent number lookup
+  2. Linear interpolation between sequence points
+  3. Pre-cached sequence for O(1) lookup
+  4. Golden ratio with binary exponentiation
 
 ### Binary Exponentiation
-- Efficient O(log n) algorithm
-- Avoids expensive repeated multiplication
-- Suitable for large exponents
+```c
+double binary_pow(double b, unsigned long long e) {
+    double v = 1.0;
+    while(e != 0) {
+        if((e & 1) != 0) v *= b;
+        b *= b;
+        e >>= 1;
+    }
+    return v;
+}
+```
+- **Complexity**: O(log n) vs O(n) for naive multiplication
+- **Applications**: Efficient computation in Fibonacci formulas
 
 ### Xorshift PRNG
-- Extremely fast O(1) generation
-- Passes statistical randomness tests
-- Period of 2⁶⁴ - 1
-
-### Fast Inverse Square Root
-- From Quake III Arena source code
-- Uses bit manipulation and Newton-Raphson iteration
-- Accuracy within 0.2%
-
-## Technical Notes
-- 64-bit integers used for Fibonacci calculations to prevent overflow
-- IEEE 754 floating-point representation compliance
-- Input validation for all parameters
-- Platform-independent code with Windows compatibility
-
-## Repository Structure
+```c
+uint64_t xorshift64(uint64_t *state) {
+    uint64_t x = *state;
+    x ^= x << 13;
+    x ^= x >> 7;
+    x ^= x << 17;
+    *state = x;
+    return x;
+}
 ```
-├── bin/              # Build output directory
-├── src/              # Source code
-│   ├── algos.c       # Xorshift and Q_rsqrt implementations
-│   ├── algos.h       # Header for algos.c
-│   ├── cmdparser.h   # Command-line parser
-│   ├── fib_algos.c   # Fibonacci conversion implementations
-│   ├── fib_algos.h   # Header for fib_algos.c
-│   ├── main.c        # Main program
-│   ├── pow_algos.c   # Binary exponentiation
-│   └── pow_algos.h   # Header for pow_algos.c
-├── Makefile          # Build configuration
-└── shell.nix         # Nix development environment
+- **Performance**: 3 operations per number generation
+- **Period**: 2⁶⁴ - 1
+- **Quality**: Passes basic statistical tests
+
+### Quake III Inverse Square Root
+```c
+float Q_rsqrt(float number) {
+    int32_t i;
+    const float threehalfs = 1.5F;
+    float x2 = number * 0.5F;
+    float y = number;
+
+    i = *(int32_t*)&y;
+    i = 0x5f3759df - (i >> 1);
+    y = *(float*)&i;
+    y = y * (threehalfs - (x2 * y * y));
+
+    return y;
+}
+```
+- **Magic Constant**: 0x5f3759df
+- **Accuracy**: Within 0.2% after one Newton iteration
+- **Innovation**: Combines bit manipulation with numerical approximation
+
+## Performance Benchmarks
+
+### PRNG Throughput (10M iterations)
+| Algorithm     | Time (ms) | Speed (M nums/s) |
+|---------------|-----------|------------------|
+| xorshift64    | 14.18     | 705.37           |
+| lehmer64      | 20.71     | 482.89           |
+| xoshiro256pp  | 15.95     | 626.77           |
+
+### Conversion Methods (20k calls)
+| Method                     | Time (ms) | Per Call (μs) |
+|----------------------------|-----------|---------------|
+| Basic Multiplication       | 0.28      | 0.001         |
+| Fibonacci Interpolation    | 1.56      | 0.008         |
+| Cached Fibonacci           | 1.41      | 0.007         |
+| Golden Ratio               | 16.33     | 0.082         |
+| Golden Ratio (Binary Pow)  | 3.56      | 0.018         |
+
+## Project Structure
+
+### Core Components
+```
+├── bin/                   # Compiled binaries
+├── src/                   # Source code
+│   ├── algos.c            # PRNG and Q_rsqrt implementations
+│   ├── algos.h            # Algorithm headers
+│   ├── cmdparser.h        # Command-line parser (600+ lines)
+│   ├── fib_algos.c        # Fibonacci implementations
+│   ├── fib_algos.h        # Fibonacci headers
+│   ├── main.c             # Entry point (500+ lines)
+│   ├── pow_algos.c        # Binary exponentiation
+│   └── pow_algos.h        # Power algorithm headers
+├── docs/
+│   └── article.md         # Detailed technical article (Russian)
 ```
 
-## Contributing
-Contributions are welcome! Please follow these guidelines:
+### Support Files
+```
+├── Makefile               # Build configuration
+├── shell.nix              # Nix development environment
+├── format-code.py         # Code formatter script
+├── LICENSE                # MIT License
+└── CHANGELOG.md           # Version history
+```
+
+## Development Environment
+
+### Nix Configuration
+The `shell.nix` file provides a reproducible development environment with:
+- GCC compiler
+- GNU Make
+- Binutils
+- pkg-config
+- Valgrind (memory debugging)
+- GDB (debugger)
+
+### Building and Testing
+```bash
+# Build project
+make
+
+# Run tests
+./bin/theartoffun -B  # Benchmarks
+./bin/theartoffun --fib 5  # Sample test
+
+# Format code
+python format-code.py src/ --style=LLVM
+```
+
+### Debugging
+```bash
+# Start debug session
+gdb ./bin/theartoffun
+
+# Memory checking
+valgrind --leak-check=full ./bin/theartoffun --fib 10
+```
+
+## Contribution Guidelines
+
+### Workflow
 1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request with clear description
-4. Maintain consistent coding style
-5. Include tests for new functionality
+2. Create feature branch (`git checkout -b feature/algorithm-name`)
+3. Commit changes with descriptive messages
+4. Submit pull request
+
+### Coding Standards
+- Follow C99 standard
+- Use descriptive variable names
+- Include Doxygen-style comments for functions
+- Maintain consistent 4-space indentation
+- Validate all inputs with error checking
+
+### Testing Requirements
+- Add benchmarks for new algorithms
+- Include edge case tests
+- Maintain >95% code coverage
+- Update documentation for new features
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
+

@@ -1,3 +1,9 @@
+commit 961638648a433e701fbd6beb9d7dc9a114a49ca6
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Aug 11 14:43:39 2025 +0700
+
+    add docstrings and fix readme
+
 commit 28fcc01c68444c97a1ab46c36df35b6636c1f44b
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Aug 11 14:33:30 2025 +0700
