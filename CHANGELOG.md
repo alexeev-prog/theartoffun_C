@@ -1,3 +1,9 @@
+commit 3b293ddb1c590b61ccf34c1a40e9f688e9740377
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Aug 11 00:41:07 2025 +0700
+
+    add benchmark
+
 commit 539e7b8eb9307b7140cdaaa35c10e5edbcebbaef
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Aug 11 00:10:36 2025 +0700
