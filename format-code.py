@@ -2,6 +2,8 @@ import os
 import subprocess
 import argparse
 
+count = 0
+
 
 def find_source_files(root_dir, ignore_dirs):
     source_files = []
@@ -16,11 +18,14 @@ def find_source_files(root_dir, ignore_dirs):
 
 
 def format_files(files, clang_format, style):
+    global count
+
     for file in files:
         try:
             cmd = [clang_format, "-i", "--style", style, file]
             subprocess.run(cmd, check=True)
             print(f"\033[32mFormatted:\033[0m {file}")
+            count += 1
         except subprocess.CalledProcessError as e:
             print(f"\033[31mError formatting {file}:\033[0m {e}")
 
@@ -54,7 +59,7 @@ def main():
 
     print(f"\033[33mFound {len(source_files)} files to format:\033[0m")
     format_files(source_files, args.clang_format, args.style)
-    print("\033[32mFormatting complete!\033[0m")
+    print(f"\033[32mFormatting complete ({count} files)!\033[0m")
 
 
 if __name__ == "__main__":
