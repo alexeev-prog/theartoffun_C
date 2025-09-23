@@ -1,3 +1,21 @@
+commit 1aed9c1025b2aa792038f2ac86c145c9d7b97aec
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sun Sep 21 19:56:07 2025 +0700
+
+    edit bonsai
+
+commit 3018e182132080bc8e3758eefd4cda6f63066ed8
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sun Sep 21 19:33:51 2025 +0700
+
+    add bonsai.c from https://www.ioccc.org/2024/codemeow/index.html
+
+commit edea4bbb7f06dbd56d113459664d25aef8e5e4cb
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Thu Sep 4 22:34:27 2025 +0700
+
+    add article part 2
+
 commit 930657b0be4119378443c70d1f426c0e08ad04b8
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Aug 11 21:42:12 2025 +0700
