@@ -38,7 +38,7 @@ float Q_rsqrt(float number) {
     i = *(int32_t*)&y;
     i = Q_RSQRT_MAGIC_NUMBER - (i >> 1);
     y = *(float*)&i;
-    y = y * (THREEHALFS - (x2 * y * y));
+    к y = y * (THREEHALFS - (x2 * y * y));
     y = y * (THREEHALFS - (x2 * y * y));
     return y;
 }
