@@ -2,6 +2,12 @@
 #define ALGORITHMS_H
 
 #include <stdint.h>
+#include <stdlib.h>
+
+typedef struct {
+    uint64_t state;
+    uint64_t inc;
+} pcg32_random_t;
 
 /**
  * @brief xorshiro256pp generator 256bit state
@@ -76,24 +82,6 @@ uint64_t xoshiro256pp_next(xoshiro256pp_state* state);
 void xoshiro256pp_init(xoshiro256pp_state* state, uint64_t seed);
 
 /**
- * @brief fast calculation of an approximate value of a degree
- *
- * @param a_coeff
- * @param base
- * @return double
- **/
-double fast_pow(double a_coeff, double base);
-
-/**
- * @brief fastest float calculation of an approximate value of a degree
- *
- * @param a_coeff
- * @param base
- * @return double
- **/
-float fastest_pow(float a, float b);
-
-/**
  * @brief function for fast dividing by 3
  *
  * @param x
@@ -108,5 +96,57 @@ uint32_t div3(uint32_t x);
  * @param b
  **/
 void xor_swap(int* a, int* b);
+
+/**
+ * @brief PCG32 PRNG
+ *
+ * @param rng
+ * @return uint32_t
+ **/
+uint32_t pcg32_random_r(pcg32_random_t* rng);
+
+/**
+ * @brief trick of bob jenkins for fast hashing (lookup3)
+ *
+ * @param a
+ * @param b
+ * @param c
+ **/
+void jenkins_mix(uint32_t* a, uint32_t* b, uint32_t* c);
+
+/**
+ * @brief trick of bob jenkins for fast hashing, final part
+ *
+ * @param a
+ * @param b
+ * @param c
+ **/
+void jenkins_final(uint32_t* a, uint32_t* b, uint32_t* c);
+
+/**
+ * @brief jenkkins hashing function
+ *
+ * @param a
+ * @param b
+ * @param c
+ **/
+uint32_t jenkins_hash(const void* key, size_t length, uint32_t initval);
+
+/**
+ * @brief A quick check for the power of two
+ *
+ * @param x
+ * @return int8_t
+ **/
+int8_t is_power_of_two(uint32_t x);
+
+/**
+ * @brief Fast module 2^n
+ *
+ * @param x
+ * @param mod
+ * @return uint32_t
+ **/
+uint32_t fast_mod(uint32_t x, uint32_t mod);
 
 #endif

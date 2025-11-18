@@ -1,15 +1,16 @@
 #include "algos.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #define Q_RSQRT_MAGIC_NUMBER 0x5f3759df
 #define HALF_FLOAT 0.5F
 #define LEHMER64_MAGIC_NUMBER 0xda942042e4dd58b5ULL
 #define XORSHIRO256PP_MAGIC_FIRST_NUMBER 0xbf58476d1ce4e5b9
 #define XORSHIRO256PP_MAGIC_SECOND_NUMBER 0x94d049bb133111eb
-#define FAST_POW_MAGIC_NUMBER 1072632447
-#define FASTEST_POW_MAGIC_NUMBER 1065353210
 #define DIV3_MAGIC_NUMBER 0xAAAAAAABULL
+
+#define rot(x, k) (((x) << (k)) | ((x) >> (32 - (k))))
 
 static __uint128_t g_lehmer64_state;
 
@@ -86,28 +87,6 @@ void xoshiro256pp_init(xoshiro256pp_state* state, uint64_t seed) {
     }
 }
 
-double fast_pow(double a_coeff, double base) {
-    union {
-        double d;
-        int x[2];
-    } u = {a_coeff};
-
-    u.x[1] = (int)((base * (u.x[1] - FAST_POW_MAGIC_NUMBER)) + FAST_POW_MAGIC_NUMBER);
-    u.x[0] = 0;
-    return u.d;
-}
-
-float fastest_pow(float a_coeff, float base) {
-    union {
-        float d;
-        int x;
-    } u = {a_coeff};
-
-    u.x = (int)((base * (u.x - FASTEST_POW_MAGIC_NUMBER)) + FASTEST_POW_MAGIC_NUMBER);
-
-    return u.d;
-}
-
 uint32_t div3(uint32_t x) {
     return (uint32_t)(((uint64_t)x * DIV3_MAGIC_NUMBER) >> 32);
 }
@@ -118,4 +97,134 @@ void xor_swap(int* a, int* b) {
         *b ^= *a;
         *a ^= *b;
     }
+}
+
+int count_trailing_zeros(unsigned int x) {
+    if (x == 0) {
+        return sizeof(x) * 8;
+    }
+
+    int count = 0;
+    while ((x & 1) == 0) {
+        count++;
+        x >>= 1;
+    }
+    return count;
+}
+
+int count_trailing_zeros_kernighan(unsigned int x) {
+    if (x == 0) {
+        return sizeof(x) * 8;
+    }
+
+    unsigned int lowest_set_bit = x & -x;
+
+    int count = 0;
+    while (lowest_set_bit > 1) {
+        count++;
+        lowest_set_bit >>= 1;
+    }
+    return count;
+}
+
+uint32_t pcg32_random_r(pcg32_random_t* rng) {
+    uint64_t oldstate = rng->state;
+    rng->state = oldstate * 6364136223846793005ULL + (rng->inc | 1);
+    uint32_t xorshifted = ((oldstate >> 18u) ^ oldstate) >> 27u;
+    uint32_t rot = oldstate >> 59u;
+    return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
+}
+
+void jenkins_mix(uint32_t* a, uint32_t* b, uint32_t* c) {
+    *a -= *c;
+    *a ^= rot(*c, 4);
+    *c += *b;
+    *b -= *a;
+    *b ^= rot(*a, 6);
+    *a += *c;
+    *c -= *b;
+    *c ^= rot(*b, 8);
+    *b += *a;
+    *a -= *c;
+    *a ^= rot(*c, 16);
+    *c += *b;
+    *b -= *a;
+    *b ^= rot(*a, 19);
+    *a += *c;
+    *c -= *b;
+    *c ^= rot(*b, 4);
+    *b += *a;
+}
+
+void jenkins_final(uint32_t* a, uint32_t* b, uint32_t* c) {
+    *c ^= *b;
+    *c -= rot(*b, 14);
+    *a ^= *c;
+    *a -= rot(*c, 11);
+    *b ^= *a;
+    *b -= rot(*a, 25);
+    *c ^= *b;
+    *c -= rot(*b, 16);
+    *a ^= *c;
+    *a -= rot(*c, 4);
+    *b ^= *a;
+    *b -= rot(*a, 14);
+    *c ^= *b;
+    *c -= rot(*b, 24);
+}
+
+uint32_t jenkins_hash(const void* key, size_t length, uint32_t initval) {
+    uint32_t a, b, c;
+    const uint8_t* k = (const uint8_t*)key;
+    uint32_t* blocks = (uint32_t*)k;
+
+    a = b = c = 0xdeadbeef + ((uint32_t)length) + initval;
+
+    size_t len = length;
+    while (len >= 12) {
+        a += blocks[0];
+        b += blocks[1];
+        c += blocks[2];
+        jenkins_mix(&a, &b, &c);
+        blocks += 3;
+        len -= 12;
+    }
+
+    uint8_t* tail = (uint8_t*)blocks;
+    switch (len) {
+        case 11:
+            c += ((uint32_t)tail[10]) << 16;
+        case 10:
+            c += ((uint32_t)tail[9]) << 8;
+        case 9:
+            c += tail[8];
+        case 8:
+            b += ((uint32_t)tail[7]) << 24;
+        case 7:
+            b += ((uint32_t)tail[6]) << 16;
+        case 6:
+            b += ((uint32_t)tail[5]) << 8;
+        case 5:
+            b += tail[4];
+        case 4:
+            a += ((uint32_t)tail[3]) << 24;
+        case 3:
+            a += ((uint32_t)tail[2]) << 16;
+        case 2:
+            a += ((uint32_t)tail[1]) << 8;
+        case 1:
+            a += tail[0];
+    }
+
+    jenkins_final(&a, &b, &c);
+
+    return c;
+}
+
+int8_t is_power_of_two(uint32_t x) {
+    return x && !(x & (x - 1));
+}
+
+uint32_t fast_mod(uint32_t x, uint32_t mod) {
+    return x & (mod - 1);
 }

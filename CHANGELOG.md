@@ -1,3 +1,9 @@
+commit 5b343ac329241c557e8a55d8c02922911cd28ad3
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Tue Nov 18 19:09:59 2025 +0700
+
+    update algos and 2 part of article
+
 commit ddaa6a5e5cd57615fc5a37900106c0fadde05fe7
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sun Nov 16 20:33:21 2025 +0700
