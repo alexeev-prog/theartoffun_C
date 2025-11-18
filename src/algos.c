@@ -7,6 +7,9 @@
 #define LEHMER64_MAGIC_NUMBER 0xda942042e4dd58b5ULL
 #define XORSHIRO256PP_MAGIC_FIRST_NUMBER 0xbf58476d1ce4e5b9
 #define XORSHIRO256PP_MAGIC_SECOND_NUMBER 0x94d049bb133111eb
+#define FAST_POW_MAGIC_NUMBER 1072632447
+#define FASTEST_POW_MAGIC_NUMBER 1065353210
+#define DIV3_MAGIC_NUMBER 0xAAAAAAABULL
 
 static __uint128_t g_lehmer64_state;
 
@@ -38,7 +41,7 @@ float Q_rsqrt(float number) {
     i = *(int32_t*)&y;
     i = Q_RSQRT_MAGIC_NUMBER - (i >> 1);
     y = *(float*)&i;
-    к y = y * (THREEHALFS - (x2 * y * y));
+    y = y * (THREEHALFS - (x2 * y * y));
     y = y * (THREEHALFS - (x2 * y * y));
     return y;
 }
@@ -80,5 +83,39 @@ void xoshiro256pp_init(xoshiro256pp_state* state, uint64_t seed) {
         tmp *= XORSHIRO256PP_MAGIC_SECOND_NUMBER;
         tmp ^= tmp >> 31;
         state->s[i] = tmp;
+    }
+}
+
+double fast_pow(double a_coeff, double base) {
+    union {
+        double d;
+        int x[2];
+    } u = {a_coeff};
+
+    u.x[1] = (int)((base * (u.x[1] - FAST_POW_MAGIC_NUMBER)) + FAST_POW_MAGIC_NUMBER);
+    u.x[0] = 0;
+    return u.d;
+}
+
+float fastest_pow(float a_coeff, float base) {
+    union {
+        float d;
+        int x;
+    } u = {a_coeff};
+
+    u.x = (int)((base * (u.x - FASTEST_POW_MAGIC_NUMBER)) + FASTEST_POW_MAGIC_NUMBER);
+
+    return u.d;
+}
+
+uint32_t div3(uint32_t x) {
+    return (uint32_t)(((uint64_t)x * DIV3_MAGIC_NUMBER) >> 32);
+}
+
+void xor_swap(int* a, int* b) {
+    if (a != b) {
+        *a ^= *b;
+        *b ^= *a;
+        *a ^= *b;
     }
 }

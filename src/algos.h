@@ -75,4 +75,38 @@ uint64_t xoshiro256pp_next(xoshiro256pp_state* state);
  **/
 void xoshiro256pp_init(xoshiro256pp_state* state, uint64_t seed);
 
+/**
+ * @brief fast calculation of an approximate value of a degree
+ *
+ * @param a_coeff
+ * @param base
+ * @return double
+ **/
+double fast_pow(double a_coeff, double base);
+
+/**
+ * @brief fastest float calculation of an approximate value of a degree
+ *
+ * @param a_coeff
+ * @param base
+ * @return double
+ **/
+float fastest_pow(float a, float b);
+
+/**
+ * @brief function for fast dividing by 3
+ *
+ * @param x
+ * @return uint32_t
+ **/
+uint32_t div3(uint32_t x);
+
+/**
+ * @brief XOR swapping variable values without third temp var
+ *
+ * @param a
+ * @param b
+ **/
+void xor_swap(int* a, int* b);
+
 #endif
