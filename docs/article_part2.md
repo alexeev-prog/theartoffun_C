@@ -72,7 +72,7 @@ float fastestPow(float a, float b) {
 
 ```c
 uint32_t div3(uint32_t x) {
-    return (uint32_t)(((uint64_t)x * 0xAAAAAAABULL) >> 32);
+    return (uint32_t)(((uint64_t)x * 0xAAAAAAABULL) >> 33);
 }
 ```
 
@@ -222,6 +222,53 @@ uint32_t fast_mod(uint32_t x, uint32_t mod) {
 Работает только когда mod — степень двойки (2^n). Остаток от деления на 2^n определяется последними n битами числа. Выражение mod-1 создает битовую маску из n единиц. Операция x & (mod-1) выделяет эти последние n битов, что эквивалентно взятию модуля.
 
 Пример: 13 % 8 = 5, так как 13 (1101) & 7 (0111) = 5 (0101).
+
+# Бенчмаркинг
+
+С учетом функционала из прошлой части, я разработал бенчмарк:
+
+```
+PRNG Performance (10,000,000 iterations):
+-----------------------------------------
+xorshift64:      28.92 ms  (345.76M numbers/s)
+lehmer64:        43.29 ms  (231.00M numbers/s)
+xoshiro256pp:    33.13 ms  (301.87M numbers/s)
+pcg32:           27.99 ms  (357.32M numbers/s)
+-----------------------------------------
+
+Conversion Methods Performance (each method called 10000 times per point):
+----------------------------------------------------------------------
+Basic                    :     0.58 ms  ( 0.003 us/call)
+Fibonacci Interpolation  :     3.38 ms  ( 0.017 us/call)
+Fibonacci Cache          :     2.90 ms  ( 0.014 us/call)
+Golden Ratio             :    33.72 ms  ( 0.169 us/call)
+Golden Ratio (Binary)    :     7.30 ms  ( 0.036 us/call)
+----------------------------------------------------------------------
+
+Accuracy Comparison (5 sample points):
+Miles |   Basic   | Interpol |  Cache   |  Golden  | GoldenBin
+------+-----------+----------+----------+----------+-----------
+    5 |      8.05 |    0.58% |    0.58% |    0.58% |    0.58%
+   30 |     48.28 |    0.53% |    0.53% |    0.53% |    0.53%
+   55 |     88.51 |    0.55% |    0.55% |    0.55% |    0.55%
+   80 |    128.75 |    0.54% |    0.54% |    0.54% |    0.54%
+  100 |    160.93 |    0.54% |    0.54% |    0.54% |    0.54%
+---------------------------------------------------------------
+
+Math Algorithms Performance (1000000 iterations):
+--------------------------------------------
+fast_pow:                2.87 ms  ( 0.003 us/call)
+fastest_pow:             2.41 ms  ( 0.002 us/call)
+fast_mod:                2.45 ms  ( 0.002 us/call)
+is_power_of_two:         2.32 ms  ( 0.002 us/call)
+jenkins_hash:           58.44 ms  ( 0.058 us/call)
+jenkins_mix+final:      60.88 ms  ( 0.061 us/call)
+xor_swap:                4.51 ms  ( 0.005 us/call)
+div3:                    2.79 ms  ( 0.003 us/call)
+--------------------------------------------
+```
+
+Как мы видим, pcg32 реально оказался самым быстрым генератором на данный момент.
 
 # Заключение
 

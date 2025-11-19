@@ -103,6 +103,28 @@ void benchmark_prngs() {
     double time_xoshiro = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
+    // PCG32
+    pcg32_random_t pcg_state = {seed, 0};
+    uint32_t pcg_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        pcg_sum += pcg32_random_r(&pcg_state);
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_pcg = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_pcg = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
     printf("PRNG Performance (10,000,000 iterations):\n");
     printf("-----------------------------------------\n");
     printf("xorshift64:   %8.2f ms  (%6.2fM numbers/s)\n",
@@ -114,6 +136,9 @@ void benchmark_prngs() {
     printf("xoshiro256pp: %8.2f ms  (%6.2fM numbers/s)\n",
            time_xoshiro,
            ITERATIONS / (time_xoshiro / 1000.0) / 1000000.0);
+    printf("pcg32:        %8.2f ms  (%6.2fM numbers/s)\n",
+           time_pcg,
+           ITERATIONS / (time_pcg / 1000.0) / 1000000.0);
     printf("-----------------------------------------\n\n");
 }
 
@@ -287,6 +312,195 @@ void benchmark_conversions() {
     printf("---------------------------------------------------------------\n");
 }
 
+void benchmark_math_algos() {
+    const int ITERATIONS = 1000000;
+
+#ifdef _WIN32
+    LARGE_INTEGER freq, start, end;
+    QueryPerformanceFrequency(&freq);
+#else
+    struct timespec start, end;
+#endif
+
+    printf("\nMath Algorithms Performance (%d iterations):\n", ITERATIONS);
+    printf("--------------------------------------------\n");
+
+    // fast_pow
+    double fast_pow_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        fast_pow_sum += fast_pow(2.5, 3.7);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_fast_pow = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_fast_pow = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // fastest_pow
+    float fastest_pow_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        fastest_pow_sum += fastest_pow(2.5f, 3.7f);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_fastest_pow = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_fastest_pow =
+        (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // fast_mod
+    uint32_t fast_mod_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        fast_mod_sum += fast_mod(i, 16);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_fast_mod = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_fast_mod = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // is_power_of_two
+    int power_of_two_count = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        power_of_two_count += is_power_of_two(i);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_power_of_two = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_power_of_two =
+        (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // jenkins_hash
+    uint32_t jenkins_hash_sum = 0;
+    const char* test_data = "benchmark_test_data";
+    size_t data_len = strlen(test_data);
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        jenkins_hash_sum += jenkins_hash(test_data, data_len, i);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_jenkins_hash = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_jenkins_hash =
+        (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // jenkins_mix + jenkins_final
+    uint32_t a = 0xdeadbeef, b = 0x12345678, c = 0x87654321;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        jenkins_mix(&a, &b, &c);
+        jenkins_final(&a, &b, &c);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_jenkins_mix_final = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_jenkins_mix_final =
+        (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // xor_swap
+    int x = 42, y = 1337;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        xor_swap(&x, &y);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_xor_swap = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_xor_swap = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    // div3
+    uint32_t div3_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        div3_sum += div3(i);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_div3 = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_div3 = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    printf("fast_pow:            %8.2f ms  (%6.3f us/call)\n",
+           time_fast_pow,
+           time_fast_pow * 1000.0 / ITERATIONS);
+    printf("fastest_pow:         %8.2f ms  (%6.3f us/call)\n",
+           time_fastest_pow,
+           time_fastest_pow * 1000.0 / ITERATIONS);
+    printf("fast_mod:            %8.2f ms  (%6.3f us/call)\n",
+           time_fast_mod,
+           time_fast_mod * 1000.0 / ITERATIONS);
+    printf("is_power_of_two:     %8.2f ms  (%6.3f us/call)\n",
+           time_power_of_two,
+           time_power_of_two * 1000.0 / ITERATIONS);
+    printf("jenkins_hash:        %8.2f ms  (%6.3f us/call)\n",
+           time_jenkins_hash,
+           time_jenkins_hash * 1000.0 / ITERATIONS);
+    printf("jenkins_mix+final:   %8.2f ms  (%6.3f us/call)\n",
+           time_jenkins_mix_final,
+           time_jenkins_mix_final * 1000.0 / ITERATIONS);
+    printf("xor_swap:            %8.2f ms  (%6.3f us/call)\n",
+           time_xor_swap,
+           time_xor_swap * 1000.0 / ITERATIONS);
+    printf("div3:                %8.2f ms  (%6.3f us/call)\n", time_div3, time_div3 * 1000.0 / ITERATIONS);
+    printf("--------------------------------------------\n\n");
+}
+
 void run_benchmarks() {
     printf("======================================\n");
     printf("      THE ARTOFFUN BENCHMARK SUITE     \n");
@@ -294,6 +508,7 @@ void run_benchmarks() {
 
     benchmark_prngs();
     benchmark_conversions();
+    benchmark_math_algos();
 
     printf("Benchmark completed!\n");
 }
@@ -309,13 +524,22 @@ int main(int argc, char** argv) {
     char* fib_cache_value = NULL;
     char* fib_golden_value = NULL;
     char* binary_power = NULL;
-    char* xorshift_flag = 0;
-    char* xorshift_double_flag = 0;
+    int xorshift_flag = 0;
+    int xorshift_double_flag = 0;
     char* q_rsqrt_quake = NULL;
     char* fib_golden_binary_value = NULL;
-    char* lehmer64_value_flag = 0;
-    char* xoshiro256pp_flag = 0;
-    char* benchmark_flag = 0;
+    int lehmer64_value_flag = 0;
+    int xoshiro256pp_flag = 0;
+    int benchmark_flag = 0;
+    char* fast_pow_base = NULL;
+    char* fastest_pow_base = NULL;
+    char* fast_mod_value = NULL;
+    char* power_of_two_value = NULL;
+    char* jenkins_hash_data = NULL;
+    int jenkins_mix_flag = 0;
+    int pcg32_flag = 0;
+    char* xor_swap_a = NULL;
+    char* div3_value = NULL;
 
     char* exponent = NULL;
 
@@ -410,6 +634,60 @@ int main(int argc, char** argv) {
          .has_arg = 0,
          .default_value = NULL,
          .handler = &benchmark_flag},
+        {.help = "Fast power calculation (base)",
+         .long_name = "fast-pow",
+         .short_name = 'P',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fast_pow_base},
+        {.help = "Fastest power calculation (base)",
+         .long_name = "fastest-pow",
+         .short_name = 'F',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fastest_pow_base},
+        {.help = "Fast modulo calculation (value)",
+         .long_name = "fast-mod",
+         .short_name = 'M',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &fast_mod_value},
+        {.help = "Check if number is power of two",
+         .long_name = "power-of-two",
+         .short_name = 'T',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &power_of_two_value},
+        {.help = "Jenkins hash calculation (data)",
+         .long_name = "jenkins-hash",
+         .short_name = 'J',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &jenkins_hash_data},
+        {.help = "Test Jenkins mix and final functions",
+         .long_name = "jenkins-mix",
+         .short_name = 'j',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &jenkins_mix_flag},
+        {.help = "Generate pseudo random numbers by PCG32",
+         .long_name = "pcg32-random",
+         .short_name = 'R',
+         .has_arg = 0,
+         .default_value = NULL,
+         .handler = &pcg32_flag},
+        {.help = "XOR swap two numbers (first value)",
+         .long_name = "xor-swap",
+         .short_name = 'X',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &xor_swap_a},
+        {.help = "Fast division by 3",
+         .long_name = "div3",
+         .short_name = 'D',
+         .has_arg = 1,
+         .default_value = NULL,
+         .handler = &div3_value},
     };
 
     struct CLIMetadata meta = {.prog_name = argv[0],
@@ -474,6 +752,179 @@ int main(int argc, char** argv) {
 
         float powered_number = binary_pow(number, e);
         printf("%.2f ** %.2f = %.2f\n", number, e, powered_number);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --fast-pow
+    if (fast_pow_base) {
+        char* endptr;
+        double base = strtod(fast_pow_base, &endptr);
+        if (*endptr != '\0') {
+            fprintf(stderr, "Error: Invalid base value\n");
+            return EXIT_FAILURE;
+        }
+
+        double exp;
+        if (pos_index < argc) {
+            exp = strtod(argv[pos_index], &endptr);
+            if (*endptr != '\0') {
+                fprintf(stderr, "Error: Invalid exponent value\n");
+                return EXIT_FAILURE;
+            }
+            pos_index++;
+        } else {
+            fprintf(stderr, "Error: Missing exponent for fast-pow\n");
+            return EXIT_FAILURE;
+        }
+
+        double result = fast_pow(base, exp);
+        printf("fast_pow(%.2f, %.2f) = %.6f\n", base, exp, result);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --fastest-pow
+    if (fastest_pow_base) {
+        char* endptr;
+        float base = strtof(fastest_pow_base, &endptr);
+        if (*endptr != '\0') {
+            fprintf(stderr, "Error: Invalid base value\n");
+            return EXIT_FAILURE;
+        }
+
+        float exp;
+        if (pos_index < argc) {
+            exp = strtof(argv[pos_index], &endptr);
+            if (*endptr != '\0') {
+                fprintf(stderr, "Error: Invalid exponent value\n");
+                return EXIT_FAILURE;
+            }
+            pos_index++;
+        } else {
+            fprintf(stderr, "Error: Missing exponent for fastest-pow\n");
+            return EXIT_FAILURE;
+        }
+
+        float result = fastest_pow(base, exp);
+        printf("fastest_pow(%.2f, %.2f) = %.6f\n", base, exp, result);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --fast-mod
+    if (fast_mod_value) {
+        char* endptr;
+        uint32_t value = strtoul(fast_mod_value, &endptr, 10);
+        if (*endptr != '\0') {
+            fprintf(stderr, "Error: Invalid value\n");
+            return EXIT_FAILURE;
+        }
+
+        uint32_t mod;
+        if (pos_index < argc) {
+            mod = strtoul(argv[pos_index], &endptr, 10);
+            if (*endptr != '\0' || mod == 0) {
+                fprintf(stderr, "Error: Invalid modulus value\n");
+                return EXIT_FAILURE;
+            }
+            pos_index++;
+        } else {
+            fprintf(stderr, "Error: Missing modulus for fast-mod\n");
+            return EXIT_FAILURE;
+        }
+
+        uint32_t result = fast_mod(value, mod);
+        printf("fast_mod(%u, %u) = %u\n", value, mod, result);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --power-of-two
+    if (power_of_two_value) {
+        char* endptr;
+        uint32_t value = strtoul(power_of_two_value, &endptr, 10);
+        if (*endptr != '\0') {
+            fprintf(stderr, "Error: Invalid number\n");
+            return EXIT_FAILURE;
+        }
+
+        int8_t result = is_power_of_two(value);
+        printf("is_power_of_two(%u) = %s\n", value, result ? "true" : "false");
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --jenkins-hash
+    if (jenkins_hash_data) {
+        char* endptr;
+        uint32_t seed = 0;
+        if (pos_index < argc) {
+            seed = strtoul(argv[pos_index], &endptr, 10);
+            if (*endptr != '\0') {
+                seed = 0;
+            } else {
+                pos_index++;
+            }
+        }
+
+        uint32_t hash = jenkins_hash(jenkins_hash_data, strlen(jenkins_hash_data), seed);
+        printf("jenkins_hash(\"%s\", %u) = 0x%08X\n", jenkins_hash_data, seed, hash);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --jenkins-mix
+    if (jenkins_mix_flag) {
+        uint32_t a = 0xdeadbeef, b = 0x12345678, c = 0x87654321;
+        printf("Before jenkins_mix: a=0x%08X, b=0x%08X, c=0x%08X\n", a, b, c);
+        jenkins_mix(&a, &b, &c);
+        jenkins_final(&a, &b, &c);
+        printf("After jenkins_mix+final: a=0x%08X, b=0x%08X, c=0x%08X\n", a, b, c);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --pcg32-random
+    if (pcg32_flag) {
+        pcg32_random_t rng = {get_seed(), 0};
+        uint32_t num = pcg32_random_r(&rng);
+        printf("pcg32_random_r() = %u (0x%08X)\n", num, num);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --xor-swap
+    if (xor_swap_a) {
+        char* endptr;
+        int a = strtol(xor_swap_a, &endptr, 10);
+        if (*endptr != '\0') {
+            fprintf(stderr, "Error: Invalid first value\n");
+            return EXIT_FAILURE;
+        }
+
+        int b;
+        if (pos_index < argc) {
+            b = strtol(argv[pos_index], &endptr, 10);
+            if (*endptr != '\0') {
+                fprintf(stderr, "Error: Invalid second value\n");
+                return EXIT_FAILURE;
+            }
+            pos_index++;
+        } else {
+            fprintf(stderr, "Error: Missing second value for xor-swap\n");
+            return EXIT_FAILURE;
+        }
+
+        printf("Before xor_swap: a=%d, b=%d\n", a, b);
+        xor_swap(&a, &b);
+        printf("After xor_swap: a=%d, b=%d\n", a, b);
+        return EXIT_SUCCESS;
+    }
+
+    // Handle --div3
+    if (div3_value) {
+        char* endptr;
+        uint32_t value = strtoul(div3_value, &endptr, 10);
+        if (*endptr != '\0') {
+            fprintf(stderr, "Error: Invalid number\n");
+            return EXIT_FAILURE;
+        }
+
+        uint32_t result = div3(value);
+        printf("div3(%u) = %u\n", value, result);
         return EXIT_SUCCESS;
     }
 

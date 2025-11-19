@@ -88,7 +88,7 @@ void xoshiro256pp_init(xoshiro256pp_state* state, uint64_t seed) {
 }
 
 uint32_t div3(uint32_t x) {
-    return (uint32_t)(((uint64_t)x * DIV3_MAGIC_NUMBER) >> 32);
+    return (uint32_t)(((uint64_t)x * 0xAAAAAAABULL) >> 33);
 }
 
 void xor_swap(int* a, int* b) {
