@@ -227,10 +227,6 @@ uint32_t jenkins_hash(const void* key, size_t length, uint32_t initval) {
     return c;
 }
 
-int8_t is_power_of_two(uint32_t x) {
-    return x && !(x & (x - 1));
-}
-
 uint32_t fast_mod(uint32_t x, uint32_t mod) {
     return x & (mod - 1);
 }

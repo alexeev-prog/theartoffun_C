@@ -1,6 +1,8 @@
 #ifndef POW_ALGORITHMS_H
 #define POW_ALGORITHMS_H
 
+#include <stdint.h>
+
 /**
  * @brief binary power
  *
@@ -27,5 +29,13 @@ double fast_pow(double a_coeff, double base);
  * @return double
  **/
 float fastest_pow(float a, float b);
+
+/**
+ * @brief A quick check for the power of two
+ *
+ * @param x
+ * @return int8_t
+ **/
+int8_t is_power_of_two(uint32_t x);
 
 #endif

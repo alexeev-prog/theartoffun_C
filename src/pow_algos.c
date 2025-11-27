@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #define FAST_POW_MAGIC_NUMBER 1072632447
 #define FASTEST_POW_MAGIC_NUMBER 1065353210
 
@@ -33,4 +35,8 @@ float fastest_pow(float a_coeff, float base) {
     u.x = (int)((base * (u.x - FASTEST_POW_MAGIC_NUMBER)) + FASTEST_POW_MAGIC_NUMBER);
 
     return u.d;
+}
+
+int8_t is_power_of_two(uint32_t x) {
+    return x && !(x & (x - 1));
 }

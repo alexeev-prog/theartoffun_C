@@ -133,14 +133,6 @@ void jenkins_final(uint32_t* a, uint32_t* b, uint32_t* c);
 uint32_t jenkins_hash(const void* key, size_t length, uint32_t initval);
 
 /**
- * @brief A quick check for the power of two
- *
- * @param x
- * @return int8_t
- **/
-int8_t is_power_of_two(uint32_t x);
-
-/**
  * @brief Fast module 2^n
  *
  * @param x
@@ -157,16 +149,49 @@ uint32_t fast_mod(uint32_t x, uint32_t mod);
  **/
 uint32_t isqrt(uint32_t x);
 
+/**
+ * @brief Convert to Gray Code
+ *
+ * @param n
+ * @return uint32_t
+ **/
 uint32_t to_gray(uint32_t n);
 
+/**
+ * @brief Convert from Gray Code
+ *
+ * @param gray
+ * @return uint32_t
+ **/
 uint32_t from_gray(uint32_t gray);
 
+/**
+ * @brief Counting sort for arrays with small range
+ *
+ * @param arr
+ * @param n
+ **/
 void counting_sort_256(uint8_t* arr, size_t n);
 
+/**
+ * @brief PRNG wyrand
+ *
+ * @return uint64_t
+ **/
 uint64_t wyrand();
 
+/**
+ * @brief PRNG msws32
+ *
+ * @return uint32_t
+ **/
 uint32_t msws32();
 
+/**
+ * @brief PRNG RomuDuo
+ *
+ * @return uint64_t
+ **/
 uint64_t romu_duo();
 
 #endif
