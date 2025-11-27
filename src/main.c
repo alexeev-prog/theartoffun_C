@@ -36,7 +36,6 @@ void benchmark_prngs() {
     struct timespec start, end;
 #endif
 
-    // Xorshift64
     uint64_t xorshift_state = seed;
     uint64_t xorshift_sum = 0;
 
@@ -58,7 +57,6 @@ void benchmark_prngs() {
     double time_xorshift = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // Lehmer64
     lehmer64_seed(seed);
     uint64_t lehmer_sum = 0;
 
@@ -80,7 +78,6 @@ void benchmark_prngs() {
     double time_lehmer = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // Xoshiro256++
     xoshiro256pp_state xoshiro_state;
     xoshiro256pp_init(&xoshiro_state, seed);
     uint64_t xoshiro_sum = 0;
@@ -103,7 +100,6 @@ void benchmark_prngs() {
     double time_xoshiro = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // PCG32
     pcg32_random_t pcg_state = {seed, 0};
     uint32_t pcg_sum = 0;
 
@@ -125,6 +121,66 @@ void benchmark_prngs() {
     double time_pcg = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
+    uint64_t wyrand_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        wyrand_sum += wyrand();
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_wyrand = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_wyrand = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint32_t msws_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        msws_sum += msws32();
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_msws = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_msws = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint64_t romu_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        romu_sum += romu_duo();
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_romu = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_romu = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
     printf("PRNG Performance (10,000,000 iterations):\n");
     printf("-----------------------------------------\n");
     printf("xorshift64:   %8.2f ms  (%6.2fM numbers/s)\n",
@@ -139,6 +195,15 @@ void benchmark_prngs() {
     printf("pcg32:        %8.2f ms  (%6.2fM numbers/s)\n",
            time_pcg,
            ITERATIONS / (time_pcg / 1000.0) / 1000000.0);
+    printf("wyrand:       %8.2f ms  (%6.2fM numbers/s)\n",
+           time_wyrand,
+           ITERATIONS / (time_wyrand / 1000.0) / 1000000.0);
+    printf("msws32:       %8.2f ms  (%6.2fM numbers/s)\n",
+           time_msws,
+           ITERATIONS / (time_msws / 1000.0) / 1000000.0);
+    printf("romu_duo:     %8.2f ms  (%6.2fM numbers/s)\n",
+           time_romu,
+           ITERATIONS / (time_romu / 1000.0) / 1000000.0);
     printf("-----------------------------------------\n\n");
 }
 
@@ -167,7 +232,6 @@ void benchmark_conversions() {
     printf("Conversion Methods Performance (each method called %d times per point):\n", ITERATIONS);
     printf("----------------------------------------------------------------------\n");
 
-    // Basic
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
 #else
@@ -188,7 +252,6 @@ void benchmark_conversions() {
     double time_basic = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // Fibonacci Interpolation
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
 #else
@@ -209,7 +272,6 @@ void benchmark_conversions() {
     double time_interp = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // Fibonacci Cache
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
 #else
@@ -230,7 +292,6 @@ void benchmark_conversions() {
     double time_cache = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // Golden Ratio
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
 #else
@@ -251,7 +312,6 @@ void benchmark_conversions() {
     double time_golden = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // Golden Ratio Binary
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
 #else
@@ -325,7 +385,6 @@ void benchmark_math_algos() {
     printf("\nMath Algorithms Performance (%d iterations):\n", ITERATIONS);
     printf("--------------------------------------------\n");
 
-    // fast_pow
     double fast_pow_sum = 0;
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
@@ -343,7 +402,6 @@ void benchmark_math_algos() {
     double time_fast_pow = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // fastest_pow
     float fastest_pow_sum = 0;
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
@@ -362,7 +420,6 @@ void benchmark_math_algos() {
         (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // fast_mod
     uint32_t fast_mod_sum = 0;
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
@@ -380,7 +437,6 @@ void benchmark_math_algos() {
     double time_fast_mod = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // is_power_of_two
     int power_of_two_count = 0;
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
@@ -399,7 +455,6 @@ void benchmark_math_algos() {
         (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // jenkins_hash
     uint32_t jenkins_hash_sum = 0;
     const char* test_data = "benchmark_test_data";
     size_t data_len = strlen(test_data);
@@ -420,7 +475,6 @@ void benchmark_math_algos() {
         (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // jenkins_mix + jenkins_final
     uint32_t a = 0xdeadbeef, b = 0x12345678, c = 0x87654321;
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
@@ -440,7 +494,6 @@ void benchmark_math_algos() {
         (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // xor_swap
     int x = 42, y = 1337;
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
@@ -458,7 +511,6 @@ void benchmark_math_algos() {
     double time_xor_swap = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    // div3
     uint32_t div3_sum = 0;
 #ifdef _WIN32
     QueryPerformanceCounter(&start);
@@ -474,6 +526,78 @@ void benchmark_math_algos() {
 #else
     clock_gettime(CLOCK_MONOTONIC, &end);
     double time_div3 = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint32_t isqrt_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        isqrt_sum += isqrt(i);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_isqrt = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_isqrt = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint32_t gray_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        gray_sum += to_gray(i);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_to_gray = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_to_gray = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint32_t from_gray_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        from_gray_sum += from_gray(i);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_from_gray = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_from_gray = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint8_t sort_arr[256];
+    for (int i = 0; i < 256; i++) {
+        sort_arr[i] = (i * 37) & 0xFF;
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS / 100; i++) {
+        counting_sort_256(sort_arr, 256);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_counting_sort = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_counting_sort =
+        (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
     printf("fast_pow:            %8.2f ms  (%6.3f us/call)\n",
@@ -498,6 +622,15 @@ void benchmark_math_algos() {
            time_xor_swap,
            time_xor_swap * 1000.0 / ITERATIONS);
     printf("div3:                %8.2f ms  (%6.3f us/call)\n", time_div3, time_div3 * 1000.0 / ITERATIONS);
+    printf("isqrt:               %8.2f ms  (%6.3f us/call)\n", time_isqrt, time_isqrt * 1000.0 / ITERATIONS);
+    printf(
+        "to_gray:             %8.2f ms  (%6.3f us/call)\n", time_to_gray, time_to_gray * 1000.0 / ITERATIONS);
+    printf("from_gray:           %8.2f ms  (%6.3f us/call)\n",
+           time_from_gray,
+           time_from_gray * 1000.0 / ITERATIONS);
+    printf("counting_sort_256:   %8.2f ms  (%6.3f us/call)\n",
+           time_counting_sort,
+           time_counting_sort * 1000.0 / (ITERATIONS / 100));
     printf("--------------------------------------------\n\n");
 }
 
@@ -706,7 +839,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Check for conflicts
     int fib_methods_count = 0;
     if (fib_value) {
         fib_methods_count++;
@@ -735,7 +867,6 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    // Handle --binary_power
     if (binary_power && exponent) {
         char* endptr;
         double number = strtod(binary_power, &endptr);
@@ -755,7 +886,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --fast-pow
     if (fast_pow_base) {
         char* endptr;
         double base = strtod(fast_pow_base, &endptr);
@@ -782,7 +912,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --fastest-pow
     if (fastest_pow_base) {
         char* endptr;
         float base = strtof(fastest_pow_base, &endptr);
@@ -809,7 +938,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --fast-mod
     if (fast_mod_value) {
         char* endptr;
         uint32_t value = strtoul(fast_mod_value, &endptr, 10);
@@ -836,7 +964,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --power-of-two
     if (power_of_two_value) {
         char* endptr;
         uint32_t value = strtoul(power_of_two_value, &endptr, 10);
@@ -850,7 +977,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --jenkins-hash
     if (jenkins_hash_data) {
         char* endptr;
         uint32_t seed = 0;
@@ -868,7 +994,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --jenkins-mix
     if (jenkins_mix_flag) {
         uint32_t a = 0xdeadbeef, b = 0x12345678, c = 0x87654321;
         printf("Before jenkins_mix: a=0x%08X, b=0x%08X, c=0x%08X\n", a, b, c);
@@ -878,7 +1003,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --pcg32-random
     if (pcg32_flag) {
         pcg32_random_t rng = {get_seed(), 0};
         uint32_t num = pcg32_random_r(&rng);
@@ -886,7 +1010,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --xor-swap
     if (xor_swap_a) {
         char* endptr;
         int a = strtol(xor_swap_a, &endptr, 10);
@@ -914,7 +1037,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --div3
     if (div3_value) {
         char* endptr;
         uint32_t value = strtoul(div3_value, &endptr, 10);
@@ -981,7 +1103,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --fib
     if (fib_value) {
         char* endptr;
         double miles = strtod(fib_value, &endptr);
@@ -995,7 +1116,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --fib-interp
     if (fib_interp_value) {
         char* endptr;
         float miles = strtof(fib_interp_value, &endptr);
@@ -1009,7 +1129,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --fib-cache
     if (fib_cache_value) {
         char* endptr;
         float miles = strtof(fib_cache_value, &endptr);
@@ -1023,7 +1142,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --fib-golden-binary
     if (fib_golden_binary_value) {
         char* endptr;
         float miles = strtof(fib_golden_binary_value, &endptr);
@@ -1037,7 +1155,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --fib-golden
     if (fib_golden_value) {
         char* endptr;
         float miles = strtof(fib_golden_value, &endptr);
@@ -1051,7 +1168,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle --basic
     if (basic_value) {
         char* endptr;
         float miles = strtod(basic_value, &endptr);
@@ -1065,7 +1181,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // Handle positional arguments
     if (pos_index < argc) {
         for (int i = pos_index; i < argc; i++) {
             char* endptr;
@@ -1082,7 +1197,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    // No arguments provided
     print_help(&meta);
     return EXIT_SUCCESS;
 }

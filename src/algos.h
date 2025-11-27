@@ -149,4 +149,24 @@ int8_t is_power_of_two(uint32_t x);
  **/
 uint32_t fast_mod(uint32_t x, uint32_t mod);
 
+/**
+ * @brief Integer square root of x
+ *
+ * @param x
+ * @return uint32_t
+ **/
+uint32_t isqrt(uint32_t x);
+
+uint32_t to_gray(uint32_t n);
+
+uint32_t from_gray(uint32_t gray);
+
+void counting_sort_256(uint8_t* arr, size_t n);
+
+uint64_t wyrand();
+
+uint32_t msws32();
+
+uint64_t romu_duo();
+
 #endif

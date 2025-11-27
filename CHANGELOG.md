@@ -1,3 +1,9 @@
+commit a85cd9ce80d889ae882a79b18e4c7c66f7c834ae
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Wed Nov 19 20:22:00 2025 +0700
+
+    update benchmark and add flags for new algos, update article
+
 commit 50948d7764c4d7cd0ca3abcb8d89d596aed7d4e8
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Tue Nov 18 20:50:48 2025 +0700

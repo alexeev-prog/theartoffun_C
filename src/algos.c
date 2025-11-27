@@ -13,6 +13,12 @@
 #define rot(x, k) (((x) << (k)) | ((x) >> (32 - (k))))
 
 static __uint128_t g_lehmer64_state;
+uint64_t wyrand_state = 0xa55a5a5a5a5a5a5a;
+
+uint64_t msws_x = 0, msws_w = 0;
+
+uint64_t romu_duo_state1 = 0x1234567890abcdef;
+uint64_t romu_duo_state2 = 0xfedcba0987654321;
 
 uint64_t xorshift64(uint64_t* state) {
     uint64_t x = *state;
@@ -227,4 +233,72 @@ int8_t is_power_of_two(uint32_t x) {
 
 uint32_t fast_mod(uint32_t x, uint32_t mod) {
     return x & (mod - 1);
+}
+
+uint32_t isqrt(uint32_t x) {
+    uint32_t res = 0;
+    uint32_t bit = 1 << 30;
+
+    while (bit > x) {
+        bit >>= 2;
+    }
+
+    while (bit) {
+        if (x >= res + bit) {
+            x -= res + bit;
+            res = (res >> 1) + bit;
+        } else {
+            res >>= 1;
+        }
+        bit >>= 2;
+    }
+    return res;
+}
+
+uint32_t to_gray(uint32_t n) {
+    return n ^ (n >> 1);
+}
+
+uint32_t from_gray(uint32_t gray) {
+    gray ^= (gray >> 16);
+    gray ^= (gray >> 8);
+    gray ^= (gray >> 4);
+    gray ^= (gray >> 2);
+    gray ^= (gray >> 1);
+    return gray;
+}
+
+uint64_t wyrand() {
+    wyrand_state += 0xa0761d6478bd642f;
+    __uint128_t t = (__uint128_t)wyrand_state * (wyrand_state ^ 0xe7037ed1a0b428db);
+    return (t >> 64) ^ t;
+}
+
+void counting_sort_256(uint8_t* arr, size_t n) {
+    size_t count[256] = {0};
+
+    for (size_t i = 0; i < n; i++) {
+        count[arr[i]]++;
+    }
+
+    size_t idx = 0;
+    for (size_t i = 0; i < 256; i++) {
+        while (count[i]--) {
+            arr[idx++] = i;
+        }
+    }
+}
+
+uint32_t msws32() {
+    msws_x *= msws_x;
+    msws_x += (msws_w += 0xb5ad4eceda1ce2a9);
+    return (msws_x = (msws_x >> 32)) | (msws_x << 32);
+}
+
+uint64_t romu_duo() {
+    uint64_t xp = romu_duo_state1;
+    romu_duo_state1 = 15241094284759029579u * romu_duo_state2;
+    romu_duo_state2 = romu_duo_state2 - xp;
+    romu_duo_state2 = (romu_duo_state2 << 32) | (romu_duo_state2 >> 32);
+    return xp;
 }
