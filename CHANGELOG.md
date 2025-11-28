@@ -1,3 +1,9 @@
+commit c903de37c9cfc96322646fa67f2493dc55340a02
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Thu Nov 27 21:41:10 2025 +0700
+
+    update header files and definitions
+
 commit 1dfd61c884d782fb232c3465a80b54aeec5bfb30
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Thu Nov 27 18:50:39 2025 +0700
