@@ -20,6 +20,8 @@ uint64_t msws_x = 0, msws_w = 0;
 uint64_t romu_duo_state1 = 0x1234567890abcdef;
 uint64_t romu_duo_state2 = 0xfedcba0987654321;
 
+uint32_t sfc32_state[4] = {0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0};
+
 uint64_t xorshift64(uint64_t* state) {
     uint64_t x = *state;
     x ^= x << 13;
@@ -297,4 +299,78 @@ uint64_t romu_duo() {
     romu_duo_state2 = romu_duo_state2 - xp;
     romu_duo_state2 = (romu_duo_state2 << 32) | (romu_duo_state2 >> 32);
     return xp;
+}
+
+int zellers_congruence(int day, int month, int year) {
+    if (month < 3) {
+        month += 12;
+        year--;
+    }
+    int k = year % 100;
+    int j = year / 100;
+    return (day + 13 * (month + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7;
+}
+
+int is_leap_year(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+int is_palindrome_bit(const char* str) {
+    uint64_t mask = 0;
+    for (const char* p = str; *p; p++) {
+        mask ^= (1ULL << (*p - 'a'));
+    }
+    return (mask & (mask - 1)) == 0;
+}
+
+uint32_t sha1_prng(uint32_t* state) {
+    uint32_t a = state[0];
+    uint32_t b = state[1];
+    uint32_t c = state[2];
+    uint32_t d = state[3];
+    uint32_t e = state[4];
+
+    for (int i = 0; i < 20; i++) {
+        uint32_t f = (b & c) | ((~b) & d);
+        uint32_t temp = ((a << 5) | (a >> 27)) + f + e + 0x5A827999 + state[i % 16];
+        e = d;
+        d = c;
+        c = (b << 30) | (b >> 2);
+        b = a;
+        a = temp;
+    }
+
+    state[0] = a;
+    state[1] = b;
+    state[2] = c;
+    state[3] = d;
+    state[4] = e;
+    return a ^ b ^ c ^ d ^ e;
+}
+
+uint32_t next_power_of_two(uint32_t x) {
+    x--;
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+    return x + 1;
+}
+
+void fisher_yates_shuffle(uint32_t* arr, size_t n, uint64_t* seed) {
+    for (size_t i = n - 1; i > 0; i--) {
+        size_t j = xorshift64(seed) % (i + 1);
+        uint32_t temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+uint32_t sfc32() {
+    uint32_t result = sfc32_state[0] + sfc32_state[1] + sfc32_state[3]++;
+    sfc32_state[0] = sfc32_state[1] ^ (sfc32_state[1] >> 9);
+    sfc32_state[1] = sfc32_state[2] + (sfc32_state[2] << 3);
+    sfc32_state[2] = ((sfc32_state[2] << 21) | (sfc32_state[2] >> 11)) + result;
+    return result;
 }

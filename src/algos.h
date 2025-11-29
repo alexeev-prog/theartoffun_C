@@ -194,4 +194,22 @@ uint32_t msws32();
  **/
 uint64_t romu_duo();
 
+int count_trailing_zeros(unsigned int x);
+
+int count_trailing_zeros_kernighan(unsigned int x);
+
+int zellers_congruence(int day, int month, int year);
+
+int is_leap_year(int year);
+
+int is_palindrome_bit(const char* str);
+
+uint32_t sha1_prng(uint32_t* state);
+
+uint32_t next_power_of_two(uint32_t x);
+
+void fisher_yates_shuffle(uint32_t* arr, size_t n, uint64_t* seed);
+
+uint32_t sfc32();
+
 #endif
