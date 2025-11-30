@@ -9,6 +9,10 @@ typedef struct {
     uint64_t inc;
 } pcg32_random_t;
 
+typedef struct {
+    uint32_t state[4];
+} tinymt32_t;
+
 /**
  * @brief xorshiro256pp generator 256bit state
  *
@@ -194,22 +198,119 @@ uint32_t msws32();
  **/
 uint64_t romu_duo();
 
+/**
+ * @brief Count trailing zeros
+ *
+ * @param x
+ * @return int
+ **/
 int count_trailing_zeros(unsigned int x);
 
+/**
+ * @brief Count trailing zeros by Kernighan
+ *
+ * @param x
+ * @return int
+ **/
 int count_trailing_zeros_kernighan(unsigned int x);
 
+/**
+ * @brief Zellers formule for working with weeks
+ *
+ * @param day
+ * @param month
+ * @param year
+ * @return int
+ **/
 int zellers_congruence(int day, int month, int year);
 
+/**
+ * @brief Check is leap year
+ *
+ * @param year
+ * @return int
+ **/
 int is_leap_year(int year);
 
+/**
+ * @brief Check is palindrome with bit method
+ *
+ * @param str
+ * @return int
+ **/
 int is_palindrome_bit(const char* str);
 
+/**
+ * @brief PRNG based on sha1
+ *
+ * @param state
+ * @return uint32_t
+ **/
 uint32_t sha1_prng(uint32_t* state);
 
+/**
+ * @brief Get next power of two number
+ *
+ * @param x
+ * @return uint32_t
+ **/
 uint32_t next_power_of_two(uint32_t x);
 
+/**
+ * @brief Fisher-Yates Shuffle
+ *
+ * @param arr
+ * @param n
+ * @param seed
+ **/
 void fisher_yates_shuffle(uint32_t* arr, size_t n, uint64_t* seed);
 
+/**
+ * @brief SFC PRNG
+ *
+ * @return uint32_t
+ **/
 uint32_t sfc32();
+
+/**
+ * @brief Init for TinyMT32 PRNG
+ *
+ * @param tmt
+ * @param seed
+ **/
+void tinymt32_init(tinymt32_t* tmt, uint32_t seed);
+
+/**
+ * @brief Generate number by TinyMT32 PRNG
+ *
+ * @param tmt
+ * @return uint32_t
+ **/
+uint32_t tinymt32_generate(tinymt32_t* tmt);
+
+/**
+ * @brief Fletcher 32 checksum-algorithm
+ *
+ * @param data
+ * @param len
+ * @return uint32_t
+ **/
+uint32_t fletcher32(const uint16_t* data, size_t len);
+
+/**
+ * @brief Get string checksum by fletcher32-algo
+ *
+ * @param str
+ * @return uint32_t
+ **/
+uint32_t fletcher32_string(const char* str);
+
+/**
+ * @brief Print hex data
+ *
+ * @param data
+ * @param len
+ **/
+void print_hex(const uint8_t* data, size_t len);
 
 #endif

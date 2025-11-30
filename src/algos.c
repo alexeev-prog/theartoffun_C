@@ -1,7 +1,9 @@
 #include "algos.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define Q_RSQRT_MAGIC_NUMBER 0x5f3759df
 #define HALF_FLOAT 0.5F
@@ -373,4 +375,61 @@ uint32_t sfc32() {
     sfc32_state[1] = sfc32_state[2] + (sfc32_state[2] << 3);
     sfc32_state[2] = ((sfc32_state[2] << 21) | (sfc32_state[2] >> 11)) + result;
     return result;
+}
+
+void tinymt32_init(tinymt32_t* tmt, uint32_t seed) {
+    tmt->state[0] = seed;
+    tmt->state[1] = 0x8f7011ee;
+    tmt->state[2] = 0xfc78ff1f;
+    tmt->state[3] = 0x3793fdff;
+
+    for (int i = 1; i < 8; i++) {
+        tmt->state[i & 3] ^= i + 1812433253 * (tmt->state[(i - 1) & 3] ^ (tmt->state[(i - 1) & 3] >> 30));
+    }
+}
+
+uint32_t tinymt32_generate(tinymt32_t* tmt) {
+    uint32_t x = (tmt->state[0] & 0x7fffffff) ^ tmt->state[1] ^ tmt->state[2];
+    x ^= x << 1;
+    tmt->state[0] = tmt->state[1];
+    tmt->state[1] = tmt->state[2];
+    tmt->state[2] = tmt->state[3] ^ (x >> 1);
+    tmt->state[3] = x;
+    return tmt->state[3];
+}
+
+uint32_t fletcher32(const uint16_t* data, size_t len) {
+    uint32_t sum1 = 0xffff;
+    uint32_t sum2 = 0xffff;
+
+    while (len) {
+        size_t tlen = len > 360 ? 360 : len;
+        len -= tlen;
+
+        do {
+            sum1 += *data++;
+            sum2 += sum1;
+        } while (--tlen);
+
+        sum1 = (sum1 & 0xffff) + (sum1 >> 16);
+        sum2 = (sum2 & 0xffff) + (sum2 >> 16);
+    }
+
+    sum1 = (sum1 & 0xffff) + (sum1 >> 16);
+    sum2 = (sum2 & 0xffff) + (sum2 >> 16);
+    return sum2 << 16 | sum1;
+}
+
+uint32_t fletcher32_string(const char* str) {
+    size_t len = strlen(str);
+    size_t padded_len = (len + 1) / 2;
+    uint16_t* data = (uint16_t*)str;
+    return fletcher32(data, padded_len);
+}
+
+void print_hex(const uint8_t* data, size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        printf("%02x ", data[i]);
+    }
+    printf("\n");
 }

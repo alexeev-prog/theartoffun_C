@@ -1,3 +1,15 @@
+commit d1648797d044a60910174970e3bf3a7ad6ea09d3
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sun Nov 30 22:05:50 2025 +0700
+
+    add fletcher32_checksum.c and start write article part 5
+
+commit 010f4307aed999aa7b35c58d0fd878e695e7e33c
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sat Nov 29 18:20:44 2025 +0700
+
+    add compression algos, add more algos and write part4 of article
+
 commit 689edeffdf253a8d7c5710c2dfdd62b4417c97fc
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sat Nov 29 00:25:24 2025 +0700
