@@ -27,7 +27,7 @@
 # Бесконечный цикл без `while`
 Простой, но интересный трюк:
 
-```c
+```cpp
 #include <stdio.h>
 
 void infinite_loop(int n) {
@@ -46,7 +46,7 @@ int main() {
 # ГПСЧ SplitMix64
 Ещё один качественный и быстрый ГПСЧ, часто используемый для инициализации состояния других генераторов (например, того же xoshiro256pp).
 
-```c
+```cpp
 uint64_t splitmix64(uint64_t *x) {
     *x += 0x9e3779b97f4a7c15;
     uint64_t z = *x;
@@ -67,7 +67,7 @@ uint64_t splitmix64(uint64_t *x) {
 # Счетчик Морриса
 Счётчик Морриса — это вероятностный алгоритм для приблизительного подсчёта большого количества событий, используя при этом значительно меньше памяти, чем точные счётчики. Вместо хранения точного значения счётчика, он хранит его логарифмическую аппроксимацию.
 
-```c
+```cpp
 uint8_t morris_counter = 0;
 void morris_increment() {
     if (rand() < (RAND_MAX / (1 << morris_counter))) {
@@ -102,7 +102,7 @@ uint32_t morris_estimate() {
 
 Давайте напишем алгоритм Зеллера на C:
 
-```c
+```cpp
 int zellers_congruence(int day, int month, int year) {
     if (month < 3) {
         month += 12;
@@ -116,7 +116,7 @@ int zellers_congruence(int day, int month, int year) {
 
 И раз уже начали говорить на тему дат, то можно написать алгоритм определения високосного года:
 
-```c
+```cpp
 int is_leap_year(int year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
@@ -127,7 +127,7 @@ int is_leap_year(int year) {
 # Определение палиндрома битовым способом
 Палиндром — это число, буквосочетание, слово или текст, одинаково читающееся в обоих направлениях (слева направо и справа налево).
 
-```c
+```cpp
 int is_palindrome_bit(const char *str) {
     uint64_t mask = 0;
     for (const char *p = str; *p; p++) {
@@ -148,7 +148,7 @@ int is_palindrome_bit(const char *str) {
 # ГПСЧ на основе упрощенного sha1
 Давайте реализуем еще одну версию генератора псевдослучайных чисел, уже на основе хеш-функции SHA-1 в упрощенном виде. Функция принимает массив state из 5 элементов.
 
-```c
+```cpp
 uint32_t sha1_prng(uint32_t *state) {
     uint32_t a = state[0];
     uint32_t b = state[1];
@@ -182,7 +182,7 @@ uint32_t sha1_prng(uint32_t *state) {
 Распакованная строка: AAABBCDDDDEEFGGGHHH
 ```
 
-```c
+```cpp
 void rle_encode(const char* input, char* output) {
     int input_len = strlen(input);
     int output_index = 0;
@@ -218,7 +218,7 @@ void rle_encode(const char* input, char* output) {
 
 Функция кодирования предоставлена сверху. Работает она так, что по строке ищутся последовательности одинаковых символов, для каждой серии записываем количество повторений определенного символа, если символ встречается один раз — значит без числа.
 
-```c
+```cpp
 char* rle_decode(const char* input) {
     int input_len = strlen(input);
     char* output = malloc((input_len * 10) + 1);
@@ -264,7 +264,7 @@ char* rle_decode(const char* input) {
 
 Особенность алгоритма в том, что он корректно обрабатывает граничные случаи, включая x = 0 и x = 1, а также максимальные значения uint32_t.
 
-```c
+```cpp
 uint32_t next_power_of_two(uint32_t x) {
     x--;
     x |= x >> 1;
@@ -281,7 +281,7 @@ uint32_t next_power_of_two(uint32_t x) {
 
 Алгоритм генерирует равномерную случайную перестановку, то есть каждая возможная перестановка элементов имеет равную вероятность быть сгенерированной.
 
-```c
+```cpp
 void fisher_yates_shuffle(uint32_t *arr, size_t n, uint64_t *seed) {
     for (size_t i = n - 1; i > 0; i--) {
         size_t j = sha1_prng(seed) % (i + 1);
@@ -297,7 +297,7 @@ void fisher_yates_shuffle(uint32_t *arr, size_t n, uint64_t *seed) {
 # ГПСЧ SFC (Small Fast Chaotic)
 ГПСЧ SFC — 256-битная реализация алгоритма SFC Криса Доти-Хамфри. В алгоритме есть несколько циклов, которые могут быть разными в зависимости от начального значения.
 
-```c
+```cpp
 uint32_t sfc32_state[4] = {0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0};
 
 uint32_t sfc32() {

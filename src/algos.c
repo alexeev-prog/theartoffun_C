@@ -433,3 +433,14 @@ void print_hex(const uint8_t* data, size_t len) {
     }
     printf("\n");
 }
+
+uint32_t fnv1a_hash(const void* data, size_t len) {
+    const uint8_t* bytes = (const uint8_t*)data;
+    uint32_t hash = 2166136261u;
+
+    for (size_t i = 0; i < len; i++) {
+        hash ^= bytes[i];
+        hash *= 16777619u;
+    }
+    return hash;
+}
