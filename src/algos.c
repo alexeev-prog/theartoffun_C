@@ -16,6 +16,7 @@
 
 static __uint128_t g_lehmer64_state;
 uint64_t wyrand_state = 0xa55a5a5a5a5a5a5a;
+uint64_t ranq1_state;
 
 uint64_t msws_x = 0, msws_w = 0;
 

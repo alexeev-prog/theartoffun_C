@@ -31,8 +31,6 @@ typedef struct {
     uint64_t s[4];
 } xoshiro256pp_state;
 
-uint64_t ranq1_state;
-
 /**
  * @brief xorshift64 pseudorandom generator
  *
@@ -358,5 +356,7 @@ xor_node* xor_list_next(xor_node* prev, xor_node* current);
 uint32_t mulberry32(uint32_t* state);
 
 uint64_t ranq1();
+
+uint32_t fnv1a_hash(const void* data, size_t len);
 
 #endif

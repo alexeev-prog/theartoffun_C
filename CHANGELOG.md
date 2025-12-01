@@ -1,3 +1,9 @@
+commit ac90a925964fb5bae77b03090c34a2d890609968
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Dec 1 15:55:27 2025 +0700
+
+    add more algos and writing article part 5
+
 commit e529ea6be0d886e020f8ac2c1b587d881eac1e8a
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Dec 1 15:37:02 2025 +0700

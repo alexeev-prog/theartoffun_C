@@ -226,36 +226,209 @@ void benchmark_prngs() {
     double time_sha1 = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
+    tinymt32_t tinymt_state;
+    tinymt32_init(&tinymt_state, seed);
+    uint32_t tinymt_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        tinymt_sum += tinymt32_generate(&tinymt_state);
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_tinymt = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_tinymt = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint32_t mulberry_state = seed;
+    uint32_t mulberry_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        mulberry_sum += mulberry32(&mulberry_state);
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_mulberry = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_mulberry = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint64_t ranq1_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        ranq1_sum += ranq1();
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_ranq1 = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_ranq1 = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    RC4_ctx rc4_ctx;
+    uint8_t rc4_key[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    rc4_init(&rc4_ctx, rc4_key, 8);
+    uint32_t rc4_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        rc4_sum += rc4_byte(&rc4_ctx);
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_rc4 = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_rc4 = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
     printf("PRNG Performance (10,000,000 iterations):\n");
     printf("-----------------------------------------\n");
-    printf("xorshift64:   %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("xorshift64:    %8.2f ms  (%6.2fM numbers/s)\n",
            time_xorshift,
            ITERATIONS / (time_xorshift / 1000.0) / 1000000.0);
-    printf("lehmer64:     %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("lehmer64:      %8.2f ms  (%6.2fM numbers/s)\n",
            time_lehmer,
            ITERATIONS / (time_lehmer / 1000.0) / 1000000.0);
-    printf("xoshiro256pp: %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("xoshiro256pp:  %8.2f ms  (%6.2fM numbers/s)\n",
            time_xoshiro,
            ITERATIONS / (time_xoshiro / 1000.0) / 1000000.0);
-    printf("pcg32:        %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("pcg32:         %8.2f ms  (%6.2fM numbers/s)\n",
            time_pcg,
            ITERATIONS / (time_pcg / 1000.0) / 1000000.0);
-    printf("wyrand:       %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("wyrand:        %8.2f ms  (%6.2fM numbers/s)\n",
            time_wyrand,
            ITERATIONS / (time_wyrand / 1000.0) / 1000000.0);
-    printf("msws32:       %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("msws32:        %8.2f ms  (%6.2fM numbers/s)\n",
            time_msws,
            ITERATIONS / (time_msws / 1000.0) / 1000000.0);
-    printf("romu_duo:     %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("romu_duo:      %8.2f ms  (%6.2fM numbers/s)\n",
            time_romu,
            ITERATIONS / (time_romu / 1000.0) / 1000000.0);
-    printf("sfc32:        %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("sfc32:         %8.2f ms  (%6.2fM numbers/s)\n",
            time_sfc,
            ITERATIONS / (time_sfc / 1000.0) / 1000000.0);
-    printf("sha1_prng:    %8.2f ms  (%6.2fM numbers/s)\n",
+    printf("sha1_prng:     %8.2f ms  (%6.2fM numbers/s)\n",
            time_sha1,
            ITERATIONS / (time_sha1 / 1000.0) / 1000000.0);
+    printf("tinymt32:      %8.2f ms  (%6.2fM numbers/s)\n",
+           time_tinymt,
+           ITERATIONS / (time_tinymt / 1000.0) / 1000000.0);
+    printf("mulberry32:    %8.2f ms  (%6.2fM numbers/s)\n",
+           time_mulberry,
+           ITERATIONS / (time_mulberry / 1000.0) / 1000000.0);
+    printf("ranq1:         %8.2f ms  (%6.2fM numbers/s)\n",
+           time_ranq1,
+           ITERATIONS / (time_ranq1 / 1000.0) / 1000000.0);
+    printf("rc4_byte:      %8.2f ms  (%6.2fM numbers/s)\n",
+           time_rc4,
+           ITERATIONS / (time_rc4 / 1000.0) / 1000000.0);
     printf("-----------------------------------------\n\n");
+}
+
+void benchmark_hash_algos() {
+    const int ITERATIONS = 1000000;
+    const char* test_data = "benchmark_test_data_for_hashing_algorithm";
+    size_t data_len = strlen(test_data);
+
+#ifdef _WIN32
+    LARGE_INTEGER freq, start, end;
+    QueryPerformanceFrequency(&freq);
+#else
+    struct timespec start, end;
+#endif
+
+    printf("Hash Algorithms Performance (%d iterations):\n", ITERATIONS);
+    printf("--------------------------------------------\n");
+
+    uint32_t jenkins_hash_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        jenkins_hash_sum += jenkins_hash(test_data, data_len, i);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_jenkins = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_jenkins = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint32_t fnv1a_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        fnv1a_sum += fnv1a_hash(test_data, data_len);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_fnv1a = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_fnv1a = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint32_t fletcher_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        fletcher_sum += fletcher32_string(test_data);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_fletcher = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_fletcher = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    printf(
+        "jenkins_hash:        %8.2f ms  (%6.3f us/call)\n", time_jenkins, time_jenkins * 1000.0 / ITERATIONS);
+    printf("fnv1a_hash:          %8.2f ms  (%6.3f us/call)\n", time_fnv1a, time_fnv1a * 1000.0 / ITERATIONS);
+    printf("fletcher32_string:   %8.2f ms  (%6.3f us/call)\n",
+           time_fletcher,
+           time_fletcher * 1000.0 / ITERATIONS);
+    printf("--------------------------------------------\n\n");
 }
 
 void benchmark_conversions() {
@@ -726,6 +899,41 @@ void benchmark_math_algos() {
         (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
+    float qrsqrt_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 1; i <= ITERATIONS; i++) {
+        qrsqrt_sum += Q_rsqrt(i * 0.5f);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_qrsqrt = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_qrsqrt = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint32_t reverse_bits_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        reverse_bits_sum += reverse_bits(i);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_reverse_bits = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_reverse_bits =
+        (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
     printf("fast_pow:            %8.2f ms  (%6.3f us/call)\n",
            time_fast_pow,
            time_fast_pow * 1000.0 / ITERATIONS);
@@ -769,6 +977,10 @@ void benchmark_math_algos() {
     printf("fisher_yates_shuffle:%8.2f ms  (%6.3f us/call)\n",
            time_fisher_yates,
            time_fisher_yates * 1000.0 / (ITERATIONS / 100));
+    printf("Q_rsqrt:            %8.2f ms  (%6.3f us/call)\n", time_qrsqrt, time_qrsqrt * 1000.0 / ITERATIONS);
+    printf("reverse_bits:       %8.2f ms  (%6.3f us/call)\n",
+           time_reverse_bits,
+           time_reverse_bits * 1000.0 / ITERATIONS);
     printf("--------------------------------------------\n\n");
 }
 
@@ -807,7 +1019,6 @@ void benchmark_compression() {
         const char* input = test_strings[test_idx];
         size_t input_len = strlen(input);
 
-        // Выделяем достаточно памяти для закодированной строки
         char* encoded = malloc(input_len * 3 + 1);
         if (!encoded) {
             fprintf(stderr, "Memory allocation failed for encoded string\n");
@@ -967,9 +1178,105 @@ void benchmark_string_algos() {
     double time_palindrome = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
+    uint32_t fletcher_string_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        fletcher_string_sum += fletcher32_string(test_strings[i % num_tests]);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_fletcher_string = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_fletcher_string =
+        (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    uint8_t micro_rand_state = 42;
+    uint32_t micro_rand_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        micro_rand_sum += micro_rand(&micro_rand_state);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_micro_rand = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_micro_rand = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
     printf("is_palindrome_bit:   %8.2f ms  (%6.3f us/call)\n",
            time_palindrome,
            time_palindrome * 1000.0 / ITERATIONS);
+    printf("fletcher32_string:   %8.2f ms  (%6.3f us/call)\n",
+           time_fletcher_string,
+           time_fletcher_string * 1000.0 / ITERATIONS);
+    printf("micro_rand:          %8.2f ms  (%6.3f us/call)\n",
+           time_micro_rand,
+           time_micro_rand * 1000.0 / ITERATIONS);
+    printf("---------------------------------------------\n\n");
+}
+
+void benchmark_binary_pow() {
+    const int ITERATIONS = 1000000;
+
+#ifdef _WIN32
+    LARGE_INTEGER freq, start, end;
+    QueryPerformanceFrequency(&freq);
+#else
+    struct timespec start, end;
+#endif
+
+    printf("Power Algorithms Performance (%d iterations):\n", ITERATIONS);
+    printf("---------------------------------------------\n");
+
+    double binary_pow_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        binary_pow_sum += binary_pow(2.5, 3.7);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_binary_pow = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_binary_pow = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    double pow_sum = 0;
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+    for (int i = 0; i < ITERATIONS; i++) {
+        pow_sum += pow(2.5, 3.7);
+    }
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_pow = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_pow = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
+    printf("binary_pow:          %8.2f ms  (%6.3f us/call)\n",
+           time_binary_pow,
+           time_binary_pow * 1000.0 / ITERATIONS);
+    printf("standard pow():      %8.2f ms  (%6.3f us/call)\n", time_pow, time_pow * 1000.0 / ITERATIONS);
     printf("---------------------------------------------\n\n");
 }
 
@@ -979,11 +1286,13 @@ void run_benchmarks() {
     printf("======================================\n\n");
 
     benchmark_prngs();
+    benchmark_hash_algos();
     benchmark_conversions();
     benchmark_math_algos();
     benchmark_compression();
     benchmark_date_algos();
     benchmark_string_algos();
+    benchmark_binary_pow();
 
     printf("Benchmark completed!\n");
 }
