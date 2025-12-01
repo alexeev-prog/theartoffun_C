@@ -453,3 +453,32 @@ uint32_t reverse_bits(uint32_t x) {
     x = (x >> 16) | (x << 16);
     return x;
 }
+
+uint8_t micro_rand(uint8_t *state) {
+    *state = 29 * (*state) + 217;
+    return *state;
+}
+
+void rc4_init(RC4_ctx *ctx, const uint8_t *key, int key_len) {
+    for (int i = 0; i < 256; i++) ctx->S[i] = i;
+
+    int j = 0;
+    for (int i = 0; i < 256; i++) {
+        j = (j + ctx->S[i] + key[i % key_len]) & 0xFF;
+        uint8_t tmp = ctx->S[i];
+        ctx->S[i] = ctx->S[j];
+        ctx->S[j] = tmp;
+    }
+    ctx->i = ctx->j = 0;
+}
+
+uint8_t rc4_byte(RC4_ctx *ctx) {
+    ctx->i = (ctx->i + 1) & 0xFF;
+    ctx->j = (ctx->j + ctx->S[ctx->i]) & 0xFF;
+
+    uint8_t tmp = ctx->S[ctx->i];
+    ctx->S[ctx->i] = ctx->S[ctx->j];
+    ctx->S[ctx->j] = tmp;
+
+    return ctx->S[(ctx->S[ctx->i] + ctx->S[ctx->j]) & 0xFF];
+}

@@ -13,6 +13,11 @@ typedef struct {
     uint32_t state[4];
 } tinymt32_t;
 
+typedef struct {
+    uint8_t S[256];
+    int i, j;
+} RC4_ctx;
+
 /**
  * @brief xorshiro256pp generator 256bit state
  *
@@ -320,5 +325,23 @@ void print_hex(const uint8_t* data, size_t len);
  * @return uint32_t
  **/
 uint32_t reverse_bits(uint32_t x);
+
+/**
+ * @brief 8-bit LCG PRNG
+ *
+ * @param state
+ * @return uint8_t
+ **/
+uint8_t micro_rand(uint8_t *state);
+
+void rc4_init(RC4_ctx *ctx, const uint8_t *key, int key_len);
+
+/**
+ * @brief Generate pseudo random byte
+ *
+ * @param ctx
+ * @return uint8_t
+ **/
+uint8_t rc4_byte(RC4_ctx *ctx);
 
 #endif

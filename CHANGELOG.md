@@ -1,3 +1,9 @@
+commit e1103fa705d8133f8e538d456f1329f067e0f79b
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Dec 1 15:19:44 2025 +0700
+
+    add bit reversal algo
+
 commit 0fb650c9d788b62f8719a2dc2c470e845a24b239
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Dec 1 10:31:53 2025 +0700
