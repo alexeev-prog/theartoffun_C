@@ -18,6 +18,11 @@ typedef struct {
     int i, j;
 } RC4_ctx;
 
+typedef struct xor_node {
+    int value;
+    uintptr_t link;
+} xor_node;
+
 /**
  * @brief xorshiro256pp generator 256bit state
  *
@@ -25,6 +30,8 @@ typedef struct {
 typedef struct {
     uint64_t s[4];
 } xoshiro256pp_state;
+
+uint64_t ranq1_state;
 
 /**
  * @brief xorshift64 pseudorandom generator
@@ -332,9 +339,9 @@ uint32_t reverse_bits(uint32_t x);
  * @param state
  * @return uint8_t
  **/
-uint8_t micro_rand(uint8_t *state);
+uint8_t micro_rand(uint8_t* state);
 
-void rc4_init(RC4_ctx *ctx, const uint8_t *key, int key_len);
+void rc4_init(RC4_ctx* ctx, const uint8_t* key, int key_len);
 
 /**
  * @brief Generate pseudo random byte
@@ -342,6 +349,14 @@ void rc4_init(RC4_ctx *ctx, const uint8_t *key, int key_len);
  * @param ctx
  * @return uint8_t
  **/
-uint8_t rc4_byte(RC4_ctx *ctx);
+uint8_t rc4_byte(RC4_ctx* ctx);
+
+void xor_list_add(xor_node* prev, xor_node* node, xor_node* next);
+
+xor_node* xor_list_next(xor_node* prev, xor_node* current);
+
+uint32_t mulberry32(uint32_t* state);
+
+uint64_t ranq1();
 
 #endif

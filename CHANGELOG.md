@@ -1,3 +1,9 @@
+commit e529ea6be0d886e020f8ac2c1b587d881eac1e8a
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Dec 1 15:37:02 2025 +0700
+
+    add RC4 algo
+
 commit e1103fa705d8133f8e538d456f1329f067e0f79b
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Dec 1 15:19:44 2025 +0700

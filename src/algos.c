@@ -454,13 +454,15 @@ uint32_t reverse_bits(uint32_t x) {
     return x;
 }
 
-uint8_t micro_rand(uint8_t *state) {
+uint8_t micro_rand(uint8_t* state) {
     *state = 29 * (*state) + 217;
     return *state;
 }
 
-void rc4_init(RC4_ctx *ctx, const uint8_t *key, int key_len) {
-    for (int i = 0; i < 256; i++) ctx->S[i] = i;
+void rc4_init(RC4_ctx* ctx, const uint8_t* key, int key_len) {
+    for (int i = 0; i < 256; i++) {
+        ctx->S[i] = i;
+    }
 
     int j = 0;
     for (int i = 0; i < 256; i++) {
@@ -472,7 +474,7 @@ void rc4_init(RC4_ctx *ctx, const uint8_t *key, int key_len) {
     ctx->i = ctx->j = 0;
 }
 
-uint8_t rc4_byte(RC4_ctx *ctx) {
+uint8_t rc4_byte(RC4_ctx* ctx) {
     ctx->i = (ctx->i + 1) & 0xFF;
     ctx->j = (ctx->j + ctx->S[ctx->i]) & 0xFF;
 
@@ -481,4 +483,28 @@ uint8_t rc4_byte(RC4_ctx *ctx) {
     ctx->S[ctx->j] = tmp;
 
     return ctx->S[(ctx->S[ctx->i] + ctx->S[ctx->j]) & 0xFF];
+}
+
+void xor_list_add(xor_node* prev, xor_node* node, xor_node* next) {
+    node->link = (uintptr_t)prev ^ (uintptr_t)next;
+    prev->link ^= (uintptr_t)next ^ (uintptr_t)node;
+    next->link ^= (uintptr_t)prev ^ (uintptr_t)node;
+}
+
+xor_node* xor_list_next(xor_node* prev, xor_node* current) {
+    return (xor_node*)(current->link ^ (uintptr_t)prev);
+}
+
+uint32_t mulberry32(uint32_t* state) {
+    uint32_t z = (*state += 0x6D2B79F5);
+    z = (z ^ (z >> 15)) * (z | 1);
+    z ^= z + (z ^ (z >> 7)) * (z | 1);
+    return z ^ (z >> 14);
+}
+
+uint64_t ranq1() {
+    ranq1_state ^= ranq1_state >> 21;
+    ranq1_state ^= ranq1_state << 35;
+    ranq1_state ^= ranq1_state >> 4;
+    return ranq1_state * 2685821657736338717ULL;
 }
