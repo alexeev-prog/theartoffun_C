@@ -313,4 +313,12 @@ uint32_t fletcher32_string(const char* str);
  **/
 void print_hex(const uint8_t* data, size_t len);
 
+/**
+ * @brief Reverse bit algorithm
+ *
+ * @param x
+ * @return uint32_t
+ **/
+uint32_t reverse_bits(uint32_t x);
+
 #endif
