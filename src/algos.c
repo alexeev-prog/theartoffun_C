@@ -527,3 +527,42 @@ uint64_t ranq1() {
     ranq1_state ^= ranq1_state >> 4;
     return ranq1_state * 2685821657736338717ULL;
 }
+
+static inline uint64_t rotl64(uint64_t x, int8_t r) {
+    return (x << r) | (x >> (64 - r));
+}
+
+static inline uint64_t fmix64(uint64_t k) {
+    k ^= k >> 33;
+    k *= 0xff51afd7ed558ccdULL;
+    k ^= k >> 33;
+    k *= 0xc4ceb9fe1a85ec53ULL;
+    k ^= k >> 33;
+    return k;
+}
+
+void murmur3_prng_init(murmur3_prng_t* prng, uint64_t seed) {
+    prng->seed = seed;
+    prng->counter = 0;
+}
+
+uint64_t murmur3_prng_next(murmur3_prng_t* prng) {
+    uint64_t h1 = prng->seed;
+    uint64_t k1 = prng->counter++;
+
+    const uint64_t c1 = 0x87c37b91114253d5ULL;
+    const uint64_t c2 = 0x4cf5ad432745937fULL;
+
+    k1 *= c1;
+    k1 = rotl64(k1, 31);
+    k1 *= c2;
+
+    h1 ^= k1;
+    h1 = rotl64(h1, 27);
+    h1 = h1 * 5 + 0x52dce729;
+
+    h1 ^= 4;
+    h1 = fmix64(h1);
+
+    return h1;
+}

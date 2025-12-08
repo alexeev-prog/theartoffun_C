@@ -1,3 +1,9 @@
+commit 475e476fa39218344f17c0e4a72cabd528f820bc
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Dec 8 20:16:24 2025 +0700
+
+    update algos and articles
+
 commit f338cf269e0e9a69d358bca3cbbb1d7b277b801f
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Dec 1 16:35:42 2025 +0700

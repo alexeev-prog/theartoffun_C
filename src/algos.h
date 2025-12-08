@@ -31,6 +31,11 @@ typedef struct {
     uint64_t s[4];
 } xoshiro256pp_state;
 
+typedef struct {
+    uint64_t seed;
+    uint64_t counter;
+} murmur3_prng_t;
+
 /**
  * @brief xorshift64 pseudorandom generator
  *
@@ -360,5 +365,13 @@ uint64_t ranq1();
 uint32_t fnv1a_hash(const void* data, size_t len);
 
 uint32_t jsf32();
+
+static inline uint64_t rotl64(uint64_t x, int8_t r);
+
+static inline uint64_t fmix64(uint64_t k);
+
+void murmur3_prng_init(murmur3_prng_t* prng, uint64_t seed);
+
+uint64_t murmur3_prng_next(murmur3_prng_t* prng);
 
 #endif
