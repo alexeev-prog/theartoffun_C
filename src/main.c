@@ -202,6 +202,26 @@ void benchmark_prngs() {
     double time_sfc = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
+    uint32_t jsf32_sum = 0;
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        jsf32_sum += jsf32();
+    }
+
+#ifdef _WIN32
+    QueryPerformanceCounter(&end);
+    double time_jsf32 = (double)(end.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double time_jsf32 = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+#endif
+
     uint32_t sha1_state[16] = {0};
     for (int i = 0; i < 16; i++) {
         sha1_state[i] = seed + i;
@@ -338,6 +358,9 @@ void benchmark_prngs() {
     printf("sfc32:         %8.2f ms  (%6.2fM numbers/s)\n",
            time_sfc,
            ITERATIONS / (time_sfc / 1000.0) / 1000000.0);
+    printf("jsf32:         %8.2f ms  (%6.2fM numbers/s)\n",
+           time_jsf32,
+           ITERATIONS / (time_jsf32 / 1000.0) / 1000000.0);
     printf("sha1_prng:     %8.2f ms  (%6.2fM numbers/s)\n",
            time_sha1,
            ITERATIONS / (time_sha1 / 1000.0) / 1000000.0);

@@ -6,7 +6,7 @@ SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.o,$(SRC_FILES))
 
 CC := gcc
-CFLAGS := -Wall -Wextra -O2
+CFLAGS := -Wall -Wextra -O2 -ffast-math -fPIC -pipe -mtune=native
 LDFLAGS := -lm -lrt
 
 .PHONY: all clean

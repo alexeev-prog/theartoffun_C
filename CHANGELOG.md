@@ -1,3 +1,9 @@
+commit f338cf269e0e9a69d358bca3cbbb1d7b277b801f
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Dec 1 16:35:42 2025 +0700
+
+    create article part 5
+
 commit ac90a925964fb5bae77b03090c34a2d890609968
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Dec 1 15:55:27 2025 +0700
