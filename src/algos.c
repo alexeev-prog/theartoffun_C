@@ -566,3 +566,17 @@ uint64_t murmur3_prng_next(murmur3_prng_t* prng) {
 
     return h1;
 }
+
+double calculate_pi_leibniz(long long iterations) {
+    double pi = 1.0;
+    long long i;
+    int sign = -1;
+
+#pragma omp parallel for reduction(+ : pi) private(sign)
+    for (i = 1; i < iterations; i++) {
+        sign = (i % 2 == 0) ? 1 : -1;
+        pi += sign / (2.0 * i + 1.0);
+    }
+
+    return pi * 4;
+}

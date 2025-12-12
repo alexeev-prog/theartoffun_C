@@ -374,4 +374,6 @@ void murmur3_prng_init(murmur3_prng_t* prng, uint64_t seed);
 
 uint64_t murmur3_prng_next(murmur3_prng_t* prng);
 
+double calculate_pi_leibniz(long long iterations);
+
 #endif

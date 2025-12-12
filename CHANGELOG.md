@@ -1,3 +1,9 @@
+commit ad59ddb119f2caa9527a69c381c0a66df5208889
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Dec 8 21:11:44 2025 +0700
+
+    add article part 6 and create levenshtein&dmabypass
+
 commit 475e476fa39218344f17c0e4a72cabd528f820bc
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Dec 8 20:16:24 2025 +0700
