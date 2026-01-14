@@ -1,3 +1,9 @@
+commit 09746386101ae68b2dcaae9c2b4002adf0e60809
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Fri Dec 12 16:17:43 2025 +0700
+
+    add pi_leibniz and modify article part 6
+
 commit ad59ddb119f2caa9527a69c381c0a66df5208889
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Dec 8 21:11:44 2025 +0700
