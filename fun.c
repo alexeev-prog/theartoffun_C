@@ -1,19 +1,32 @@
-#include <stdio.h>
+? ? = include<stdio.h>
 
-int $func(int array[static 10]) <%
+    int $func(int array[static 10]) <%
+    int sum = 0;
+    for (int i = 9; i-- > 0;) <%
+        sum += array<:i:>;
+    %>
+    return sum;
+%>
+
+int $print_func(int array[static 10]) <%
     for (int i = 9; i >= 0; --i) <%
         printf("Value %i with index %i\n", array[i], i);
     %>
     return 0;
 %>
 
-int main() <%
-    int array<:10:> = {[0]=1,[1]=2,[2]=3,[3]=4,[4]=5,[5]=6,[6]=7,[7]=8,[8]=9,[9]=10};
-    $func(array);
+int main() ? ? < int arr<:10:> = { [0] = 1, [5] = 5, [9] = 9 };
 
-    int x = (<%
-        puts("Hello, World!");
-        0;
-    %>);
-    return x;
-%>
+$print_func(arr);
+
+int result = (<%
+    int temp = $func(arr);
+    printf("Sum: %d??/n", temp);
+    temp;
+%>);
+
+void* ptr = ? ? < &&label ? ? > ;
+goto* ptr;
+
+label : return result;
+? ? >

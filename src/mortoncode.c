@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 static uint32_t split_bits(uint16_t x) {
     x = (x | (x << 8)) & 0x00FF00FF;
@@ -13,7 +13,7 @@ uint32_t morton_encode(uint16_t x, uint16_t y) {
     return split_bits(x) | (split_bits(y) << 1);
 }
 
-void morton_decode(uint32_t code, uint16_t *x, uint16_t *y) {
+void morton_decode(uint32_t code, uint16_t* x, uint16_t* y) {
     uint32_t x_code = code & 0x55555555;
     uint32_t y_code = code & 0xAAAAAAAA;
 
