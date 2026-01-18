@@ -1,3 +1,9 @@
+commit 8eafbabea7e96a767902d9942375ee892346bd88
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sun Jan 18 22:11:39 2026 +0700
+
+    add boyermoore
+
 commit 886573e3608b3f69c448f41d545ab16c7a97bc1b
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sun Jan 18 02:06:47 2026 +0700
