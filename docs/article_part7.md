@@ -174,7 +174,7 @@ int main() ??<
         temp;
     %>);
 
-    void *ptr = ??< &&label ??>;
+    void *ptr = ??< &&label ??>;а
     goto *ptr;
 
     label:

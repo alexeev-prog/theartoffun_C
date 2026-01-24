@@ -1,3 +1,9 @@
+commit a3baba480de459e9dd6280ea6447469438bc56d2
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Jan 19 03:10:08 2026 +0700
+
+    add kmp and bresenham line
+
 commit 8eafbabea7e96a767902d9942375ee892346bd88
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sun Jan 18 22:11:39 2026 +0700
