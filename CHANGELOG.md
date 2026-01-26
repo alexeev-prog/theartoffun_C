@@ -1,3 +1,9 @@
+commit 6ae98f5bcd83acdb19664bc46503cbe22ada40fd
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sat Jan 24 21:52:02 2026 +0700
+
+    add FTaH.c and start writing article part 8
+
 commit a3baba480de459e9dd6280ea6447469438bc56d2
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Mon Jan 19 03:10:08 2026 +0700
