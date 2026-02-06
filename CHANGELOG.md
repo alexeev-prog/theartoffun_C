@@ -1,3 +1,9 @@
+commit c1cb079d7b4a2e6b6ba9a5ad2b0f98f340d10c63
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Wed Jan 28 21:18:19 2026 +0700
+
+    end article_part8, end floyd-warshall, karatsuba and bresenham circle
+
 commit 843cab7da1e9b83119f3edb57eebebd25e69e0e9
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Tue Jan 27 00:05:27 2026 +0700
