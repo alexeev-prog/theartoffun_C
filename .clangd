@@ -1,10 +1,43 @@
+---
 CompileFlags:
   Add:
-    - "-xc"
     - "-std=c11"
-    - "-I./include/"
-    - "-I/include/"
-    - "-I./source/"
-    - "-I/source/"
-    - "-I../../source/"
-  CompilationDatabase: build/dev
+    - "-Wall"
+    - "-Wextra"
+    - "-Wpedantic"
+    - "-I./include"
+    - "-I./src"
+    - "-I./lib"
+    - "-I/usr/local/include"
+    - "-I/usr/include"
+  Compiler: clang
+Index:
+  Background: Build
+  Threads: 0
+Diagnostics:
+  UnusedIncludes: Strict
+  MissingIncludes: Strict
+ClangTidy:
+  Add:
+    - bugprone-*
+    - cert-*
+    - clang-analyzer-*
+    - misc-*
+    - performance-*
+    - portability-*
+    - readability-*
+  Remove:
+    - cppcoreguidelines-*
+    - modernize-*
+    - google-*
+    - hicpp-*
+Hover:
+  ShowAKA: false
+Completion:
+  IncludeSnippets: true
+InlayHints:
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true
+Format:
+  Style: file

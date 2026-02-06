@@ -12,15 +12,14 @@
 #    define CLOCK_REALTIME 0
 #endif
 
-enum methods
-{
+enum methods {
     EXACT,
     APPR,
     APPR_NR,
     M
 };
 
-const char* METHODS[] = {"exact", "appr", "appr_nr"};
+const char* METHODS[] = { "exact", "appr", "appr_nr" };
 
 static inline float rsqrt_exact(float x) {
     return 1.0f / sqrtf(x);
@@ -44,8 +43,8 @@ static inline float rsqrt_appr_nr(float x) {
 int main() {
     srand(time(NULL));
 
-    float y_sum[M] = {0};
-    double t[M] = {0};
+    float y_sum[M] = { 0 };
+    double t[M] = { 0 };
 
     for (int trial = 0; trial < T; trial++) {
         struct timespec start, stop;
@@ -87,11 +86,12 @@ int main() {
 
     printf("rsqrt\tps/op\tratio\terr\n");
     for (int m = 0; m < M; m++) {
-        printf("%s\t%.0f\t%.2f\t%.4f\n",
-               METHODS[m],
-               t[m] * 1000.0f / N / T,
-               (double)t[EXACT] / t[m],
-               (y_sum[m] - y_sum[EXACT]) / y_sum[EXACT]);
+        printf(
+            "%s\t%.0f\t%.2f\t%.4f\n",
+            METHODS[m],
+            t[m] * 1000.0f / N / T,
+            (double)t[EXACT] / t[m],
+            (y_sum[m] - y_sum[EXACT]) / y_sum[EXACT]);
     }
 
     return 0;

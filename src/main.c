@@ -101,7 +101,7 @@ void benchmark_prngs() {
     double time_xoshiro = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    pcg32_random_t pcg_state = {seed, 0};
+    pcg32_random_t pcg_state = { seed, 0 };
     uint32_t pcg_sum = 0;
 
 #ifdef _WIN32
@@ -222,7 +222,7 @@ void benchmark_prngs() {
     double time_jsf32 = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    uint32_t sha1_state[16] = {0};
+    uint32_t sha1_state[16] = { 0 };
     for (int i = 0; i < 16; i++) {
         sha1_state[i] = seed + i;
     }
@@ -310,7 +310,7 @@ void benchmark_prngs() {
 #endif
 
     RC4_ctx rc4_ctx;
-    uint8_t rc4_key[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    uint8_t rc4_key[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
     rc4_init(&rc4_ctx, rc4_key, 8);
     uint32_t rc4_sum = 0;
 
@@ -334,48 +334,62 @@ void benchmark_prngs() {
 
     printf("PRNG Performance (10,000,000 iterations):\n");
     printf("-----------------------------------------\n");
-    printf("xorshift64:    %8.2f ms  (%6.2fM numbers/s)\n",
-           time_xorshift,
-           ITERATIONS / (time_xorshift / 1000.0) / 1000000.0);
-    printf("lehmer64:      %8.2f ms  (%6.2fM numbers/s)\n",
-           time_lehmer,
-           ITERATIONS / (time_lehmer / 1000.0) / 1000000.0);
-    printf("xoshiro256pp:  %8.2f ms  (%6.2fM numbers/s)\n",
-           time_xoshiro,
-           ITERATIONS / (time_xoshiro / 1000.0) / 1000000.0);
-    printf("pcg32:         %8.2f ms  (%6.2fM numbers/s)\n",
-           time_pcg,
-           ITERATIONS / (time_pcg / 1000.0) / 1000000.0);
-    printf("wyrand:        %8.2f ms  (%6.2fM numbers/s)\n",
-           time_wyrand,
-           ITERATIONS / (time_wyrand / 1000.0) / 1000000.0);
-    printf("msws32:        %8.2f ms  (%6.2fM numbers/s)\n",
-           time_msws,
-           ITERATIONS / (time_msws / 1000.0) / 1000000.0);
-    printf("romu_duo:      %8.2f ms  (%6.2fM numbers/s)\n",
-           time_romu,
-           ITERATIONS / (time_romu / 1000.0) / 1000000.0);
-    printf("sfc32:         %8.2f ms  (%6.2fM numbers/s)\n",
-           time_sfc,
-           ITERATIONS / (time_sfc / 1000.0) / 1000000.0);
-    printf("jsf32:         %8.2f ms  (%6.2fM numbers/s)\n",
-           time_jsf32,
-           ITERATIONS / (time_jsf32 / 1000.0) / 1000000.0);
-    printf("sha1_prng:     %8.2f ms  (%6.2fM numbers/s)\n",
-           time_sha1,
-           ITERATIONS / (time_sha1 / 1000.0) / 1000000.0);
-    printf("tinymt32:      %8.2f ms  (%6.2fM numbers/s)\n",
-           time_tinymt,
-           ITERATIONS / (time_tinymt / 1000.0) / 1000000.0);
-    printf("mulberry32:    %8.2f ms  (%6.2fM numbers/s)\n",
-           time_mulberry,
-           ITERATIONS / (time_mulberry / 1000.0) / 1000000.0);
-    printf("ranq1:         %8.2f ms  (%6.2fM numbers/s)\n",
-           time_ranq1,
-           ITERATIONS / (time_ranq1 / 1000.0) / 1000000.0);
-    printf("rc4_byte:      %8.2f ms  (%6.2fM numbers/s)\n",
-           time_rc4,
-           ITERATIONS / (time_rc4 / 1000.0) / 1000000.0);
+    printf(
+        "xorshift64:    %8.2f ms  (%6.2fM numbers/s)\n",
+        time_xorshift,
+        ITERATIONS / (time_xorshift / 1000.0) / 1000000.0);
+    printf(
+        "lehmer64:      %8.2f ms  (%6.2fM numbers/s)\n",
+        time_lehmer,
+        ITERATIONS / (time_lehmer / 1000.0) / 1000000.0);
+    printf(
+        "xoshiro256pp:  %8.2f ms  (%6.2fM numbers/s)\n",
+        time_xoshiro,
+        ITERATIONS / (time_xoshiro / 1000.0) / 1000000.0);
+    printf(
+        "pcg32:         %8.2f ms  (%6.2fM numbers/s)\n",
+        time_pcg,
+        ITERATIONS / (time_pcg / 1000.0) / 1000000.0);
+    printf(
+        "wyrand:        %8.2f ms  (%6.2fM numbers/s)\n",
+        time_wyrand,
+        ITERATIONS / (time_wyrand / 1000.0) / 1000000.0);
+    printf(
+        "msws32:        %8.2f ms  (%6.2fM numbers/s)\n",
+        time_msws,
+        ITERATIONS / (time_msws / 1000.0) / 1000000.0);
+    printf(
+        "romu_duo:      %8.2f ms  (%6.2fM numbers/s)\n",
+        time_romu,
+        ITERATIONS / (time_romu / 1000.0) / 1000000.0);
+    printf(
+        "sfc32:         %8.2f ms  (%6.2fM numbers/s)\n",
+        time_sfc,
+        ITERATIONS / (time_sfc / 1000.0) / 1000000.0);
+    printf(
+        "jsf32:         %8.2f ms  (%6.2fM numbers/s)\n",
+        time_jsf32,
+        ITERATIONS / (time_jsf32 / 1000.0) / 1000000.0);
+    printf(
+        "sha1_prng:     %8.2f ms  (%6.2fM numbers/s)\n",
+        time_sha1,
+        ITERATIONS / (time_sha1 / 1000.0) / 1000000.0);
+    printf(
+        "tinymt32:      %8.2f ms  (%6.2fM numbers/s)\n",
+        time_tinymt,
+        ITERATIONS / (time_tinymt / 1000.0) / 1000000.0);
+    printf(
+        "mulberry32:    %8.2f ms  (%6.2fM numbers/s)\n",
+        time_mulberry,
+        ITERATIONS / (time_mulberry / 1000.0) / 1000000.0);
+    printf(
+        "ranq1:         %8.2f ms  (%6.2fM numbers/s)\n",
+        time_ranq1,
+        ITERATIONS / (time_ranq1 / 1000.0) / 1000000.0);
+    printf(
+        "rc4_byte:      %8.2f ms  (%6.2fM numbers/s)\n",
+        time_rc4,
+        ITERATIONS / (time_rc4 / 1000.0) / 1000000.0);
     printf("-----------------------------------------\n\n");
 }
 
@@ -448,9 +462,10 @@ void benchmark_hash_algos() {
     printf(
         "jenkins_hash:        %8.2f ms  (%6.3f us/call)\n", time_jenkins, time_jenkins * 1000.0 / ITERATIONS);
     printf("fnv1a_hash:          %8.2f ms  (%6.3f us/call)\n", time_fnv1a, time_fnv1a * 1000.0 / ITERATIONS);
-    printf("fletcher32_string:   %8.2f ms  (%6.3f us/call)\n",
-           time_fletcher,
-           time_fletcher * 1000.0 / ITERATIONS);
+    printf(
+        "fletcher32_string:   %8.2f ms  (%6.3f us/call)\n",
+        time_fletcher,
+        time_fletcher * 1000.0 / ITERATIONS);
     printf("--------------------------------------------\n\n");
 }
 
@@ -463,7 +478,8 @@ void benchmark_conversions() {
     memset(results, 0, sizeof(results));
 
     const char* method_names[] = {
-        "Basic", "Fibonacci Interpolation", "Fibonacci Cache", "Golden Ratio", "Golden Ratio (Binary)"};
+        "Basic", "Fibonacci Interpolation", "Fibonacci Cache", "Golden Ratio", "Golden Ratio (Binary)"
+    };
 
     for (int i = 0; i < TEST_POINTS; i++) {
         mile_values[i] = 5.0f + i * 5.0f;
@@ -582,27 +598,30 @@ void benchmark_conversions() {
     double total_calls = TEST_POINTS * ITERATIONS;
     printf(
         "%-25s: %8.2f ms  (%6.3f us/call)\n", method_names[0], time_basic, time_basic * 1000.0 / total_calls);
-    printf("%-25s: %8.2f ms  (%6.3f us/call)\n",
-           method_names[1],
-           time_interp,
-           time_interp * 1000.0 / total_calls);
+    printf(
+        "%-25s: %8.2f ms  (%6.3f us/call)\n",
+        method_names[1],
+        time_interp,
+        time_interp * 1000.0 / total_calls);
     printf(
         "%-25s: %8.2f ms  (%6.3f us/call)\n", method_names[2], time_cache, time_cache * 1000.0 / total_calls);
-    printf("%-25s: %8.2f ms  (%6.3f us/call)\n",
-           method_names[3],
-           time_golden,
-           time_golden * 1000.0 / total_calls);
-    printf("%-25s: %8.2f ms  (%6.3f us/call)\n",
-           method_names[4],
-           time_binary,
-           time_binary * 1000.0 / total_calls);
+    printf(
+        "%-25s: %8.2f ms  (%6.3f us/call)\n",
+        method_names[3],
+        time_golden,
+        time_golden * 1000.0 / total_calls);
+    printf(
+        "%-25s: %8.2f ms  (%6.3f us/call)\n",
+        method_names[4],
+        time_binary,
+        time_binary * 1000.0 / total_calls);
     printf("----------------------------------------------------------------------\n");
 
     printf("\nAccuracy Comparison (5 sample points):\n");
     printf("Miles |   Basic   | Interpol |  Cache   |  Golden  | GoldenBin\n");
     printf("------+-----------+----------+----------+----------+-----------\n");
 
-    int sample_points[] = {0, 5, 10, 15, 19};
+    int sample_points[] = { 0, 5, 10, 15, 19 };
     for (int i = 0; i < 5; i++) {
         int idx = sample_points[i];
         float miles = mile_values[idx];
@@ -957,53 +976,67 @@ void benchmark_math_algos() {
         (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    printf("fast_pow:            %8.2f ms  (%6.3f us/call)\n",
-           time_fast_pow,
-           time_fast_pow * 1000.0 / ITERATIONS);
-    printf("fastest_pow:         %8.2f ms  (%6.3f us/call)\n",
-           time_fastest_pow,
-           time_fastest_pow * 1000.0 / ITERATIONS);
-    printf("fast_mod:            %8.2f ms  (%6.3f us/call)\n",
-           time_fast_mod,
-           time_fast_mod * 1000.0 / ITERATIONS);
-    printf("is_power_of_two:     %8.2f ms  (%6.3f us/call)\n",
-           time_power_of_two,
-           time_power_of_two * 1000.0 / ITERATIONS);
-    printf("jenkins_hash:        %8.2f ms  (%6.3f us/call)\n",
-           time_jenkins_hash,
-           time_jenkins_hash * 1000.0 / ITERATIONS);
-    printf("jenkins_mix+final:   %8.2f ms  (%6.3f us/call)\n",
-           time_jenkins_mix_final,
-           time_jenkins_mix_final * 1000.0 / ITERATIONS);
-    printf("xor_swap:            %8.2f ms  (%6.3f us/call)\n",
-           time_xor_swap,
-           time_xor_swap * 1000.0 / ITERATIONS);
+    printf(
+        "fast_pow:            %8.2f ms  (%6.3f us/call)\n",
+        time_fast_pow,
+        time_fast_pow * 1000.0 / ITERATIONS);
+    printf(
+        "fastest_pow:         %8.2f ms  (%6.3f us/call)\n",
+        time_fastest_pow,
+        time_fastest_pow * 1000.0 / ITERATIONS);
+    printf(
+        "fast_mod:            %8.2f ms  (%6.3f us/call)\n",
+        time_fast_mod,
+        time_fast_mod * 1000.0 / ITERATIONS);
+    printf(
+        "is_power_of_two:     %8.2f ms  (%6.3f us/call)\n",
+        time_power_of_two,
+        time_power_of_two * 1000.0 / ITERATIONS);
+    printf(
+        "jenkins_hash:        %8.2f ms  (%6.3f us/call)\n",
+        time_jenkins_hash,
+        time_jenkins_hash * 1000.0 / ITERATIONS);
+    printf(
+        "jenkins_mix+final:   %8.2f ms  (%6.3f us/call)\n",
+        time_jenkins_mix_final,
+        time_jenkins_mix_final * 1000.0 / ITERATIONS);
+    printf(
+        "xor_swap:            %8.2f ms  (%6.3f us/call)\n",
+        time_xor_swap,
+        time_xor_swap * 1000.0 / ITERATIONS);
     printf("div3:                %8.2f ms  (%6.3f us/call)\n", time_div3, time_div3 * 1000.0 / ITERATIONS);
     printf("isqrt:               %8.2f ms  (%6.3f us/call)\n", time_isqrt, time_isqrt * 1000.0 / ITERATIONS);
     printf(
         "to_gray:             %8.2f ms  (%6.3f us/call)\n", time_to_gray, time_to_gray * 1000.0 / ITERATIONS);
-    printf("from_gray:           %8.2f ms  (%6.3f us/call)\n",
-           time_from_gray,
-           time_from_gray * 1000.0 / ITERATIONS);
-    printf("counting_sort_256:   %8.2f ms  (%6.3f us/call)\n",
-           time_counting_sort,
-           time_counting_sort * 1000.0 / (ITERATIONS / 100));
-    printf("next_power_of_two:   %8.2f ms  (%6.3f us/call)\n",
-           time_next_power,
-           time_next_power * 1000.0 / ITERATIONS);
-    printf("count_trailing_zeros:%8.2f ms  (%6.3f us/call)\n",
-           time_trailing_zeros,
-           time_trailing_zeros * 1000.0 / ITERATIONS);
-    printf("count_trailing_zeros_kernighan:%8.2f ms  (%6.3f us/call)\n",
-           time_trailing_zeros_kernighan,
-           time_trailing_zeros_kernighan * 1000.0 / ITERATIONS);
-    printf("fisher_yates_shuffle:%8.2f ms  (%6.3f us/call)\n",
-           time_fisher_yates,
-           time_fisher_yates * 1000.0 / (ITERATIONS / 100));
+    printf(
+        "from_gray:           %8.2f ms  (%6.3f us/call)\n",
+        time_from_gray,
+        time_from_gray * 1000.0 / ITERATIONS);
+    printf(
+        "counting_sort_256:   %8.2f ms  (%6.3f us/call)\n",
+        time_counting_sort,
+        time_counting_sort * 1000.0 / (ITERATIONS / 100));
+    printf(
+        "next_power_of_two:   %8.2f ms  (%6.3f us/call)\n",
+        time_next_power,
+        time_next_power * 1000.0 / ITERATIONS);
+    printf(
+        "count_trailing_zeros:%8.2f ms  (%6.3f us/call)\n",
+        time_trailing_zeros,
+        time_trailing_zeros * 1000.0 / ITERATIONS);
+    printf(
+        "count_trailing_zeros_kernighan:%8.2f ms  (%6.3f us/call)\n",
+        time_trailing_zeros_kernighan,
+        time_trailing_zeros_kernighan * 1000.0 / ITERATIONS);
+    printf(
+        "fisher_yates_shuffle:%8.2f ms  (%6.3f us/call)\n",
+        time_fisher_yates,
+        time_fisher_yates * 1000.0 / (ITERATIONS / 100));
     printf("Q_rsqrt:            %8.2f ms  (%6.3f us/call)\n", time_qrsqrt, time_qrsqrt * 1000.0 / ITERATIONS);
-    printf("reverse_bits:       %8.2f ms  (%6.3f us/call)\n",
-           time_reverse_bits,
-           time_reverse_bits * 1000.0 / ITERATIONS);
+    printf(
+        "reverse_bits:       %8.2f ms  (%6.3f us/call)\n",
+        time_reverse_bits,
+        time_reverse_bits * 1000.0 / ITERATIONS);
     printf("--------------------------------------------\n\n");
 }
 
@@ -1102,12 +1135,14 @@ void benchmark_compression() {
     double avg_compression_ratio = (double)total_compressed_size / total_original_size * 100.0;
     double total_calls = num_tests * ITERATIONS;
 
-    printf("RLE Encode:          %8.2f ms  (%6.3f us/call)\n",
-           total_encode_time,
-           total_encode_time * 1000.0 / total_calls);
-    printf("RLE Decode:          %8.2f ms  (%6.3f us/call)\n",
-           total_decode_time,
-           total_decode_time * 1000.0 / total_calls);
+    printf(
+        "RLE Encode:          %8.2f ms  (%6.3f us/call)\n",
+        total_encode_time,
+        total_encode_time * 1000.0 / total_calls);
+    printf(
+        "RLE Decode:          %8.2f ms  (%6.3f us/call)\n",
+        total_decode_time,
+        total_decode_time * 1000.0 / total_calls);
     printf("Compression Ratio:   %8.2f%%\n", avg_compression_ratio);
     printf("---------------------------------------------------\n\n");
 }
@@ -1159,9 +1194,10 @@ void benchmark_date_algos() {
     double time_zellers = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    printf("is_leap_year:        %8.2f ms  (%6.3f us/call)\n",
-           time_leap_year,
-           time_leap_year * 1000.0 / ITERATIONS);
+    printf(
+        "is_leap_year:        %8.2f ms  (%6.3f us/call)\n",
+        time_leap_year,
+        time_leap_year * 1000.0 / ITERATIONS);
     printf(
         "zellers_congruence:  %8.2f ms  (%6.3f us/call)\n", time_zellers, time_zellers * 1000.0 / ITERATIONS);
     printf("--------------------------------------------\n\n");
@@ -1169,8 +1205,8 @@ void benchmark_date_algos() {
 
 void benchmark_string_algos() {
     const int ITERATIONS = 100000;
-    const char* test_strings[] = {
-        "racecar", "level", "rotor", "civic", "radar", "hello", "world", "palindrome", "deified", "noon"};
+    const char* test_strings[] = { "racecar", "level", "rotor",      "civic",   "radar",
+                                   "hello",   "world", "palindrome", "deified", "noon" };
     const int num_tests = sizeof(test_strings) / sizeof(test_strings[0]);
 
 #ifdef _WIN32
@@ -1237,15 +1273,18 @@ void benchmark_string_algos() {
     double time_micro_rand = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    printf("is_palindrome_bit:   %8.2f ms  (%6.3f us/call)\n",
-           time_palindrome,
-           time_palindrome * 1000.0 / ITERATIONS);
-    printf("fletcher32_string:   %8.2f ms  (%6.3f us/call)\n",
-           time_fletcher_string,
-           time_fletcher_string * 1000.0 / ITERATIONS);
-    printf("micro_rand:          %8.2f ms  (%6.3f us/call)\n",
-           time_micro_rand,
-           time_micro_rand * 1000.0 / ITERATIONS);
+    printf(
+        "is_palindrome_bit:   %8.2f ms  (%6.3f us/call)\n",
+        time_palindrome,
+        time_palindrome * 1000.0 / ITERATIONS);
+    printf(
+        "fletcher32_string:   %8.2f ms  (%6.3f us/call)\n",
+        time_fletcher_string,
+        time_fletcher_string * 1000.0 / ITERATIONS);
+    printf(
+        "micro_rand:          %8.2f ms  (%6.3f us/call)\n",
+        time_micro_rand,
+        time_micro_rand * 1000.0 / ITERATIONS);
     printf("---------------------------------------------\n\n");
 }
 
@@ -1296,9 +1335,10 @@ void benchmark_binary_pow() {
     double time_pow = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
 #endif
 
-    printf("binary_pow:          %8.2f ms  (%6.3f us/call)\n",
-           time_binary_pow,
-           time_binary_pow * 1000.0 / ITERATIONS);
+    printf(
+        "binary_pow:          %8.2f ms  (%6.3f us/call)\n",
+        time_binary_pow,
+        time_binary_pow * 1000.0 / ITERATIONS);
     printf("standard pow():      %8.2f ms  (%6.3f us/call)\n", time_pow, time_pow * 1000.0 / ITERATIONS);
     printf("---------------------------------------------\n\n");
 }
@@ -1363,217 +1403,217 @@ int main(int argc, char** argv) {
     char* exponent = NULL;
 
     struct CommandOption options[] = {
-        {.help = "Show help information",
+        { .help = "Show help information",
          .long_name = "help",
          .short_name = 'h',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &help_flag},
-        {.help = "Convert miles to km miles to km using basic Fibonacci",
+         .handler = &help_flag                  },
+        { .help = "Convert miles to km miles to km using basic Fibonacci",
          .long_name = "fib",
          .short_name = 'f',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_value},
-        {.help = "Convert miles to km miles to km using standard formula",
+         .handler = &fib_value                  },
+        { .help = "Convert miles to km miles to km using standard formula",
          .long_name = "miles-to-km",
          .short_name = 'm',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &basic_value},
-        {.help = "Convert miles to km using Fibonacci interpolation",
+         .handler = &basic_value                },
+        { .help = "Convert miles to km using Fibonacci interpolation",
          .long_name = "fib-interp",
          .short_name = 'i',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_interp_value},
-        {.help = "Convert miles to km using cached Fibonacci",
+         .handler = &fib_interp_value           },
+        { .help = "Convert miles to km using cached Fibonacci",
          .long_name = "fib-cache",
          .short_name = 'c',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_cache_value},
-        {.help = "Convert miles to km using golden ratio",
+         .handler = &fib_cache_value            },
+        { .help = "Convert miles to km using golden ratio",
          .long_name = "fib-golden",
          .short_name = 'g',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_golden_value},
-        {.help = "Set exponent for pow-algos",
+         .handler = &fib_golden_value           },
+        { .help = "Set exponent for pow-algos",
          .long_name = "exponent",
          .short_name = 'e',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &exponent},
-        {.help = "Power the number by binary power algorithm",
+         .handler = &exponent                   },
+        { .help = "Power the number by binary power algorithm",
          .long_name = "binary-power",
          .short_name = 'p',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &binary_power},
-        {.help = "Generate pseudo random numbers by xorshift64",
+         .handler = &binary_power               },
+        { .help = "Generate pseudo random numbers by xorshift64",
          .long_name = "xorshift-random",
          .short_name = 'x',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &xorshift_flag},
-        {.help = "Generate pseudo random float numbers by xorshift64",
+         .handler = &xorshift_flag              },
+        { .help = "Generate pseudo random float numbers by xorshift64",
          .long_name = "xorshift-double-random",
          .short_name = 'd',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &xorshift_double_flag},
-        {.help = "Q_rsqrt from Quake III Arena",
+         .handler = &xorshift_double_flag       },
+        { .help = "Q_rsqrt from Quake III Arena",
          .long_name = "q-rsqrt-quake",
          .short_name = 'q',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &q_rsqrt_quake},
-        {.help = "Convert miles to km using golden ratio with binary pow",
+         .handler = &q_rsqrt_quake              },
+        { .help = "Convert miles to km using golden ratio with binary pow",
          .long_name = "fib-golden-binry",
          .short_name = 'b',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_golden_binary_value},
-        {.help = "Generate pseudo random numbers by lehmer64",
+         .handler = &fib_golden_binary_value    },
+        { .help = "Generate pseudo random numbers by lehmer64",
          .long_name = "lehmer-random",
          .short_name = 'l',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &lehmer64_value_flag},
-        {.help = "Generate pseudo random numbers by xoshiro256pp",
+         .handler = &lehmer64_value_flag        },
+        { .help = "Generate pseudo random numbers by xoshiro256pp",
          .long_name = "xorshiro256pp-random",
          .short_name = 'o',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &xoshiro256pp_flag},
-        {.help = "Run benchmarks for PRNGs and conversion methods",
+         .handler = &xoshiro256pp_flag          },
+        { .help = "Run benchmarks for PRNGs and conversion methods",
          .long_name = "benchmark",
          .short_name = 'B',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &benchmark_flag},
-        {.help = "Fast power calculation (base)",
+         .handler = &benchmark_flag             },
+        { .help = "Fast power calculation (base)",
          .long_name = "fast-pow",
          .short_name = 'P',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fast_pow_base},
-        {.help = "Fastest power calculation (base)",
+         .handler = &fast_pow_base              },
+        { .help = "Fastest power calculation (base)",
          .long_name = "fastest-pow",
          .short_name = 'F',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fastest_pow_base},
-        {.help = "Fast modulo calculation (value)",
+         .handler = &fastest_pow_base           },
+        { .help = "Fast modulo calculation (value)",
          .long_name = "fast-mod",
          .short_name = 'M',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fast_mod_value},
-        {.help = "Check if number is power of two",
+         .handler = &fast_mod_value             },
+        { .help = "Check if number is power of two",
          .long_name = "power-of-two",
          .short_name = 'T',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &power_of_two_value},
-        {.help = "Jenkins hash calculation (data)",
+         .handler = &power_of_two_value         },
+        { .help = "Jenkins hash calculation (data)",
          .long_name = "jenkins-hash",
          .short_name = 'J',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &jenkins_hash_data},
-        {.help = "Test Jenkins mix and final functions",
+         .handler = &jenkins_hash_data          },
+        { .help = "Test Jenkins mix and final functions",
          .long_name = "jenkins-mix",
          .short_name = 'j',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &jenkins_mix_flag},
-        {.help = "Generate pseudo random numbers by PCG32",
+         .handler = &jenkins_mix_flag           },
+        { .help = "Generate pseudo random numbers by PCG32",
          .long_name = "pcg32-random",
          .short_name = 'R',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &pcg32_flag},
-        {.help = "XOR swap two numbers (first value)",
+         .handler = &pcg32_flag                 },
+        { .help = "XOR swap two numbers (first value)",
          .long_name = "xor-swap",
          .short_name = 'X',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &xor_swap_a},
-        {.help = "Fast division by 3",
+         .handler = &xor_swap_a                 },
+        { .help = "Fast division by 3",
          .long_name = "div3",
          .short_name = 'D',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &div3_value},
-        {.help = "RLE encode string",
+         .handler = &div3_value                 },
+        { .help = "RLE encode string",
          .long_name = "rle-encode",
          .short_name = 'E',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &rle_encode_data},
-        {.help = "RLE decode string",
+         .handler = &rle_encode_data            },
+        { .help = "RLE decode string",
          .long_name = "rle-decode",
          .short_name = 'C',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &rle_decode_data},
-        {.help = "Check if string is palindrome (bit method)",
+         .handler = &rle_decode_data            },
+        { .help = "Check if string is palindrome (bit method)",
          .long_name = "is-palindrome",
          .short_name = 'A',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &is_palindrome_str},
-        {.help = "Check if year is leap year",
+         .handler = &is_palindrome_str          },
+        { .help = "Check if year is leap year",
          .long_name = "leap-year",
          .short_name = 'Y',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &leap_year_value},
-        {.help = "Zellers congruence (day)",
+         .handler = &leap_year_value            },
+        { .help = "Zellers congruence (day)",
          .long_name = "zellers-day",
          .short_name = 'Z',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &zellers_day},
-        {.help = "Count trailing zeros in number",
+         .handler = &zellers_day                },
+        { .help = "Count trailing zeros in number",
          .long_name = "count-trailing-zeros",
          .short_name = 'z',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &count_trailing_zeros_value},
-        {.help = "Find next power of two",
+         .handler = &count_trailing_zeros_value },
+        { .help = "Find next power of two",
          .long_name = "next-power",
          .short_name = 'N',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &next_power_value},
-        {.help = "Fisher-Yates shuffle array size",
+         .handler = &next_power_value           },
+        { .help = "Fisher-Yates shuffle array size",
          .long_name = "fisher-yates",
          .short_name = 'S',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fisher_yates_size},
-        {.help = "Generate pseudo random numbers by sfc32",
+         .handler = &fisher_yates_size          },
+        { .help = "Generate pseudo random numbers by sfc32",
          .long_name = "sfc32-random",
          .short_name = 'U',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &sfc32_flag},
-        {.help = "Generate pseudo random numbers by sha1_prng",
+         .handler = &sfc32_flag                 },
+        { .help = "Generate pseudo random numbers by sha1_prng",
          .long_name = "sha1-prng",
          .short_name = 'H',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &sha1_prng_flag},
+         .handler = &sha1_prng_flag             },
     };
 
-    struct CLIMetadata meta = {.prog_name = argv[0],
-                               .description = "TheArtOfFun-C",
-                               .usage_args = "[commands]",
-                               .options = options,
-                               .options_count = sizeof(options) / sizeof(options[0])};
+    struct CLIMetadata meta = { .prog_name = argv[0],
+                                .description = "TheArtOfFun-C",
+                                .usage_args = "[commands]",
+                                .options = options,
+                                .options_count = sizeof(options) / sizeof(options[0]) };
 
     int pos_index = parse_options(argc, argv, meta.options, meta.options_count);
     if (pos_index < 0) {
@@ -1681,7 +1721,7 @@ int main(int argc, char** argv) {
         }
 
         int result = zellers_congruence(day, month, year);
-        const char* days[] = {"Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        const char* days[] = { "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
         printf("zellers_congruence(%d, %d, %d) = %d (%s)\n", day, month, year, result, days[result]);
         return EXIT_SUCCESS;
     }
@@ -1747,7 +1787,7 @@ int main(int argc, char** argv) {
     }
 
     if (sha1_prng_flag) {
-        uint32_t state[16] = {0};
+        uint32_t state[16] = { 0 };
         for (int i = 0; i < 16; i++) {
             state[i] = get_seed() + i;
         }
@@ -1893,7 +1933,7 @@ int main(int argc, char** argv) {
     }
 
     if (pcg32_flag) {
-        pcg32_random_t rng = {get_seed(), 0};
+        pcg32_random_t rng = { get_seed(), 0 };
         uint32_t num = pcg32_random_r(&rng);
         printf("pcg32_random_r() = %u (0x%08X)\n", num, num);
         return EXIT_SUCCESS;

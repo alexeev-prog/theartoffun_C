@@ -45,7 +45,7 @@ int main() {
 
     // Тест 1: Пустые данные
     printf("Тест 1: Пустые данные\n");
-    uint16_t empty_data[] = {0};
+    uint16_t empty_data[] = { 0 };
     uint32_t result1 = fletcher32(empty_data, 0);
     printf("Результат: 0x%08x\n\n", result1);
 
@@ -67,7 +67,7 @@ int main() {
 
     // Тест 4: Данные как массив uint16_t
     printf("Тест 4: Массив uint16_t\n");
-    uint16_t test_data[] = {0x1234, 0x5678, 0x9abc, 0xdef0};
+    uint16_t test_data[] = { 0x1234, 0x5678, 0x9abc, 0xdef0 };
     size_t data_len = sizeof(test_data) / sizeof(test_data[0]);
     uint32_t result4 = fletcher32(test_data, data_len);
     printf("Данные: ");

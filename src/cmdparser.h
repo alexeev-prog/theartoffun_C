@@ -72,7 +72,7 @@ void print_help(struct CLIMetadata* meta) {
 
     for (size_t i = 0; i < meta->options_count; i++) {
         struct CommandOption* opt = &meta->options[i];
-        char left_col[128] = {0};
+        char left_col[128] = { 0 };
 
         if (opt->short_name && opt->long_name) {
             snprintf(left_col, sizeof(left_col), "-%c, --%s", opt->short_name, opt->long_name);
@@ -108,10 +108,8 @@ void print_help(struct CLIMetadata* meta) {
  * @param long_name Long name to search
  * @return struct CommandOption* Found option or NULL
  */
-struct CommandOption* find_option(struct CommandOption* options,
-                                  size_t options_count,
-                                  char short_name,
-                                  const char* long_name) {
+struct CommandOption* find_option(
+    struct CommandOption* options, size_t options_count, char short_name, const char* long_name) {
     for (size_t i = 0; i < options_count; ++i) {
         if (short_name && options[i].short_name == short_name) {
             return &options[i];

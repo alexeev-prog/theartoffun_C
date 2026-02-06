@@ -1,3 +1,9 @@
+commit c271cedd946af8da204bf95af4bb3fd034989bab
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Fri Feb 6 13:12:33 2026 +0700
+
+    add GJF, xor-fold algo, xxtea block cipher, float number introspection
+
 commit c1cb079d7b4a2e6b6ba9a5ad2b0f98f340d10c63
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Wed Jan 28 21:18:19 2026 +0700

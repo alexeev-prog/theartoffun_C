@@ -19,7 +19,7 @@ double fast_pow(double a_coeff, double base) {
     union {
         double d;
         int x[2];
-    } u = {a_coeff};
+    } u = { a_coeff };
 
     u.x[1] = (int)((base * (u.x[1] - FAST_POW_MAGIC_NUMBER)) + FAST_POW_MAGIC_NUMBER);
     u.x[0] = 0;
@@ -30,7 +30,7 @@ float fastest_pow(float a_coeff, float base) {
     union {
         float d;
         int x;
-    } u = {a_coeff};
+    } u = { a_coeff };
 
     u.x = (int)((base * (u.x - FASTEST_POW_MAGIC_NUMBER)) + FASTEST_POW_MAGIC_NUMBER);
 

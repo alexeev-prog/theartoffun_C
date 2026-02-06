@@ -57,7 +57,7 @@ float fib_interpolate(float miles) {
 }
 
 float fib_cache_convert(float miles) {
-    static uint64_t cache[MAX_CACHE] = {0};
+    static uint64_t cache[MAX_CACHE] = { 0 };
     static int initialized = 0;
 
     if (!initialized) {

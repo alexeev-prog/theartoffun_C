@@ -48,8 +48,8 @@ void xxtea_decrypt(uint32_t* v, int n, uint32_t const key[4]) {
 }
 
 int main() {
-    uint32_t data[] = {0x12345678, 0x9ABCDEF0};
-    uint32_t key[4] = {0xA1B2C3D4, 0x5E6F7A8B, 0x9C0D1E2F, 0x3A4B5C6D};
+    uint32_t data[] = { 0x12345678, 0x9ABCDEF0 };
+    uint32_t key[4] = { 0xA1B2C3D4, 0x5E6F7A8B, 0x9C0D1E2F, 0x3A4B5C6D };
 
     printf("Original:      0x%08X 0x%08X\n", data[0], data[1]);
 

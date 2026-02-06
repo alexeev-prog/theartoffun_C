@@ -26,7 +26,7 @@ int findCycle(int nums[], int numsSize) {
 }
 
 int main() {
-    int arr[] = {1, 3, 4, 2, 2, 2, 2};
+    int arr[] = { 1, 3, 4, 2, 2, 2, 2 };
     int size = sizeof(arr) / sizeof(arr[0]);
     int result = findCycle(arr, size);
 

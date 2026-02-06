@@ -10,9 +10,9 @@ uint32_t xor_fold(const uint32_t* data, size_t len) {
 }
 
 int main() {
-    uint32_t array1[] = {0x12345678, 0x9ABCDEF0, 0x13579BDF};
-    uint32_t array2[] = {0x12345678, 0x9ABCDEF0, 0x13579BDF};
-    uint32_t array3[] = {0x12345678, 0x9ABCDEF0, 0x13579BDE};    // Changed
+    uint32_t array1[] = { 0x12345678, 0x9ABCDEF0, 0x13579BDF };
+    uint32_t array2[] = { 0x12345678, 0x9ABCDEF0, 0x13579BDF };
+    uint32_t array3[] = { 0x12345678, 0x9ABCDEF0, 0x13579BDE };    // Changed
 
     printf("Hash array1: %08X\n", xor_fold(array1, 3));
     printf("Hash array2: %08X\n", xor_fold(array2, 3));

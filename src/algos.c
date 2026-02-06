@@ -23,15 +23,15 @@ uint64_t msws_x = 0, msws_w = 0;
 uint64_t romu_duo_state1 = 0x1234567890abcdef;
 uint64_t romu_duo_state2 = 0xfedcba0987654321;
 
-uint32_t sfc32_state[4] = {0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0};
+uint32_t sfc32_state[4] = { 0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0 };
 
-uint32_t jsf32_state[4] = {0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0};
+uint32_t jsf32_state[4] = { 0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0 };
 
 typedef struct {
     uint32_t a, b, c, d;
 } jsf32_state_t;
 
-static jsf32_state_t jsf32_global = {0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0};
+static jsf32_state_t jsf32_global = { 0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0 };
 
 uint32_t jsf32() {
     jsf32_state_t* s = &jsf32_global;
@@ -294,7 +294,7 @@ uint64_t wyrand() {
 }
 
 void counting_sort_256(uint8_t* arr, size_t n) {
-    size_t count[256] = {0};
+    size_t count[256] = { 0 };
 
     for (size_t i = 0; i < n; i++) {
         count[arr[i]]++;
