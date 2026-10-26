@@ -1,7 +1,6 @@
-#include <stdint.h>
-#include <stdio.h>
+#include "mortoncode.h"
 
-static uint32_t split_bits(uint16_t x) {
+static uint32_t split_bits(uint32_t x) {
     x = (x | (x << 8)) & 0x00FF00FF;
     x = (x | (x << 4)) & 0x0F0F0F0F;
     x = (x | (x << 2)) & 0x33333333;
@@ -15,7 +14,7 @@ uint32_t morton_encode(uint16_t x, uint16_t y) {
 
 void morton_decode(uint32_t code, uint16_t* x, uint16_t* y) {
     uint32_t x_code = code & 0x55555555;
-    uint32_t y_code = code & 0xAAAAAAAA;
+    uint32_t y_code = (code >> 1) & 0x55555555;
 
     x_code = (x_code | (x_code >> 1)) & 0x33333333;
     x_code = (x_code | (x_code >> 2)) & 0x0F0F0F0F;
@@ -28,5 +27,5 @@ void morton_decode(uint32_t code, uint16_t* x, uint16_t* y) {
     y_code = (y_code | (y_code >> 8)) & 0x0000FFFF;
 
     *x = (uint16_t)x_code;
-    *y = (uint16_t)(y_code >> 1);
+    *y = (uint16_t)y_code;
 }

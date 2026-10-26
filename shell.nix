@@ -10,6 +10,8 @@ pkgs.mkShell {
 		pkg-config
 		valgrind
 		gdb
+		doxygen
+		python3
 	];
 
 	buildInputs = with pkgs; [
@@ -19,7 +21,5 @@ pkgs.mkShell {
 
 	shellHook = ''
 		export CC=gcc
-		export C_INCLUDE_PATH=${pkgs.glibc.dev}/inlcude:$C_INCLUDE_PATH
 	'';
 }
-

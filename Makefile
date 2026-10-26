@@ -1,26 +1,24 @@
-SRC_DIR := src
-BIN_DIR := bin
-TARGET := $(BIN_DIR)/theartoffun
+.DEFAULT_GOAL := all
 
-SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.o,$(SRC_FILES))
+include mk/config.mk
+include mk/build.mk
+include mk/test.mk
+include mk/docs.mk
 
-CC := gcc
-CFLAGS := -Wall -Wextra -O2 -ffast-math -fPIC -pipe -mtune=native
-LDFLAGS := -lm -lrt
+.PHONY: all run clean help
+all: $(TARGET)
 
-.PHONY: all clean
-
-all: $(BIN_DIR) $(TARGET)
-
-$(BIN_DIR):
-	@mkdir -p $@
-
-$(TARGET): $(OBJ_FILES)
-	$(CC) $(LDFLAGS) $^ -o $@
-
-$(BIN_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+run: $(TARGET)
+	$(TARGET) $(ARGS)
 
 clean:
-	@rm -rf $(BIN_DIR)
+	$(RM) -r -- build bin
+
+help:
+	@echo 'make [all]       Build bin/theartoffun'
+	@echo 'make run ARGS="--help"'
+	@echo 'make test        Unit/property tests and CLI integration tests'
+	@echo 'make sanitize    Tests with AddressSanitizer and UBSan'
+	@echo 'make docs        Doxygen HTML in build/docs/html'
+	@echo 'make clean       Remove generated build output'
+	@echo 'Options: CC=clang DEBUG=1 BUILD_DIR=build/custom BIN_DIR=bin/custom'

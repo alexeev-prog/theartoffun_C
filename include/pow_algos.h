@@ -28,7 +28,7 @@ double fast_pow(double a_coeff, double base);
  * @param base
  * @return double
  **/
-float fastest_pow(float a, float b);
+float fastest_pow(float a_coeff, float base);
 
 /**
  * @brief A quick check for the power of two

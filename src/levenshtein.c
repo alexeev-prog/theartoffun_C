@@ -1,17 +1,25 @@
+#include "levenshtein.h"
+
+#include <limits.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-int min2(int a, int b) {
+static int min2(int a, int b) {
     return a < b ? a : b;
 }
 
-int min3(int a, int b, int c) {
+static int min3(int a, int b, int c) {
     return min2(a, min2(b, c));
 }
 
 int levenshtein(const char* s1, const char* s2) {
-    int n = strlen(s1);
-    int m = strlen(s2);
+    size_t len1 = strlen(s1), len2 = strlen(s2);
+    if (len1 >= INT_MAX || len2 >= INT_MAX || len1 > SIZE_MAX / sizeof(int) - 1) {
+        return -1;
+    }
+    int n = (int)len1;
+    int m = (int)len2;
 
     if (n == 0) {
         return m;
@@ -31,6 +39,11 @@ int levenshtein(const char* s1, const char* s2) {
 
     int* prev = (int*)malloc((n + 1) * sizeof(int));
     int* curr = (int*)malloc((n + 1) * sizeof(int));
+    if (!prev || !curr) {
+        free(prev);
+        free(curr);
+        return -1;
+    }
 
     for (int i = 0; i <= n; i++) {
         prev[i] = i;

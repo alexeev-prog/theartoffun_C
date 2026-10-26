@@ -1,3 +1,6 @@
+#include "compressing.h"
+
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,38 +39,47 @@ void rle_encode(const char* input, char* output) {
 }
 
 char* rle_decode(const char* input) {
-    int input_len = strlen(input);
-    char* output = malloc((input_len * 10) + 1);
+    size_t length = 0;
+    const char* p = input;
+    while (*p) {
+        size_t count = 1;
+        if (*p >= '0' && *p <= '9') {
+            count = 0;
+            do {
+                unsigned digit = (unsigned)(*p++ - '0');
+                if (count > (SIZE_MAX - digit) / 10) {
+                    return NULL;
+                }
+                count = count * 10 + digit;
+            } while (*p >= '0' && *p <= '9');
+            if (!*p || count == 0) {
+                return NULL;
+            }
+        }
+        if (count > SIZE_MAX - 1 - length) {
+            return NULL;
+        }
+        length += count;
+        p++;
+    }
+
+    char* output = malloc(length + 1);
     if (!output) {
         return NULL;
     }
-
-    int output_index = 0;
-    int i = 0;
-
-    while (i < input_len) {
-        if (input[i] >= '0' && input[i] <= '9') {
-            int count = 0;
-            while (i < input_len && input[i] >= '0' && input[i] <= '9') {
-                count = count * 10 + (input[i] - '0');
-                i++;
-            }
-
-            if (i < input_len) {
-                char symbol = input[i];
-                for (int j = 0; j < count && output_index < input_len * 10; j++) {
-                    output[output_index++] = symbol;
-                }
-                i++;
-            }
-        } else {
-            if (output_index < input_len * 10) {
-                output[output_index++] = input[i++];
-            } else {
-                break;
+    size_t offset = 0;
+    p = input;
+    while (*p) {
+        size_t count = 1;
+        if (*p >= '0' && *p <= '9') {
+            count = 0;
+            while (*p >= '0' && *p <= '9') {
+                count = count * 10 + (unsigned)(*p++ - '0');
             }
         }
+        memset(output + offset, *p++, count);
+        offset += count;
     }
-    output[output_index] = '\0';
+    output[offset] = '\0';
     return output;
 }

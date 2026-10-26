@@ -65,7 +65,7 @@ struct CLIMetadata {
  *
  * @param meta Pointer to program metadata
  */
-void print_help(struct CLIMetadata* meta) {
+static inline void print_help(struct CLIMetadata* meta) {
     printf("%s\n", meta->description);
     printf("Usage: %s [OPTIONS] %s\n\n", meta->prog_name, meta->usage_args ? meta->usage_args : "");
     printf("Options:\n");
@@ -108,7 +108,7 @@ void print_help(struct CLIMetadata* meta) {
  * @param long_name Long name to search
  * @return struct CommandOption* Found option or NULL
  */
-struct CommandOption* find_option(
+static inline struct CommandOption* find_option(
     struct CommandOption* options, size_t options_count, char short_name, const char* long_name) {
     for (size_t i = 0; i < options_count; ++i) {
         if (short_name && options[i].short_name == short_name) {
@@ -130,7 +130,7 @@ struct CommandOption* find_option(
  * @param options_count Number of options
  * @return int Index of first non-option argument or -1 on error
  */
-int parse_options(int argc, char** argv, struct CommandOption* options, size_t options_count) {
+static inline int parse_options(int argc, char** argv, struct CommandOption* options, size_t options_count) {
     int i = 1;
 
     while (i < argc) {

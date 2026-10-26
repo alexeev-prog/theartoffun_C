@@ -1,0 +1,19 @@
+name: Build and test
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cc: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test
+        run: make -j2 CC=${{ matrix.cc }} test
+      - name: AddressSanitizer and UBSan
+        run: make CC=${{ matrix.cc }} sanitize

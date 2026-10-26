@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-// Basic implementations
+/** @brief Fibonacci number; use indices 0 through 93 to avoid overflow. */
 uint64_t fibonacci(int num);
 
 /**

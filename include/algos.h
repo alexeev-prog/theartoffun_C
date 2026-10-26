@@ -2,7 +2,7 @@
 #define ALGORITHMS_H
 
 #include <stdint.h>
-#include <stdlib.h>
+#include <stddef.h>
 
 typedef struct {
     uint64_t state;
@@ -143,11 +143,11 @@ void jenkins_mix(uint32_t* a, uint32_t* b, uint32_t* c);
 void jenkins_final(uint32_t* a, uint32_t* b, uint32_t* c);
 
 /**
- * @brief jenkkins hashing function
+ * @brief Jenkins-style byte hash with little-endian word assembly.
  *
- * @param a
- * @param b
- * @param c
+ * @param key Input bytes (unaligned buffers are supported).
+ * @param length Number of input bytes.
+ * @param initval Initial hash seed.
  **/
 uint32_t jenkins_hash(const void* key, size_t length, uint32_t initval);
 
@@ -258,7 +258,7 @@ int is_palindrome_bit(const char* str);
 /**
  * @brief PRNG based on sha1
  *
- * @param state
+ * @param state Array of at least 16 state words.
  * @return uint32_t
  **/
 uint32_t sha1_prng(uint32_t* state);
@@ -365,10 +365,6 @@ uint64_t ranq1();
 uint32_t fnv1a_hash(const void* data, size_t len);
 
 uint32_t jsf32();
-
-static inline uint64_t rotl64(uint64_t x, int8_t r);
-
-static inline uint64_t fmix64(uint64_t k);
 
 void murmur3_prng_init(murmur3_prng_t* prng, uint64_t seed);
 

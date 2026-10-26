@@ -1,0 +1,16 @@
+PROJECT_NAME           = "The Art of Fun C"
+PROJECT_BRIEF          = "Educational algorithms, experiments and benchmarks in C"
+OUTPUT_DIRECTORY       = build/docs
+INPUT                  = README.md docs/development.md include src
+USE_MDFILE_AS_MAINPAGE  = README.md
+FILE_PATTERNS          = *.h *.c *.md
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = NO
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+HAVE_DOT               = NO
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO

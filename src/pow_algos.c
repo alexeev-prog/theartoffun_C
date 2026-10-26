@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "pow_algos.h"
 
 #define FAST_POW_MAGIC_NUMBER 1072632447
 #define FASTEST_POW_MAGIC_NUMBER 1065353210
@@ -32,7 +32,7 @@ float fastest_pow(float a_coeff, float base) {
         int x;
     } u = { a_coeff };
 
-    u.x = (int)((base * (u.x - FASTEST_POW_MAGIC_NUMBER)) + FASTEST_POW_MAGIC_NUMBER);
+    u.x = (int)((base * (u.x - FASTEST_POW_MAGIC_NUMBER)) + (float)FASTEST_POW_MAGIC_NUMBER);
 
     return u.d;
 }

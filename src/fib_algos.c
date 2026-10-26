@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "pow_algos.h"
+#include "fib_algos.h"
 
 #define MAX_CACHE 94
 
@@ -92,8 +93,8 @@ float fib_cache_convert(float miles) {
 float fib_golden_ratio(float miles) {
     const double PHI = (1.0 + sqrt(5.0)) / 2.0;
 
-    if (miles < 1e-5) {
-        return 0.0F;
+    if (!isfinite(miles) || miles < 5.0F) {
+        return basic_miles2km(miles);
     }
 
     double n = log(miles * sqrt(5.0)) / log(PHI);
@@ -113,8 +114,8 @@ float fib_golden_ratio(float miles) {
 float fib_golden_ratio_binary(float miles) {
     const double PHI = (1.0 + sqrt(5.0)) / 2.0;
 
-    if (miles < 1e-5) {
-        return 0.0F;
+    if (!isfinite(miles) || miles < 5.0F) {
+        return basic_miles2km(miles);
     }
 
     double n = log(miles * sqrt(5.0)) / log(PHI);

@@ -53,6 +53,12 @@ uint64_t xorshift64(uint64_t* state) {
 }
 
 uint64_t rand_range(uint64_t* state, uint64_t min, uint64_t max) {
+    if (min > max) {
+        return min;
+    }
+    if (min == 0 && max == UINT64_MAX) {
+        return xorshift64(state);
+    }
     return min + (xorshift64(state) % (max - min + 1));
 }
 
@@ -68,9 +74,9 @@ float Q_rsqrt(float number) {
 
     x2 = number * HALF_FLOAT;
     y = number;
-    i = *(int32_t*)&y;
+    memcpy(&i, &y, sizeof(i));
     i = Q_RSQRT_MAGIC_NUMBER - (i >> 1);
-    y = *(float*)&i;
+    memcpy(&y, &i, sizeof(y));
     y = y * (THREEHALFS - (x2 * y * y));
     y = y * (THREEHALFS - (x2 * y * y));
     return y;
@@ -107,6 +113,7 @@ uint64_t xoshiro256pp_next(xoshiro256pp_state* state) {
 void xoshiro256pp_init(xoshiro256pp_state* state, uint64_t seed) {
     uint64_t tmp = seed;
     for (int i = 0; i < 4; i++) {
+        tmp += UINT64_C(0x9e3779b97f4a7c15);
         tmp ^= tmp >> 30;
         tmp *= XORSHIRO256PP_MAGIC_FIRST_NUMBER;
         tmp ^= tmp >> 27;
@@ -205,42 +212,51 @@ void jenkins_final(uint32_t* a, uint32_t* b, uint32_t* c) {
 uint32_t jenkins_hash(const void* key, size_t length, uint32_t initval) {
     uint32_t a, b, c;
     const uint8_t* k = (const uint8_t*)key;
-    uint32_t* blocks = (uint32_t*)k;
 
     a = b = c = 0xdeadbeef + ((uint32_t)length) + initval;
 
     size_t len = length;
     while (len >= 12) {
-        a += blocks[0];
-        b += blocks[1];
-        c += blocks[2];
+        a += (uint32_t)k[0] | (uint32_t)k[1] << 8 | (uint32_t)k[2] << 16 | (uint32_t)k[3] << 24;
+        b += (uint32_t)k[4] | (uint32_t)k[5] << 8 | (uint32_t)k[6] << 16 | (uint32_t)k[7] << 24;
+        c += (uint32_t)k[8] | (uint32_t)k[9] << 8 | (uint32_t)k[10] << 16 | (uint32_t)k[11] << 24;
         jenkins_mix(&a, &b, &c);
-        blocks += 3;
+        k += 12;
         len -= 12;
     }
 
-    uint8_t* tail = (uint8_t*)blocks;
+    const uint8_t* tail = k;
     switch (len) {
         case 11:
             c += ((uint32_t)tail[10]) << 16;
+            /* fall through */
         case 10:
             c += ((uint32_t)tail[9]) << 8;
+            /* fall through */
         case 9:
             c += tail[8];
+            /* fall through */
         case 8:
             b += ((uint32_t)tail[7]) << 24;
+            /* fall through */
         case 7:
             b += ((uint32_t)tail[6]) << 16;
+            /* fall through */
         case 6:
             b += ((uint32_t)tail[5]) << 8;
+            /* fall through */
         case 5:
             b += tail[4];
+            /* fall through */
         case 4:
             a += ((uint32_t)tail[3]) << 24;
+            /* fall through */
         case 3:
             a += ((uint32_t)tail[2]) << 16;
+            /* fall through */
         case 2:
             a += ((uint32_t)tail[1]) << 8;
+            /* fall through */
         case 1:
             a += tail[0];
     }
@@ -311,7 +327,8 @@ void counting_sort_256(uint8_t* arr, size_t n) {
 uint32_t msws32() {
     msws_x *= msws_x;
     msws_x += (msws_w += 0xb5ad4eceda1ce2a9);
-    return (msws_x = (msws_x >> 32)) | (msws_x << 32);
+    msws_x = (msws_x >> 32) | (msws_x << 32);
+    return (uint32_t)msws_x;
 }
 
 uint64_t romu_duo() {
@@ -339,6 +356,9 @@ int is_leap_year(int year) {
 int is_palindrome_bit(const char* str) {
     uint64_t mask = 0;
     for (const char* p = str; *p; p++) {
+        if (*p < 'a' || *p > 'z') {
+            return 0;
+        }
         mask ^= (1ULL << (*p - 'a'));
     }
     return (mask & (mask - 1)) == 0;
@@ -380,6 +400,9 @@ uint32_t next_power_of_two(uint32_t x) {
 }
 
 void fisher_yates_shuffle(uint32_t* arr, size_t n, uint64_t* seed) {
+    if (n < 2) {
+        return;
+    }
     for (size_t i = n - 1; i > 0; i--) {
         size_t j = xorshift64(seed) % (i + 1);
         uint32_t temp = arr[i];
@@ -441,9 +464,20 @@ uint32_t fletcher32(const uint16_t* data, size_t len) {
 
 uint32_t fletcher32_string(const char* str) {
     size_t len = strlen(str);
-    size_t padded_len = (len + 1) / 2;
-    uint16_t* data = (uint16_t*)str;
-    return fletcher32(data, padded_len);
+    uint32_t sum1 = 0xffff, sum2 = 0xffff;
+    for (size_t i = 0; i < len; i += 2) {
+        uint16_t word = (unsigned char)str[i];
+        if (i + 1 < len) {
+            word |= (uint16_t)(unsigned char)str[i + 1] << 8;
+        }
+        sum1 += word;
+        sum1 = (sum1 & 0xffff) + (sum1 >> 16);
+        sum2 += sum1;
+        sum2 = (sum2 & 0xffff) + (sum2 >> 16);
+    }
+    sum1 = (sum1 & 0xffff) + (sum1 >> 16);
+    sum2 = (sum2 & 0xffff) + (sum2 >> 16);
+    return sum2 << 16 | sum1;
 }
 
 void print_hex(const uint8_t* data, size_t len) {
@@ -572,7 +606,9 @@ double calculate_pi_leibniz(long long iterations) {
     long long i;
     int sign = -1;
 
+#ifdef _OPENMP
 #pragma omp parallel for reduction(+ : pi) private(sign)
+#endif
     for (i = 1; i < iterations; i++) {
         sign = (i % 2 == 0) ? 1 : -1;
         pi += sign / (2.0 * i + 1.0);
