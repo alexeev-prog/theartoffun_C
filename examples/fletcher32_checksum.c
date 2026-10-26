@@ -1,44 +1,7 @@
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-uint32_t fletcher32(const uint16_t* data, size_t len) {
-    uint32_t sum1 = 0xffff, sum2 = 0xffff;
-
-    while (len) {
-        size_t tlen = len > 360 ? 360 : len;
-        len -= tlen;
-
-        do {
-            sum1 += *data++;
-            sum2 += sum1;
-        } while (--tlen);
-
-        sum1 = (sum1 & 0xffff) + (sum1 >> 16);
-        sum2 = (sum2 & 0xffff) + (sum2 >> 16);
-    }
-
-    sum1 = (sum1 & 0xffff) + (sum1 >> 16);
-    sum2 = (sum2 & 0xffff) + (sum2 >> 16);
-    return sum2 << 16 | sum1;
-}
-
-// Функция для вычисления контрольной суммы строки
-uint32_t fletcher32_string(const char* str) {
-    size_t len = strlen(str);
-    // Если длина нечетная, добавляем нулевой байт в конец
-    size_t padded_len = (len + 1) / 2;
-    uint16_t* data = (uint16_t*)str;
-    return fletcher32(data, padded_len);
-}
-
-// Функция для печати данных в hex
-void print_hex(const uint8_t* data, size_t len) {
-    for (size_t i = 0; i < len; i++) {
-        printf("%02x ", data[i]);
-    }
-    printf("\n");
-}
+#include "algos.h"
 
 int main() {
     printf("Тестирование алгоритма Fletcher32\n\n");

@@ -1,9 +1,10 @@
+#include "fib_algos.h"
+
 #include <float.h>
 #include <math.h>
 #include <stdint.h>
 
 #include "pow_algos.h"
-#include "fib_algos.h"
 
 #define MAX_CACHE 94
 

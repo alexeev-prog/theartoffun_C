@@ -607,7 +607,7 @@ double calculate_pi_leibniz(long long iterations) {
     int sign = -1;
 
 #ifdef _OPENMP
-#pragma omp parallel for reduction(+ : pi) private(sign)
+#    pragma omp parallel for reduction(+ : pi) private(sign)
 #endif
     for (i = 1; i < iterations; i++) {
         sign = (i % 2 == 0) ? 1 : -1;

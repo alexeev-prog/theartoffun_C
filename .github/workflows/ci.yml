@@ -17,3 +17,11 @@ jobs:
         run: make -j2 CC=${{ matrix.cc }} test
       - name: AddressSanitizer and UBSan
         run: make CC=${{ matrix.cc }} sanitize
+      - name: Finite examples and guided tour
+        run: make -j2 CC=${{ matrix.cc }} test-examples demo
+      - name: Sanitized examples
+        if: matrix.cc == 'clang'
+        env:
+          ASAN_OPTIONS: halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1
+        run: make -j2 CC=clang SANITIZE=1 test-examples demo

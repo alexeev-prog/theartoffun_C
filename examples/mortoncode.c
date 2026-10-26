@@ -1,47 +1,21 @@
-#include <stdint.h>
+/** @file mortoncode.c @brief Encode coordinates and verify their round trip. */
+#include "mortoncode.h"
+
+#include <inttypes.h>
 #include <stdio.h>
 
-static uint32_t split_bits(uint16_t x) {
-    x = (x | (x << 8)) & 0x00FF00FF;
-    x = (x | (x << 4)) & 0x0F0F0F0F;
-    x = (x | (x << 2)) & 0x33333333;
-    x = (x | (x << 1)) & 0x55555555;
-    return x;
-}
+#include "cli_values.h"
 
-uint32_t morton_encode(uint16_t x, uint16_t y) {
-    return split_bits(x) | (split_bits(y) << 1);
-}
-
-void morton_decode(uint32_t code, uint16_t* x, uint16_t* y) {
-    uint32_t x_code = code & 0x55555555;
-    uint32_t y_code = code & 0xAAAAAAAA;
-
-    x_code = (x_code | (x_code >> 1)) & 0x33333333;
-    x_code = (x_code | (x_code >> 2)) & 0x0F0F0F0F;
-    x_code = (x_code | (x_code >> 4)) & 0x00FF00FF;
-    x_code = (x_code | (x_code >> 8)) & 0x0000FFFF;
-
-    y_code = (y_code | (y_code >> 1)) & 0x33333333;
-    y_code = (y_code | (y_code >> 2)) & 0x0F0F0F0F;
-    y_code = (y_code | (y_code >> 4)) & 0x00FF00FF;
-    y_code = (y_code | (y_code >> 8)) & 0x0000FFFF;
-
-    *x = (uint16_t)x_code;
-    *y = (uint16_t)(y_code >> 1);
-}
-
-int main() {
-    uint16_t x = 10;
-    uint16_t y = 13;
-
-    uint32_t code = morton_encode(x, y);
-    printf("x=%u, y=%u\n", x, y);
-    printf("Morton code: %u (0x%08X)\n", code, code);
-
-    uint16_t decoded_x, decoded_y;
-    morton_decode(code, &decoded_x, &decoded_y);
-    printf("Decoded: x=%u, y=%u\n", decoded_x, decoded_y);
-
-    return 0;
+int main(int argc, char** argv) {
+    uint64_t x = 10, y = 13;
+    if (argc != 1 && (argc != 3 || !cli_u64(argv[1], UINT16_MAX, &x) || !cli_u64(argv[2], UINT16_MAX, &y))) {
+        fprintf(stderr, "Usage: %s [X Y] (0..65535)\n", argv[0]);
+        return 1;
+    }
+    uint32_t code = morton_encode((uint16_t)x, (uint16_t)y);
+    uint16_t dx, dy;
+    morton_decode(code, &dx, &dy);
+    printf("Morton code: %" PRIu32 " (0x%08" PRIX32 ")\n", code, code);
+    printf("Decoded: x=%u, y=%u\n", (unsigned)dx, (unsigned)dy);
+    return dx != x || dy != y;
 }

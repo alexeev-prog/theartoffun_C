@@ -3,6 +3,9 @@
 [![Build and test](https://github.com/alexeev-prog/theartoffun_c/actions/workflows/ci.yml/badge.svg)](https://github.com/alexeev-prog/theartoffun_c/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+**[CLI cookbook](docs/usage.md) · [Example catalog](examples/README.md) ·
+[Development](docs/development.md)**
+
 An educational collection of C algorithms, bit tricks, approximate mathematics,
 pseudorandom generators, and timing experiments. The main application exposes
 selected algorithms through a command-line interface. This is an exploration
@@ -18,6 +21,7 @@ make -j2
 ./bin/theartoffun --help
 make run ARGS="--binary-power 2 --exponent 10"
 make test
+make demo
 ```
 
 Optional Nix environment: run `nix-shell`, then use the same commands.
@@ -30,6 +34,10 @@ make run ARGS="--help"        # Build and run
 make test                     # Unit, property, and CLI integration tests
 make sanitize                 # Tests with ASan and UBSan
 make DEBUG=1 test             # Debug build and tests
+make examples                 # Build 19 finite C programs
+make run-example EXAMPLE=mortoncode ARGS="10 13"
+make test-examples            # Timeout-protected smoke tests
+make demo                     # Checked, deterministic CLI tour
 make docs                     # Requires Doxygen; build/docs/html/index.html
 make clean                    # Remove build/ and bin/
 make help                     # Show build targets
@@ -43,6 +51,9 @@ Separate build paths avoid mixing compiler outputs.
 ```sh
 ./bin/theartoffun --fib 5
 ./bin/theartoffun --binary-power 2 --exponent 10
+./bin/theartoffun --isqrt 4294967295
+./bin/theartoffun --morton-encode 10 13
+./bin/theartoffun --levenshtein kitten sitting
 ./bin/theartoffun --q-rsqrt-quake 25
 ./bin/theartoffun --div3 123
 ./bin/theartoffun --jenkins-hash "test_data"
@@ -53,6 +64,8 @@ Separate build paths avoid mixing compiler outputs.
 
 Use `--help` for the complete option list. Binary exponentiation requires a
 nonnegative integer exponent. RLE input text must not contain literal digits.
+Choose one operation per invocation. Duplicate options, invalid numeric ranges,
+and extra arguments are rejected. RLE decoding is capped at 1 MiB in the CLI.
 Benchmark results are machine-dependent, not correctness tests.
 
 ## Repository structure
@@ -61,7 +74,8 @@ Benchmark results are machine-dependent, not correctness tests.
 include/          Shared API headers and header-only CLI parser
 src/              Algorithm implementations, main.c, benchmarks.c
 tests/            C unit/property tests and Python CLI tests
-examples/         Standalone historical demos and their IOCCC makefiles
+examples/         Runnable C examples, catalog, and preserved historical sources
+demos/            Checked multi-command application tour
 mk/               Configuration, build, test, and documentation Make fragments
 docs/             Development guide and original educational articles
 .github/workflows/  Compiler/sanitizer CI and GitHub Pages documentation
@@ -73,8 +87,10 @@ square roots, Gray and Morton codes, PRNGs, hashes/checksums, counting sort,
 Levenshtein distance, and run-length encoding. Tests cover selected algorithms
 and regression cases; they do not validate every historical experiment.
 
-Standalone examples are **not** built or tested by `make`. Some intentionally
-demonstrate unsafe, obfuscated, or platform-specific C. Read them before running.
+`make examples` builds a curated set of finite, non-interactive programs;
+`make test-examples` runs them with timeouts. Historical unsafe experiments,
+terminal animations, and IOCCC submissions are explicitly excluded. See the
+[example catalog](examples/README.md) for the supported list and reasons.
 
 ## Documentation
 
@@ -84,6 +100,9 @@ demonstrate unsafe, obfuscated, or platform-specific C. Read them before running
   further parts are in `docs/article_part*.md`.
 - Generate API documentation with `make docs`. The documentation workflow
   publishes it to GitHub Pages after enabling **Settings → Pages → GitHub Actions**.
+- HTML includes a local responsive stylesheet, system-aware dark colors, a
+  navigation tree, source browsing, and search. No CDN or external theme download
+  is required. Open `build/docs/html/index.html` after generation.
 
 ## References
 

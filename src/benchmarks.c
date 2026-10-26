@@ -15,11 +15,10 @@
 #include <sys/time.h>
 
 #include "algos.h"
+#include "benchmarks.h"
 #include "compressing.h"
 #include "fib_algos.h"
 #include "pow_algos.h"
-
-#include "benchmarks.h"
 
 /* Keep computed results observable without adding volatile work to timed loops. */
 static volatile double benchmark_sink;
@@ -389,8 +388,9 @@ void benchmark_prngs() {
         time_rc4,
         ITERATIONS / (time_rc4 / 1000.0) / 1000000.0);
     printf("-----------------------------------------\n\n");
-    benchmark_sink = (double)(xorshift_sum ^ lehmer_sum ^ xoshiro_sum ^ pcg_sum ^ wyrand_sum ^
-        msws_sum ^ romu_sum ^ sfc_sum ^ jsf32_sum ^ sha1_sum ^ tinymt_sum ^ mulberry_sum ^ ranq1_sum ^ rc4_sum);
+    benchmark_sink =
+        (double)(xorshift_sum ^ lehmer_sum ^ xoshiro_sum ^ pcg_sum ^ wyrand_sum ^ msws_sum ^ romu_sum
+                 ^ sfc_sum ^ jsf32_sum ^ sha1_sum ^ tinymt_sum ^ mulberry_sum ^ ranq1_sum ^ rc4_sum);
 }
 
 void benchmark_hash_algos() {
@@ -1038,9 +1038,9 @@ void benchmark_math_algos() {
         "reverse_bits:       %8.2f ms  (%6.3f us/call)\n",
         time_reverse_bits,
         time_reverse_bits * 1000.0 / ITERATIONS);
-    benchmark_sink = fast_pow_sum + fastest_pow_sum + fast_mod_sum + power_of_two_count +
-        jenkins_hash_sum + div3_sum + isqrt_sum + gray_sum + from_gray_sum + next_power_sum +
-        trailing_zeros_sum + trailing_zeros_kernighan_sum + qrsqrt_sum + reverse_bits_sum;
+    benchmark_sink = fast_pow_sum + fastest_pow_sum + fast_mod_sum + power_of_two_count + jenkins_hash_sum
+        + div3_sum + isqrt_sum + gray_sum + from_gray_sum + next_power_sum + trailing_zeros_sum
+        + trailing_zeros_kernighan_sum + qrsqrt_sum + reverse_bits_sum;
     printf("--------------------------------------------\n\n");
 }
 

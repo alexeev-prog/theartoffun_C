@@ -24,6 +24,11 @@ int main(void) {
     free(long_run);
     CHECK(rle_decode("12") == NULL);
     CHECK(rle_decode("0a") == NULL);
+    CHECK(rle_decode_limit("1000a", 999) == NULL);
+    CHECK(rle_decode_limit(NULL, 100) == NULL);
+    char* limited = rle_decode_limit("3a", 3);
+    CHECK(limited && strcmp(limited, "aaa") == 0);
+    free(limited);
     CHECK(rle_decode("999999999999999999999999999999a") == NULL);
     puts("String/compression tests passed");
     return 0;

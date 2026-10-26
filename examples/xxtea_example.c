@@ -8,7 +8,7 @@
 void xxtea_encrypt(uint32_t* v, int n, uint32_t const key[4]) {
     uint32_t y, z, sum;
     unsigned p, rounds, e;
-    if (n < 1) {
+    if (n < 2) {
         return;
     }
     rounds = 6 + 52 / n;
@@ -17,7 +17,7 @@ void xxtea_encrypt(uint32_t* v, int n, uint32_t const key[4]) {
     do {
         sum += DELTA;
         e = (sum >> 2) & 3;
-        for (p = 0; p < n - 1; p++) {
+        for (p = 0; p < (unsigned)n - 1; p++) {
             y = v[p + 1];
             z = v[p] += MX;
         }
@@ -29,7 +29,7 @@ void xxtea_encrypt(uint32_t* v, int n, uint32_t const key[4]) {
 void xxtea_decrypt(uint32_t* v, int n, uint32_t const key[4]) {
     uint32_t y, z, sum;
     unsigned p, rounds, e;
-    if (n < 1) {
+    if (n < 2) {
         return;
     }
     rounds = 6 + 52 / n;
@@ -59,5 +59,5 @@ int main() {
     xxtea_decrypt(data, 2, key);
     printf("After decrypt: 0x%08X 0x%08X\n", data[0], data[1]);
 
-    return 0;
+    return data[0] != UINT32_C(0x12345678) || data[1] != UINT32_C(0x9ABCDEF0);
 }

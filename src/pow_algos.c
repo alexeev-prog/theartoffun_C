@@ -1,5 +1,8 @@
 #include "pow_algos.h"
 
+#include <limits.h>
+#include <math.h>
+
 #define FAST_POW_MAGIC_NUMBER 1072632447
 #define FASTEST_POW_MAGIC_NUMBER 1065353210
 
@@ -16,23 +19,39 @@ double binary_pow(double b, unsigned long long e) {
 }
 
 double fast_pow(double a_coeff, double base) {
+    if (!isfinite(a_coeff) || a_coeff <= 0 || !isfinite(base)) {
+        return NAN;
+    }
+
     union {
         double d;
         int x[2];
     } u = { a_coeff };
 
-    u.x[1] = (int)((base * (u.x[1] - FAST_POW_MAGIC_NUMBER)) + FAST_POW_MAGIC_NUMBER);
+    double bits = base * ((double)u.x[1] - FAST_POW_MAGIC_NUMBER) + FAST_POW_MAGIC_NUMBER;
+    if (!isfinite(bits) || bits < 0 || bits >= 0x7ff00000) {
+        return NAN;
+    }
+    u.x[1] = (int)bits;
     u.x[0] = 0;
     return u.d;
 }
 
 float fastest_pow(float a_coeff, float base) {
+    if (!isfinite(a_coeff) || a_coeff <= 0 || !isfinite(base)) {
+        return NAN;
+    }
+
     union {
         float d;
         int x;
     } u = { a_coeff };
 
-    u.x = (int)((base * (u.x - FASTEST_POW_MAGIC_NUMBER)) + (float)FASTEST_POW_MAGIC_NUMBER);
+    double bits = (double)base * ((double)u.x - FASTEST_POW_MAGIC_NUMBER) + FASTEST_POW_MAGIC_NUMBER;
+    if (!isfinite(bits) || bits < 0 || bits >= 0x7f800000) {
+        return NAN;
+    }
+    u.x = (int)bits;
 
     return u.d;
 }

@@ -39,6 +39,13 @@ void rle_encode(const char* input, char* output) {
 }
 
 char* rle_decode(const char* input) {
+    return rle_decode_limit(input, SIZE_MAX - 1);
+}
+
+char* rle_decode_limit(const char* input, size_t max_output) {
+    if (!input) {
+        return NULL;
+    }
     size_t length = 0;
     const char* p = input;
     while (*p) {
@@ -60,6 +67,9 @@ char* rle_decode(const char* input) {
             return NULL;
         }
         length += count;
+        if (length > max_output) {
+            return NULL;
+        }
         p++;
     }
 

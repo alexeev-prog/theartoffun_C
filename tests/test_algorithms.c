@@ -12,6 +12,9 @@ int main(void) {
     CHECK(binary_pow(2, 10) == 1024);
     CHECK(binary_pow(-2, 3) == -8);
     CHECK(binary_pow(0, 0) == 1);
+    CHECK(isnan(fast_pow(-2, 3)));
+    CHECK(isnan(fastest_pow(2, INFINITY)));
+    CHECK(isnan(fast_pow(1e300, 1000)));
     CHECK(fibonacci(0) == 0);
     CHECK(fibonacci(10) == 55);
     CHECK(fibonacci(93) == UINT64_C(12200160415121876738));

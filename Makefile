@@ -4,6 +4,7 @@ include mk/config.mk
 include mk/build.mk
 include mk/test.mk
 include mk/docs.mk
+include mk/examples.mk
 
 .PHONY: all run clean help
 all: $(TARGET)
@@ -20,5 +21,9 @@ help:
 	@echo 'make test        Unit/property tests and CLI integration tests'
 	@echo 'make sanitize    Tests with AddressSanitizer and UBSan'
 	@echo 'make docs        Doxygen HTML in build/docs/html'
+	@echo 'make examples    Build finite educational examples'
+	@echo 'make run-example EXAMPLE=mortoncode ARGS="10 13"'
+	@echo 'make test-examples  Build and smoke-test all supported examples'
+	@echo 'make demo        Run a checked CLI tour'
 	@echo 'make clean       Remove generated build output'
 	@echo 'Options: CC=clang DEBUG=1 BUILD_DIR=build/custom BIN_DIR=bin/custom'

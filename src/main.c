@@ -1,8 +1,10 @@
 #ifdef _WIN32
 #    include <windows.h>
 #endif
-#include <inttypes.h>
 #include <errno.h>
+#include <float.h>
+#include <inttypes.h>
+#include <limits.h>
 #include <math.h>
 #include <stdint.h>
 #ifdef _WIN32
@@ -17,9 +19,12 @@
 
 #include "algos.h"
 #include "benchmarks.h"
+#include "cli_values.h"
 #include "cmdparser.h"
 #include "compressing.h"
 #include "fib_algos.h"
+#include "levenshtein.h"
+#include "mortoncode.h"
 #include "pow_algos.h"
 
 uint64_t get_seed() {
@@ -63,216 +68,224 @@ int main(int argc, char** argv) {
     char* count_trailing_zeros_value = NULL;
     char* next_power_value = NULL;
     char* fisher_yates_size = NULL;
-    char* sfc32_flag = NULL;
-    char* sha1_prng_flag = NULL;
+    int sfc32_flag = 0;
+    int sha1_prng_flag = 0;
+    char* distance_text = NULL;
+    char* morton_x = NULL;
+    char* morton_code = NULL;
+    char* sqrt_text = NULL;
 
     char* exponent = NULL;
 
     struct CommandOption options[] = {
+        { "Edit distance between two strings",                                 "levenshtein",   0, 1, NULL, &distance_text },
+        { "Interleave two uint16 coordinates",                                 "morton-encode", 0, 1, NULL, &morton_x      },
+        { "Decode a uint32 Morton code",                                       "morton-decode", 0, 1, NULL, &morton_code   },
+        { "Exact integer square root of uint32",                               "isqrt",         0, 1, NULL, &sqrt_text     },
         { .help = "Show help information",
          .long_name = "help",
          .short_name = 'h',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &help_flag                  },
-        { .help = "Convert miles to km miles to km using basic Fibonacci",
+         .handler = &help_flag                                                                                             },
+        { .help = "Historical Fibonacci experiment: F(N+1), integer N=0..92",
          .long_name = "fib",
          .short_name = 'f',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_value                  },
-        { .help = "Convert miles to km miles to km using standard formula",
+         .handler = &fib_value                                                                                             },
+        { .help = "Convert miles to km using the standard factor (0..100000)",
          .long_name = "miles-to-km",
          .short_name = 'm',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &basic_value                },
+         .handler = &basic_value                                                                                           },
         { .help = "Convert miles to km using Fibonacci interpolation",
          .long_name = "fib-interp",
          .short_name = 'i',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_interp_value           },
+         .handler = &fib_interp_value                                                                                      },
         { .help = "Convert miles to km using cached Fibonacci",
          .long_name = "fib-cache",
          .short_name = 'c',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_cache_value            },
+         .handler = &fib_cache_value                                                                                       },
         { .help = "Convert miles to km using golden ratio",
          .long_name = "fib-golden",
          .short_name = 'g',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_golden_value           },
+         .handler = &fib_golden_value                                                                                      },
         { .help = "Set exponent for pow-algos",
          .long_name = "exponent",
          .short_name = 'e',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &exponent                   },
+         .handler = &exponent                                                                                              },
         { .help = "Power the number by binary power algorithm",
          .long_name = "binary-power",
          .short_name = 'p',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &binary_power               },
+         .handler = &binary_power                                                                                          },
         { .help = "Generate pseudo random numbers by xorshift64",
          .long_name = "xorshift-random",
          .short_name = 'x',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &xorshift_flag              },
+         .handler = &xorshift_flag                                                                                         },
         { .help = "Generate pseudo random float numbers by xorshift64",
          .long_name = "xorshift-double-random",
          .short_name = 'd',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &xorshift_double_flag       },
+         .handler = &xorshift_double_flag                                                                                  },
         { .help = "Q_rsqrt from Quake III Arena",
          .long_name = "q-rsqrt-quake",
          .short_name = 'q',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &q_rsqrt_quake              },
+         .handler = &q_rsqrt_quake                                                                                         },
         { .help = "Convert miles to km using golden ratio with binary pow",
          .long_name = "fib-golden-binry",
          .short_name = 'b',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fib_golden_binary_value    },
+         .handler = &fib_golden_binary_value                                                                               },
         { .help = "Generate pseudo random numbers by lehmer64",
          .long_name = "lehmer-random",
          .short_name = 'l',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &lehmer64_value_flag        },
+         .handler = &lehmer64_value_flag                                                                                   },
         { .help = "Generate pseudo random numbers by xoshiro256pp",
          .long_name = "xorshiro256pp-random",
          .short_name = 'o',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &xoshiro256pp_flag          },
+         .handler = &xoshiro256pp_flag                                                                                     },
         { .help = "Run benchmarks for PRNGs and conversion methods",
          .long_name = "benchmark",
          .short_name = 'B',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &benchmark_flag             },
+         .handler = &benchmark_flag                                                                                        },
         { .help = "Fast power calculation (base)",
          .long_name = "fast-pow",
          .short_name = 'P',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fast_pow_base              },
+         .handler = &fast_pow_base                                                                                         },
         { .help = "Fastest power calculation (base)",
          .long_name = "fastest-pow",
          .short_name = 'F',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fastest_pow_base           },
+         .handler = &fastest_pow_base                                                                                      },
         { .help = "Fast modulo calculation (value)",
          .long_name = "fast-mod",
          .short_name = 'M',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fast_mod_value             },
+         .handler = &fast_mod_value                                                                                        },
         { .help = "Check if number is power of two",
          .long_name = "power-of-two",
          .short_name = 'T',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &power_of_two_value         },
+         .handler = &power_of_two_value                                                                                    },
         { .help = "Jenkins hash calculation (data)",
          .long_name = "jenkins-hash",
          .short_name = 'J',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &jenkins_hash_data          },
+         .handler = &jenkins_hash_data                                                                                     },
         { .help = "Test Jenkins mix and final functions",
          .long_name = "jenkins-mix",
          .short_name = 'j',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &jenkins_mix_flag           },
+         .handler = &jenkins_mix_flag                                                                                      },
         { .help = "Generate pseudo random numbers by PCG32",
          .long_name = "pcg32-random",
          .short_name = 'R',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &pcg32_flag                 },
+         .handler = &pcg32_flag                                                                                            },
         { .help = "XOR swap two numbers (first value)",
          .long_name = "xor-swap",
          .short_name = 'X',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &xor_swap_a                 },
+         .handler = &xor_swap_a                                                                                            },
         { .help = "Fast division by 3",
          .long_name = "div3",
          .short_name = 'D',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &div3_value                 },
+         .handler = &div3_value                                                                                            },
         { .help = "RLE encode string",
          .long_name = "rle-encode",
          .short_name = 'E',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &rle_encode_data            },
+         .handler = &rle_encode_data                                                                                       },
         { .help = "RLE decode string",
          .long_name = "rle-decode",
          .short_name = 'C',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &rle_decode_data            },
-        { .help = "Check if string is palindrome (bit method)",
+         .handler = &rle_decode_data                                                                                       },
+        { .help = "Check whether lowercase letters can form a palindrome",
          .long_name = "is-palindrome",
          .short_name = 'A',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &is_palindrome_str          },
+         .handler = &is_palindrome_str                                                                                     },
         { .help = "Check if year is leap year",
          .long_name = "leap-year",
          .short_name = 'Y',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &leap_year_value            },
+         .handler = &leap_year_value                                                                                       },
         { .help = "Zellers congruence (day)",
          .long_name = "zellers-day",
          .short_name = 'Z',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &zellers_day                },
+         .handler = &zellers_day                                                                                           },
         { .help = "Count trailing zeros in number",
          .long_name = "count-trailing-zeros",
          .short_name = 'z',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &count_trailing_zeros_value },
+         .handler = &count_trailing_zeros_value                                                                            },
         { .help = "Find next power of two",
          .long_name = "next-power",
          .short_name = 'N',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &next_power_value           },
+         .handler = &next_power_value                                                                                      },
         { .help = "Fisher-Yates shuffle array size",
          .long_name = "fisher-yates",
          .short_name = 'S',
          .has_arg = 1,
          .default_value = NULL,
-         .handler = &fisher_yates_size          },
+         .handler = &fisher_yates_size                                                                                     },
         { .help = "Generate pseudo random numbers by sfc32",
          .long_name = "sfc32-random",
          .short_name = 'U',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &sfc32_flag                 },
+         .handler = &sfc32_flag                                                                                            },
         { .help = "Generate pseudo random numbers by sha1_prng",
          .long_name = "sha1-prng",
          .short_name = 'H',
          .has_arg = 0,
          .default_value = NULL,
-         .handler = &sha1_prng_flag             },
+         .handler = &sha1_prng_flag                                                                                        },
     };
 
     struct CLIMetadata meta = { .prog_name = argv[0],
@@ -289,6 +302,122 @@ int main(int argc, char** argv) {
     if (help_flag) {
         print_help(&meta);
         return EXIT_SUCCESS;
+    }
+
+    /* One operation per invocation; --exponent is a modifier, not an operation. */
+    unsigned operations = 0;
+    for (size_t i = 0; i < meta.options_count; i++) {
+        struct CommandOption* opt = &options[i];
+        if (opt->handler == &help_flag || opt->handler == &exponent) {
+            continue;
+        }
+        operations += opt->has_arg ? (*(char**)opt->handler != NULL) : (*(int*)opt->handler != 0);
+    }
+    if (operations > 1 || (exponent && !binary_power)) {
+        fprintf(stderr, "Error: Choose one operation; --exponent requires --binary-power\n");
+        return EXIT_FAILURE;
+    }
+    int remaining = argc - pos_index;
+    int expected =
+        (distance_text || morton_x || fast_pow_base || fastest_pow_base || fast_mod_value || xor_swap_a)
+        ? 1
+        : (zellers_day ? 2 : 0);
+    if (operations && remaining != expected && !(jenkins_hash_data && remaining <= 1)) {
+        fprintf(stderr, "Error: Expected %d positional argument(s), got %d\n", expected, remaining);
+        return EXIT_FAILURE;
+    }
+    if (distance_text) {
+        int distance = levenshtein(distance_text, argv[pos_index]);
+        if (distance < 0) {
+            return EXIT_FAILURE;
+        }
+        printf("Levenshtein distance: %d\n", distance);
+        return EXIT_SUCCESS;
+    }
+    if (morton_x || morton_code || sqrt_text) {
+        uint64_t first, second;
+        const char* text = morton_x ? morton_x : (morton_code ? morton_code : sqrt_text);
+        if (!cli_u64(text, morton_x ? UINT16_MAX : UINT32_MAX, &first)
+            || (morton_x && !cli_u64(argv[pos_index], UINT16_MAX, &second))) {
+            fprintf(stderr, "Error: Invalid unsigned integer or value out of range\n");
+            return EXIT_FAILURE;
+        }
+        if (morton_x) {
+            printf("Morton code: %" PRIu32 "\n", morton_encode((uint16_t)first, (uint16_t)second));
+        } else if (morton_code) {
+            uint16_t x, y;
+            morton_decode((uint32_t)first, &x, &y);
+            printf("Morton coordinates: %u %u\n", (unsigned)x, (unsigned)y);
+        } else {
+            printf("isqrt(%" PRIu64 ") = %" PRIu32 "\n", first, isqrt((uint32_t)first));
+        }
+        return EXIT_SUCCESS;
+    }
+
+    /* Validate numeric arguments before legacy dispatch can narrow or cast them. */
+    const char* unsigned_values[] = {
+        count_trailing_zeros_value, next_power_value, power_of_two_value, div3_value, fast_mod_value,
+        fisher_yates_size
+    };
+    for (size_t i = 0; i < sizeof(unsigned_values) / sizeof(unsigned_values[0]); i++) {
+        uint64_t value;
+        if (unsigned_values[i] && !cli_u64(unsigned_values[i], UINT32_MAX, &value)) {
+            fprintf(stderr, "Error: Expected a decimal uint32 value\n");
+            return EXIT_FAILURE;
+        }
+    }
+    const char* distances[] = { basic_value,      fib_interp_value,        fib_cache_value,
+                                fib_golden_value, fib_golden_binary_value, fib_value };
+    for (size_t i = 0; i < sizeof(distances) / sizeof(distances[0]); i++) {
+        double value;
+        if (distances[i]
+            && (!cli_number(distances[i], 0, i == 5 ? 92 : 100000, &value)
+                || (i == 5 && floor(value) != value))) {
+            fprintf(stderr, "Error: Invalid distance (Fibonacci index: 0..92; other methods: 0..100000)\n");
+            return EXIT_FAILURE;
+        }
+    }
+    if (q_rsqrt_quake) {
+        double value;
+        if (!cli_number(q_rsqrt_quake, FLT_MIN, FLT_MAX, &value)) {
+            fprintf(stderr, "Error: Expected a positive finite float\n");
+            return EXIT_FAILURE;
+        }
+    }
+    if (leap_year_value || zellers_day || xor_swap_a) {
+        uint64_t unsigned_value;
+        int32_t signed_value;
+        if ((leap_year_value && (!cli_u64(leap_year_value, 9999, &unsigned_value) || !unsigned_value))
+            || (zellers_day && (!cli_u64(zellers_day, 31, &unsigned_value) || !unsigned_value))
+            || (xor_swap_a && !cli_i32(xor_swap_a, &signed_value))) {
+            fprintf(stderr, "Error: Invalid integer argument\n");
+            return EXIT_FAILURE;
+        }
+        if (zellers_day) {
+            uint64_t month, year;
+            if (!cli_u64(argv[pos_index], 12, &month) || !month || !cli_u64(argv[pos_index + 1], 9999, &year)
+                || !year) {
+                fprintf(stderr, "Error: Month must be 1..12 and year 1..9999\n");
+                return EXIT_FAILURE;
+            }
+            const unsigned days[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+            unsigned limit = days[month - 1] + (month == 2 && is_leap_year((int)year));
+            if (strtoul(zellers_day, NULL, 10) > limit) {
+                fprintf(stderr, "Error: Day does not exist in that month\n");
+                return EXIT_FAILURE;
+            }
+        }
+        if (xor_swap_a && !cli_i32(argv[pos_index], &signed_value)) {
+            fprintf(stderr, "Error: Invalid second integer\n");
+            return EXIT_FAILURE;
+        }
+    }
+    if (jenkins_hash_data && remaining) {
+        uint64_t seed;
+        if (!cli_u64(argv[pos_index], UINT32_MAX, &seed)) {
+            fprintf(stderr, "Error: Hash seed must be a decimal uint32\n");
+            return EXIT_FAILURE;
+        }
     }
 
     int fib_methods_count = 0;
@@ -335,7 +464,7 @@ int main(int argc, char** argv) {
     }
 
     if (rle_decode_data) {
-        char* decoded = rle_decode(rle_decode_data);
+        char* decoded = rle_decode_limit(rle_decode_data, 1024 * 1024);
         if (!decoded) {
             fprintf(stderr, "Error: Invalid RLE data or allocation failure\n");
             return EXIT_FAILURE;
@@ -440,6 +569,9 @@ int main(int argc, char** argv) {
         }
 
         uint32_t* arr = malloc(size * sizeof(uint32_t));
+        if (!arr) {
+            return EXIT_FAILURE;
+        }
         for (size_t i = 0; i < size; i++) {
             arr[i] = i;
         }
@@ -486,12 +618,12 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
 
-        errno = 0;
-        unsigned long long e = strtoull(exponent, &endptr, 10);
-        if (errno || exponent[0] == '-' || endptr == exponent || *endptr != '\0') {
+        uint64_t parsed_exponent;
+        if (!cli_u64(exponent, UINT64_MAX, &parsed_exponent)) {
             fprintf(stderr, "Error: Invalid exponent value '%s'\n", exponent);
             return EXIT_FAILURE;
         }
+        unsigned long long e = (unsigned long long)parsed_exponent;
 
         double powered_number = binary_pow(number, e);
         printf("%.2f ** %llu = %.2f\n", number, e, powered_number);
@@ -519,7 +651,17 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
 
+        double checked;
+        if (!cli_number(fast_pow_base, DBL_MIN, DBL_MAX, &checked)
+            || !cli_number(argv[pos_index - 1], -1000, 1000, &checked)) {
+            fprintf(stderr, "Error: Fast power requires a positive finite base and exponent -1000..1000\n");
+            return EXIT_FAILURE;
+        }
         double result = fast_pow(base, exp);
+        if (!isfinite(result)) {
+            fprintf(stderr, "Error: Approximation is outside the supported range\n");
+            return EXIT_FAILURE;
+        }
         printf("fast_pow(%.2f, %.2f) = %.6f\n", base, exp, result);
         return EXIT_SUCCESS;
     }
@@ -545,7 +687,18 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
 
+        double checked;
+        if (!cli_number(fastest_pow_base, FLT_MIN, FLT_MAX, &checked)
+            || !cli_number(argv[pos_index - 1], -1000, 1000, &checked)) {
+            fprintf(
+                stderr, "Error: Fastest power requires a positive finite float and exponent -1000..1000\n");
+            return EXIT_FAILURE;
+        }
         float result = fastest_pow(base, exp);
+        if (!isfinite(result)) {
+            fprintf(stderr, "Error: Approximation is outside the supported range\n");
+            return EXIT_FAILURE;
+        }
         printf("fastest_pow(%.2f, %.2f) = %.6f\n", base, exp, result);
         return EXIT_SUCCESS;
     }
@@ -561,7 +714,9 @@ int main(int argc, char** argv) {
         uint32_t mod;
         if (pos_index < argc) {
             mod = strtoul(argv[pos_index], &endptr, 10);
-            if (*endptr != '\0' || mod == 0) {
+            uint64_t checked_mod;
+            if (!cli_u64(argv[pos_index], UINT32_MAX, &checked_mod)
+                || !is_power_of_two((uint32_t)checked_mod)) {
                 fprintf(stderr, "Error: Invalid modulus value\n");
                 return EXIT_FAILURE;
             }
@@ -681,9 +836,10 @@ int main(int argc, char** argv) {
     }
 
     if (lehmer64_value_flag) {
+        lehmer64_seed(get_seed() | 1);
         uint64_t number = lehmer64();
 
-        printf("lehmer64 random number: %lu", number);
+        printf("lehmer64 random number: %" PRIu64 "\n", number);
         return EXIT_SUCCESS;
     }
 
@@ -794,19 +950,20 @@ int main(int argc, char** argv) {
     }
 
     if (pos_index < argc) {
+        int failed = 0;
         for (int i = pos_index; i < argc; i++) {
-            char* endptr;
-            double miles = strtod(argv[i], &endptr);
+            double miles;
 
-            if (*endptr != '\0' || miles < 0) {
+            if (!cli_number(argv[i], 0, 100000, &miles)) {
                 fprintf(stderr, "Error: Invalid distance value '%s'. Skipping.\n", argv[i]);
+                failed = 1;
                 continue;
             }
 
             float km = basic_miles2km(miles);
             printf("%.2f miles = %.2f km\n", miles, km);
         }
-        return EXIT_SUCCESS;
+        return failed ? EXIT_FAILURE : EXIT_SUCCESS;
     }
 
     print_help(&meta);

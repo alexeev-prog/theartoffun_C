@@ -1,34 +1,23 @@
-#include <omp.h>
+/** @file pi_leibniz.c @brief A finite, configurable Leibniz-series experiment. */
+#include <inttypes.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <time.h>
 
-double calculate_pi_leibniz(long long iterations) {
-    double pi = 1.0;
-    long long i;
-    int sign = -1;
+#include "algos.h"
+#include "cli_values.h"
 
-#pragma omp parallel for reduction(+ : pi) private(sign)
-    for (i = 1; i < iterations; i++) {
-        sign = (i % 2 == 0) ? 1 : -1;
-        pi += sign / (2.0 * i + 1.0);
+int main(int argc, char** argv) {
+    uint64_t iterations = 100000;
+    if (argc > 2 || (argc == 2 && (!cli_u64(argv[1], 10000000, &iterations) || !iterations))) {
+        fprintf(stderr, "Usage: %s [ITERATIONS] (1..10000000)\n", argv[0]);
+        return 1;
     }
-
-    return pi * 4;
-}
-
-int main(int argc, char* argv[]) {
-    long long iterations = 1000000000;
-    if (argc > 1) {
-        iterations = atoll(argv[1]);
-    }
-
-    double start_time = omp_get_wtime();
-    double pi = calculate_pi_leibniz(iterations);
-    double end_time = omp_get_wtime();
-
-    printf("π = %.15f\n", pi);
-    printf("Iters: %lld\n", iterations);
-    printf("time: %.3f seconds\n", end_time - start_time);
-
+    clock_t start = clock();
+    double pi = calculate_pi_leibniz((long long)iterations);
+    printf(
+        "pi = %.15f\nIterations: %" PRIu64 "\nCPU time: %.3f seconds\n",
+        pi,
+        iterations,
+        (double)(clock() - start) / CLOCKS_PER_SEC);
     return 0;
 }

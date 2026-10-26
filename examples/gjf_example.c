@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
@@ -27,9 +28,9 @@ int main() {
     uint64_t seed2 = (uint64_t)getpid() ^ (seed1 << 32);
     gjf_seed(seed1, seed2);
 
-    printf("Seed: %llu, %llu\n", seed1, seed2);
+    printf("Seed: %" PRIu64 ", %" PRIu64 "\n", seed1, seed2);
     for (int i = 0; i < 5; i++) {
-        printf("%016llx\n", gjf64());
+        printf("%016" PRIx64 "\n", gjf64());
     }
     return 0;
 }

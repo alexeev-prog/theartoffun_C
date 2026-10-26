@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define N 4096
@@ -26,9 +27,11 @@ static inline float rsqrt_exact(float x) {
 }
 
 static inline float rsqrt_appr(float x) {
-    uint32_t i = *(uint32_t*)&x;
+    uint32_t i;
+    memcpy(&i, &x, sizeof(i));
     i = -(i >> 1) + 0x5f3759df;
-    return *(float*)&i;
+    memcpy(&x, &i, sizeof(x));
+    return x;
 }
 
 static inline float rsqrt_nr(float x, float y) {
@@ -41,7 +44,7 @@ static inline float rsqrt_appr_nr(float x) {
 }
 
 int main() {
-    srand(time(NULL));
+    srand(42);
 
     float y_sum[M] = { 0 };
     double t[M] = { 0 };
@@ -50,7 +53,7 @@ int main() {
         struct timespec start, stop;
         float x[N], y[N];
         for (int i = 0; i < N; i++) {
-            x[i] = rand();
+            x[i] = (float)rand() + 1.0f;
         }
 
         clock_gettime(CLOCK_REALTIME, &start);
