@@ -29,7 +29,9 @@ No third-party test framework is required.
 
 The root Makefile delegates configuration, build, tests, and documentation to
 `mk/config.mk`, `mk/build.mk`, `mk/test.mk`, and `mk/docs.mk` respectively.
-`mk/examples.mk` owns the explicit example allowlist and demo targets.
+`mk/examples.mk` owns the explicit example allowlist and demo targets. All
+supported examples link the shared algorithm objects, just like C tests; no
+per-example dependency list is needed.
 Libraries belong in `LDLIBS`, linker options in `LDFLAGS`, preprocessor options
 in `CPPFLAGS`. Header dependencies are generated automatically (`-MMD -MP`).
 
@@ -67,6 +69,142 @@ run the full benchmark suite. Add `tests/test_*.c` files for new algorithm tests
 Make discovers them automatically. CI runs normal and sanitizer tests with both
 GCC and Clang. CI also builds and smoke-tests the curated examples and runs the
 tour; unsafe historical experiments are deliberately excluded.
+
+## Adding an algorithm or trick
+
+Keep the algorithm independent of input/output. Reuse an existing module when
+the topic fits; otherwise add `include/<name>.h` and `src/<name>.c`. Make discovers
+`src/*.c` automatically. Do not add another registry or copy the implementation
+into tests, examples, or benchmarks. A CLI option is optional: an example is the
+simplest way to run an experiment without extending `src/main.c`.
+
+### 1. Define the contract and implement
+
+Document input ranges, zero/overflow behavior, ownership, approximation error,
+and platform assumptions in the public header. Prefer fixed-width unsigned
+integers for bit tricks. Avoid signed overflow, out-of-range shifts, and pointer
+type-punning; use `memcpy` for bit representations. State preconditions explicitly
+rather than silently relying on undefined behavior.
+
+For example, a new `include/bit_count.h` could contain:
+
+```c
+#ifndef BIT_COUNT_H
+#define BIT_COUNT_H
+#include <stdint.h>
+
+/** Count set bits in any uint32_t value, including zero. */
+unsigned bit_count(uint32_t value);
+#endif
+```
+
+With `src/bit_count.c`:
+
+```c
+#include "bit_count.h"
+
+unsigned bit_count(uint32_t value) {
+    unsigned count = 0;
+    while (value) {
+        value &= value - 1;
+        ++count;
+    }
+    return count;
+}
+```
+
+These snippets are a recipe, not an additional installed API. Use a descriptive
+name for your actual algorithm, preserve attribution, and explain why the trick
+works. Keep a straightforward reference implementation in tests, not production.
+
+### 2. Add a deterministic test
+
+Create `tests/test_bit_count.c`; all `tests/test_*.c` files are discovered and
+linked with the shared implementation automatically. Use `CHECK` from `check.h`,
+not `assert` (which disappears with `NDEBUG`). Each test file has its own `main`:
+
+```c
+#include "bit_count.h"
+#include "check.h"
+
+static unsigned reference(uint32_t value) {
+    unsigned count = 0;
+    for (unsigned bit = 0; bit < 32; ++bit) {
+        count += (value >> bit) & 1u;
+    }
+    return count;
+}
+
+int main(void) {
+    CHECK(bit_count(0) == 0);
+    CHECK(bit_count(UINT32_MAX) == 32);
+    for (unsigned bit = 0; bit < 32; ++bit) {
+        CHECK(bit_count(UINT32_C(1) << bit) == 1);
+    }
+    uint32_t state = 1; /* Fixed seed: failures are reproducible. */
+    for (unsigned i = 0; i < 10000; ++i) {
+        state = state * UINT32_C(1664525) + UINT32_C(1013904223);
+        CHECK(bit_count(state) == reference(state));
+        CHECK(bit_count(state) + bit_count(~state) == 32);
+    }
+    return EXIT_SUCCESS;
+}
+```
+
+Cover known answers and boundaries first, then compare against an independent
+reference and check properties (round trips, invariants, monotonicity where
+applicable). Test invalid inputs only when the API defines their behavior. For
+floating point, specify absolute/relative tolerances and test the documented
+domain, including non-finite values if supported. Do not use timings as assertions.
+
+```sh
+make list-tests
+make run-test TEST=test_bit_count
+make DEBUG=1 run-test TEST=test_bit_count
+make SANITIZE=1 run-test TEST=test_bit_count
+make test-unit                   # All C tests, without building the CLI
+```
+
+### 3. Make it runnable (optional)
+
+Add `examples/bit_count.c` with a finite, non-interactive `main` that calls the
+shared API and prints the result. Add `bit_count` to `EXAMPLE_NAMES` in
+`mk/examples.mk` and describe it in `examples/README.md`. This explicit allowlist
+keeps unsafe historical programs out of normal builds; do not glob all examples.
+No other build rule is needed, even when the example uses shared algorithms.
+
+```sh
+make list-examples
+make run-example EXAMPLE=bit_count
+make test-examples
+```
+
+`tests/test_examples.py` already checks exit status, nonempty output, and a
+15-second timeout for every listed example. Add algorithm-specific output and
+invalid-argument checks there when needed; smoke tests alone do not prove
+correctness. If the example accepts arguments, validate them before narrowing
+types; reuse `cli_values.h` rather than `atoi` or unchecked conversions.
+
+If a main-application CLI option is useful, add its option/dispatch in
+`src/main.c`, validate argument count and numeric range, and extend
+`tests/test_cli.py` with success, boundary, missing, and invalid-input cases.
+Update `docs/usage.md`; add a checked scenario to `demos/tour.py` only if useful.
+Keep parsing and printing outside the algorithm.
+
+### 4. Verify before submitting
+
+```sh
+make -j2 check                   # C + CLI tests, supported examples, CLI tour
+make sanitize                   # C + CLI tests under ASan/UBSan
+make CC=clang BUILD_DIR=build/clang BIN_DIR=bin/clang check
+make docs                       # If Doxygen is installed
+```
+
+`make SANITIZE=1 check` also checks examples and the tour with instrumentation.
+Review compiler warnings, public contracts, reference/property tests, and docs.
+If claiming a speedup, benchmark separately with the same inputs/compiler/flags,
+consume results to discourage dead-code elimination, and report tradeoffs and
+error bounds. A shorter expression is not necessarily faster or more portable.
 
 ## API limitations
 

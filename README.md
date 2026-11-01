@@ -32,6 +32,8 @@ Optional Nix environment: run `nix-shell`, then use the same commands.
 make                          # Build bin/theartoffun
 make run ARGS="--help"        # Build and run
 make test                     # Unit, property, and CLI integration tests
+make run-test TEST=test_algorithms # Build and run one C test
+make check                    # Tests, example smoke tests, and CLI tour
 make sanitize                 # Tests with ASan and UBSan
 make DEBUG=1 test             # Debug build and tests
 make examples                 # Build 19 finite C programs
@@ -96,6 +98,8 @@ terminal animations, and IOCCC submissions are explicitly excluded. See the
 
 - [Development guide](docs/development.md): build configuration, tests, API
   contracts and limitations, and GitHub Pages setup.
+- [Adding an algorithm or trick](docs/development.md#adding-an-algorithm-or-trick):
+  minimal implementation, test recipe, runnable examples, and review checklist.
 - [Original articles](https://github.com/alexeev-prog/theartoffun_c/blob/main/docs/article.md): background on mathematics and C tricks;
   further parts are in `docs/article_part*.md`.
 - Generate API documentation with `make docs`. The documentation workflow

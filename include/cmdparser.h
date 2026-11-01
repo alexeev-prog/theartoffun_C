@@ -130,8 +130,8 @@ static inline struct CommandOption* find_option(
  * @param options_count Number of options
  * @return int Index of first non-option argument or -1 on error
  */
-static inline int cmdparser_parse(int argc, char** argv, struct CommandOption* options,
-                                  size_t options_count, unsigned char* seen) {
+static inline int cmdparser_parse(
+    int argc, char** argv, struct CommandOption* options, size_t options_count, unsigned char* seen) {
     int i = 1;
 
     while (i < argc) {
@@ -174,8 +174,9 @@ static inline int cmdparser_parse(int argc, char** argv, struct CommandOption* o
                 if (value) {
                     *(char**)opt->handler = (char*)value + 1;
                 } else {
-                    if (i + 1 < argc && (argv[i + 1][0] != '-' ||
-                        (argv[i + 1][1] >= '0' && argv[i + 1][1] <= '9') || argv[i + 1][1] == '.')) {
+                    if (i + 1 < argc
+                        && (argv[i + 1][0] != '-' || (argv[i + 1][1] >= '0' && argv[i + 1][1] <= '9')
+                            || argv[i + 1][1] == '.')) {
                         *(char**)opt->handler = argv[++i];
                     } else if (opt->default_value) {
                         *(char**)opt->handler = (char*)opt->default_value;
@@ -224,8 +225,9 @@ static inline int cmdparser_parse(int argc, char** argv, struct CommandOption* o
                         *(char**)opt->handler = (char*)chars;
                         break;    // Process next argument
                     } else {
-                        if (i + 1 < argc && (argv[i + 1][0] != '-' ||
-                            (argv[i + 1][1] >= '0' && argv[i + 1][1] <= '9') || argv[i + 1][1] == '.')) {
+                        if (i + 1 < argc
+                            && (argv[i + 1][0] != '-' || (argv[i + 1][1] >= '0' && argv[i + 1][1] <= '9')
+                                || argv[i + 1][1] == '.')) {
                             *(char**)opt->handler = argv[++i];
                         } else if (opt->default_value) {
                             *(char**)opt->handler = (char*)opt->default_value;
@@ -256,24 +258,28 @@ static inline int cmdparser_parse(int argc, char** argv, struct CommandOption* o
  * Dash-prefixed text values must use --name=-text. No argv strings are modified.
  */
 static inline int parse_options(int argc, char** argv, struct CommandOption* options, size_t count) {
-    if (argc < 1 || !argv || (count && !options)) return -1;
+    if (argc < 1 || !argv || (count && !options)) {
+        return -1;
+    }
     for (size_t i = 0; i < count; i++) {
-        if (!options[i].handler || (!options[i].long_name && !options[i].short_name) ||
-            (options[i].has_arg != 0 && options[i].has_arg != 1)) {
+        if (!options[i].handler || (!options[i].long_name && !options[i].short_name)
+            || (options[i].has_arg != 0 && options[i].has_arg != 1)) {
             fprintf(stderr, "Invalid option table\n");
             return -1;
         }
         for (size_t j = 0; j < i; j++) {
-            if ((options[i].short_name && options[i].short_name == options[j].short_name) ||
-                (options[i].long_name && options[j].long_name &&
-                 strcmp(options[i].long_name, options[j].long_name) == 0)) {
+            if ((options[i].short_name && options[i].short_name == options[j].short_name)
+                || (options[i].long_name && options[j].long_name
+                    && strcmp(options[i].long_name, options[j].long_name) == 0)) {
                 fprintf(stderr, "Duplicate name in option table\n");
                 return -1;
             }
         }
     }
     unsigned char* seen = calloc(count ? count : 1, 1);
-    if (!seen) return -1;
+    if (!seen) {
+        return -1;
+    }
     int result = cmdparser_parse(argc, argv, options, count, seen);
     free(seen);
     return result;
