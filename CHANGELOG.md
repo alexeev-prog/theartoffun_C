@@ -1,3 +1,45 @@
+commit c8866db7609f86c0afff84d1aa22d14bbf7285f8
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Nov 2 16:07:28 2026 +0700
+
+    docs: update Doxyfile inputs
+
+commit 869a56c8c9a5e630368c553d864bfaa97c5dddb1
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Nov 2 16:00:38 2026 +0700
+
+    update docs theme
+
+commit 15990b813ba78da3fd8f694750da48325091506f
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sun Nov 1 23:20:26 2026 +0700
+
+    add development guide and improve code integration
+
+commit 23f06357794f66499648d82cc960348db753939a
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Tue Oct 27 00:08:34 2026 +0700
+
+    improve structure, docs and launching
+
+commit 82936f8a4da068bda3063685dacad8944da0300f
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Oct 26 23:40:06 2026 +0700
+
+    fix docs workflow
+
+commit 857fa7247199fb16aee819368ed2a55d8c2ec588
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Mon Oct 26 23:30:29 2026 +0700
+
+    refactor structure
+
+commit adca24984683678ebafca612be9e014e9c4660ea
+Author: Alexeev Bronislav <alexeev.dev@mail.ru>
+Date:   Sun Mar 8 02:13:40 2026 +0700
+
+    Update 2026-03-08 02:13:40
+
 commit 7f0417677bd8003e9416f3025898c776300bd03d
 Author: Alexeev Bronislav <alexeev.dev@mail.ru>
 Date:   Sat Feb 7 04:20:51 2026 +0700
