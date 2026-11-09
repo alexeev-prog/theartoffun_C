@@ -1,7 +1,7 @@
 PROJECT_NAME           = "The Art of Fun C"
 PROJECT_BRIEF          = "Educational algorithms, experiments and benchmarks in C"
 OUTPUT_DIRECTORY       = build/docs
-INPUT                  = README.md docs/development.md docs/usage.md include src examples demos/README.md include tests
+INPUT                  = README.md results/ docs/development.md docs/usage.md include src examples demos/README.md include tests
 USE_MDFILE_AS_MAINPAGE  = README.md
 FILE_PATTERNS          = *.h *.c *.md
 RECURSIVE              = YES

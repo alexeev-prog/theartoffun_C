@@ -20,7 +20,7 @@ run-test:
 	@exit 2
 endif
 
-check: test test-examples demo
+check: test test-examples demo test-benchmarks
 
 $(BUILD_DIR)/tests/%: tests/%.c $(LIB_OBJECTS)
 	@mkdir -p $(@D)

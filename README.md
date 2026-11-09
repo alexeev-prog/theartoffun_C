@@ -6,6 +6,8 @@
 **[CLI cookbook](docs/usage.md) · [Example catalog](examples/README.md) ·
 [Development](docs/development.md)**
 
+**[Structured benchmarks and offline charts](docs/benchmarks.md)**
+
 An educational collection of C algorithms, bit tricks, approximate mathematics,
 pseudorandom generators, and timing experiments. The main application exposes
 selected algorithms through a command-line interface. This is an exploration
@@ -41,6 +43,9 @@ make run-example EXAMPLE=mortoncode ARGS="10 13"
 make test-examples            # Timeout-protected smoke tests
 make demo                     # Checked, deterministic CLI tour
 make docs                     # Requires Doxygen; build/docs/html/index.html
+make benchmark                # Save raw CSV samples and metadata in results/benchmarks/
+make benchmark-list           # List structured benchmark algorithms
+make test-benchmarks          # Test CSV collection and offline SVG generation
 make clean                    # Remove build/ and bin/
 make help                     # Show build targets
 ```
@@ -70,11 +75,18 @@ Choose one operation per invocation. Duplicate options, invalid numeric ranges,
 and extra arguments are rejected. RLE decoding is capped at 1 MiB in the CLI.
 Benchmark results are machine-dependent, not correctness tests.
 
+For repeatable measurements and charts, use `make benchmark`, then independently
+run `make benchmark-plots BENCHMARK_INPUT=results/benchmarks/RUN PLOT_OUTPUT=results/plots/RUN`.
+See the [benchmark guide](docs/benchmarks.md) for parameters, CSV schema, workload
+definitions, and interpretation. Plotting requires only Python 3.9+ and saved CSV,
+not the application or any third-party Python packages.
+
 ## Repository structure
 
 ```text
 include/          Shared API headers and header-only CLI parser
 src/              Algorithm implementations, main.c, benchmarks.c
+benchmarks/       Structured C benchmark worker, CSV collector, offline SVG renderer
 tests/            C unit/property tests and Python CLI tests
 examples/         Runnable C examples, catalog, and preserved historical sources
 demos/            Checked multi-command application tour

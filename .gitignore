@@ -58,3 +58,5 @@ build/
 .vscode/
 bonsai
 winner2024ioccc
+/results/
+__pycache__/

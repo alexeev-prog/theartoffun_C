@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build and test
-        run: make -j2 CC=${{ matrix.cc }} test
+        run: make -j2 CC=${{ matrix.cc }} test test-benchmarks
       - name: AddressSanitizer and UBSan
         run: make CC=${{ matrix.cc }} sanitize
       - name: Finite examples and guided tour
