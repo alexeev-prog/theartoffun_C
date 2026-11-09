@@ -4,6 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/** Reset the historical global-state generators to a reproducible nonzero seed.
+ * Affects wyrand, ranq1, msws32, romu_duo, sfc32 and jsf32. Not thread-safe. */
+void legacy_prng_seed(uint64_t seed);
+
 typedef struct {
     uint64_t state;
     uint64_t inc;

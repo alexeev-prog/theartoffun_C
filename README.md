@@ -47,6 +47,7 @@ make benchmark                # Save raw CSV samples and metadata in results/ben
 make benchmark-list           # List structured benchmark algorithms
 make test-benchmarks          # Test CSV collection and offline SVG generation
 make clean                    # Remove build/ and bin/
+make clean-results            # Delete saved runs, reports and archives in results/
 make help                     # Show build targets
 ```
 
@@ -77,6 +78,10 @@ Benchmark results are machine-dependent, not correctness tests.
 
 For repeatable measurements and charts, use `make benchmark`, then independently
 run `make benchmark-plots BENCHMARK_INPUT=results/benchmarks/RUN PLOT_OUTPUT=results/plots/RUN`.
+The offline report includes input scenarios, separately measured absolute/relative
+accuracy, error distributions, time–accuracy comparisons, CPU/memory/compiler
+metadata, downloadable CSV and a portable `site.zip`. Measurement batches are
+calibrated and repeated across independent sequential processes in shuffled order.
 See the [benchmark guide](docs/benchmarks.md) for parameters, CSV schema, workload
 definitions, and interpretation. Plotting requires only Python 3.9+ and saved CSV,
 not the application or any third-party Python packages.

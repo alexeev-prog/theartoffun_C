@@ -1,0 +1,10 @@
+{
+  "aliases": {
+    "pcg32_random_r": "pcg32",
+    "xoshiro256pp_next": "xoshiro256pp",
+    "tinymt32_generate": "tinymt32"
+  },
+  "excluded": {
+    "print_hex": "Console formatting/I/O helper, not an algorithm timing workload; printing would contaminate the CSV protocol."
+  }
+}

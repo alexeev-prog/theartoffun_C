@@ -36,4 +36,5 @@ help:
 	@echo 'make benchmark-plots BENCHMARK_INPUT=results/benchmarks/RUN PLOT_OUTPUT=results/plots/RUN'
 	@echo 'make test-benchmarks  Validate benchmark collection and offline plotting'
 	@echo 'make clean       Remove generated build output'
+	@echo 'make clean-results  Delete all saved runs and reports in results/'
 	@echo 'Options: CC=clang DEBUG=1 BUILD_DIR=build/custom BIN_DIR=bin/custom'

@@ -33,6 +33,22 @@ typedef struct {
 
 static jsf32_state_t jsf32_global = { 0x12345678, 0x9ABCDEF0, 0x13579BDF, 0x2468ACE0 };
 
+void legacy_prng_seed(uint64_t seed) {
+    if (seed == 0) {
+        seed = 1;
+    }
+    wyrand_state = ranq1_state = seed;
+    msws_x = seed;
+    msws_w = 0;
+    romu_duo_state1 = seed;
+    romu_duo_state2 = seed ^ UINT64_C(0x9e3779b97f4a7c15);
+    for (unsigned i = 0; i < 4; ++i) {
+        sfc32_state[i] = (uint32_t)(seed >> (i % 2 * 32)) + i + 1;
+        jsf32_state[i] = sfc32_state[i];
+    }
+    jsf32_global = (jsf32_state_t){ jsf32_state[0], jsf32_state[1], jsf32_state[2], jsf32_state[3] };
+}
+
 uint32_t jsf32() {
     jsf32_state_t* s = &jsf32_global;
     uint32_t e = s->a - ((s->b << 27) | (s->b >> 5));

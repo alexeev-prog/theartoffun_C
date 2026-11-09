@@ -1,4 +1,5 @@
 """CLI integration tests using only Python's standard library."""
+
 import pathlib
 import subprocess
 import sys
@@ -66,16 +67,27 @@ class CLITests(unittest.TestCase):
 
     def test_strict_validation(self):
         for args in [
-            ["--div3", "-1"], ["--div3", "4294967296"], ["--div3="],
-            ["--div3", "3", "extra"], ["--isqrt", "nan"],
-            ["--morton-encode", "65536", "1"], ["--levenshtein", "one"],
-            ["--fast-mod", "10", "3"], ["--rle-decode", "1048577a"],
-            ["--div3", "3", "--isqrt", "4"], ["--div3", "3", "--div3", "4"],
-            ["--binary-power", "--exponent", "2"], ["--exponent", "2"],
-            ["--fib", "100000"], ["--fib-cache", "nan"],
-            ["--leap-year", "1e3"], ["--zellers-day", "31", "2", "2024"],
-            ["--xor-swap", "1e2", "3"], ["--fast-pow", "nan", "2"],
-            ["--fastest-pow", "2", "inf"], ["--jenkins-hash", "text", "badseed"],
+            ["--div3", "-1"],
+            ["--div3", "4294967296"],
+            ["--div3="],
+            ["--div3", "3", "extra"],
+            ["--isqrt", "nan"],
+            ["--morton-encode", "65536", "1"],
+            ["--levenshtein", "one"],
+            ["--fast-mod", "10", "3"],
+            ["--rle-decode", "1048577a"],
+            ["--div3", "3", "--isqrt", "4"],
+            ["--div3", "3", "--div3", "4"],
+            ["--binary-power", "--exponent", "2"],
+            ["--exponent", "2"],
+            ["--fib", "100000"],
+            ["--fib-cache", "nan"],
+            ["--leap-year", "1e3"],
+            ["--zellers-day", "31", "2", "2024"],
+            ["--xor-swap", "1e2", "3"],
+            ["--fast-pow", "nan", "2"],
+            ["--fastest-pow", "2", "inf"],
+            ["--jenkins-hash", "text", "badseed"],
         ]:
             with self.subTest(args=args):
                 self.assertNotEqual(self.run_cli(*args).returncode, 0)
