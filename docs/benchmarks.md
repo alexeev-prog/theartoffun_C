@@ -45,6 +45,7 @@ accuracy references are registered for these example-only functions yet.
 
 ```sh
 make benchmark-list
+make benchmark-report  # One command: build, measure, render graphs/site and ZIP
 make benchmark
 # Copy the exact run directory printed by the collector:
 make benchmark-plots BENCHMARK_INPUT=results/benchmarks/RUN PLOT_OUTPUT=results/plots/RUN
@@ -84,7 +85,7 @@ make benchmark BENCH_ARGS="--algorithms xorshift64 pcg32"
 ```
 
 Defaults: all algorithms and compatible scenarios, sizes 64/256/1024/4096,
-seven samples per process, three independent sequential processes per workload,
+seven samples per process, three independent processes per workload,
 two warmup batches, minimum batch duration 20 ms, initial 10,000 iterations,
 seed 42, timeout 120 seconds per worker. A full run can take several minutes.
 `--iterations` is the **initial calibration count**, not a fixed batch size.
@@ -214,8 +215,40 @@ The worker measures CLOCK_MONOTONIC wall time. Before each independent process's
 measurements it calibrates count towards `--min-time-ms`, bounded by 12 attempts
 and 1e9 operations. Calibration and warmup are excluded from CSV. The target is
 best-effort, not a guarantee under OS scheduling noise. Actual counts/durations
-are saved per sample. All process/workload jobs run sequentially in seeded
-shuffled order, even under `make -j`. No baseline subtraction or outlier removal.
+are saved per sample. Jobs are submitted in seeded shuffled order to a bounded
+pool of native C processes. Default concurrency is up to four available CPUs;
+`--jobs N` controls the pool independently of Make's `-j`. `--processes N` controls
+independent repetitions of each workload, not pool size. Use `--jobs 1` for isolated
+timing: parallel jobs compete for CPU, cache, memory and power/thermal budget.
+Parallel results are explicitly identified as under-load measurements in metadata
+and report warnings; parallelism is not a noise-reduction technique. OS scheduling
+makes actual execution order nondeterministic. No baseline subtraction or outlier removal.
+
+```sh
+make benchmark-report BENCH_ARGS="--jobs 4 --processes 5 --samples 9 --min-time-ms 50"
+make benchmark-report BENCH_ARGS="--algorithms xorshift64 pcg32 gjf64 tyche_next --jobs 2 --processes 3"
+# For reproducible isolated performance comparisons:
+make benchmark-report BENCH_ARGS="--jobs 1 --processes 5 --min-time-ms 50"
+```
+
+The one-command target keeps the same separate CSV and rendering stages. It prints
+the CSV run directory and generated `index.html`; the site is published under
+`PLOT_OUTPUT/RUN`. On rendering failure the completed raw CSV remains available.
+`make benchmark` still only collects; `make benchmark-plots` remains offline.
+
+Every function/size now also has three diagnostic plots: `SIZE-runs.svg` (one raw
+sample trace per independent process), `SIZE-throughput.svg` (million operations/s),
+and `SIZE-run-summary.svg` (per-process median and min–max). Group per-run plots
+compare matching workloads; `runs.csv` preserves per-process summaries. These are
+especially useful for PRNGs, where input-size scaling is meaningless: the original
+size plot is one point, not an invented curve. Throughput is operations/s, **not
+bits/s**; generators returning different widths or ranges are not equivalent.
+No smoothing, outlier deletion or randomness-quality claim is made.
+
+Both `src/benchmarks.c` (legacy human-readable suite) and the structured worker use
+the shared checked POSIX monotonic clock in `include/benchmark_clock.h`. The CLI
+suite keeps its historical entry points and output; structured measurements remain
+native C and do not time CLI startup or parse human-readable benchmark output.
 
 Avoid concurrent workloads. Prefer release builds, stable CPU frequency/power
 policy and CPU affinity. The report records observed affinity but does not change

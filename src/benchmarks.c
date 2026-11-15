@@ -19,6 +19,11 @@
 #include "compressing.h"
 #include "fib_algos.h"
 #include "pow_algos.h"
+#ifndef _WIN32
+#    include "benchmark_clock.h"
+/* Keep the historical text API while sharing checked clock handling. */
+#    define clock_gettime benchmark_clock_gettime
+#endif
 
 /* Keep computed results observable without adding volatile work to timed loops. */
 static volatile double benchmark_sink;

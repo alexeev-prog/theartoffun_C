@@ -128,6 +128,8 @@ def build(source, output, series, chart):
     groups = defaultdict(dict)
     tradeoffs = defaultdict(dict)
     maxima = defaultdict(lambda: defaultdict(dict))
+    run_rows = []
+    run_comparisons = defaultdict(lambda: defaultdict(dict))
 
     def image(path, title, axis, lines, **kwargs):
         (output / path).parent.mkdir(parents=True, exist_ok=True)
@@ -234,6 +236,61 @@ def build(source, output, series, chart):
             )[1]
         raw = raw_samples[(group, name)]
         raw = [r for r in raw if r.get("scenario", "legacy") == scenario]
+        for size in sorted(values):
+            selected = [r for r in raw if int(r["size"]) == size]
+            runs = defaultdict(dict)
+            throughput = defaultdict(dict)
+            medians = {}
+            for process in sorted({int(r.get("process", "1")) for r in selected}):
+                samples_ = sorted(
+                    (r for r in selected if int(r.get("process", "1")) == process),
+                    key=lambda r: int(r["sample"]),
+                )
+                label = f"run {process}"
+                runs[label] = {
+                    int(r["sample"]): [float(r["ns_per_op"])] for r in samples_
+                }
+                throughput[label] = {
+                    int(r["sample"]): [1000 / float(r["ns_per_op"])] for r in samples_
+                }
+                times = [float(r["ns_per_op"]) for r in samples_]
+                medians[process] = times
+                run_comparisons[(group, scenario, size)][name][process] = times
+                run_rows.append(
+                    dict(
+                        group=group,
+                        algorithm=name,
+                        scenario=scenario,
+                        size=size,
+                        process=process,
+                        samples=len(times),
+                        median_ns=statistics.median(times),
+                        min_ns=min(times),
+                        max_ns=max(times),
+                        million_ops_per_second=1000 / statistics.median(times),
+                    )
+                )
+            body += image(
+                base / f"{size}-runs.svg",
+                f"{name}: independent runs, size={size}",
+                "sample within run",
+                runs,
+                subtitle="raw samples; separate line per process",
+            )
+            body += image(
+                base / f"{size}-throughput.svg",
+                f"{name}: throughput, size={size}",
+                "sample within run",
+                throughput,
+                ylabel="million operations / second",
+                subtitle="higher is faster; includes batch overhead, not randomness quality",
+            )
+            body += image(
+                base / f"{size}-run-summary.svg",
+                f"{name}: run summary, size={size}",
+                "independent run",
+                {name: medians},
+            )
 
         def extent(key):
             values_ = sorted({int(r[key]) for r in raw})
@@ -282,6 +339,15 @@ def build(source, output, series, chart):
                 lines,
             )
         )
+    for (group, scenario, size), lines in sorted(run_comparisons.items()):
+        overview.append(
+            image(
+                Path(group) / scenario / f"{size}-runs.svg",
+                f"{group}: per-run comparison, size={size}",
+                "independent run",
+                lines,
+            )
+        )
     for (group, scenario, size), lines in sorted(tradeoffs.items()):
         overview.append(
             image(
@@ -307,6 +373,8 @@ def build(source, output, series, chart):
         )
     write_csv(output / "summary.csv", list(timing_rows[0]), timing_rows)
     downloads.append("summary.csv")
+    write_csv(output / "runs.csv", list(run_rows[0]), run_rows)
+    downloads.append("runs.csv")
     if accuracy_rows:
         fields = list(dict.fromkeys(k for row in accuracy_rows for k in row))
         write_csv(output / "accuracy-summary.csv", fields, accuracy_rows)
@@ -319,6 +387,11 @@ def build(source, output, series, chart):
                 f"{path.parent.name}: batches under 1 ms; increase --min-time-ms"
             )
     warnings = list(dict.fromkeys(warnings))
+    if metadata.get("concurrency", {}).get("effective_workers", 1) > 1:
+        warnings.insert(
+            0,
+            "Parallel benchmark workers were enabled: shared CPU/cache/memory contention affects timings. Use --jobs 1 for isolated measurements.",
+        )
     report = {
         "metadata": metadata,
         "timing_workloads": len(timing_rows),
@@ -412,7 +485,7 @@ def build(source, output, series, chart):
         + escape(json.dumps(metadata, indent=2, ensure_ascii=False))
         + "</pre></details></section>"
     )
-    experiment += """<section id="method"><h2>Method &amp; interpretation</h2><p>Wall time: CLOCK_MONOTONIC. Calibration and warmup excluded. Independent worker processes are run sequentially in seeded shuffled order. Algorithm initialization, input indexing, checksums, sorting copies and decode allocation may contribute to timing. No empty-loop subtraction. Samples from different processes are pooled; whiskers are observed min–max, not confidence intervals.</p>
+    experiment += """<section id="method"><h2>Method &amp; interpretation</h2><p>Wall time: CLOCK_MONOTONIC. Calibration and warmup excluded. Worker scheduling and concurrency are recorded in metadata (older runs were sequential). With parallel workers, timings include resource contention; use --jobs 1 for isolation. Submission order is seeded and shuffled, execution order is OS-dependent. Algorithm initialization, input indexing, checksums, sorting copies and decode allocation may contribute to timing. No empty-loop subtraction. Summary samples from different processes are pooled; per-run graphs retain individual runs. Whiskers are observed min–max, not confidence intervals.</p>
 <p>Accuracy is measured separately, on the same deterministic input set, against registered double-precision references (not arbitrary-precision mathematical truth). Absolute error = |actual − reference|; relative error = absolute / |reference|, undefined for a zero reference. Maximum means the maximum over sampled inputs, not a global bound. ECDF includes every observed point, including duplicates and zeros. CV = sample standard deviation / mean. Timing/accuracy plots match group, scenario and size; lower-left is better. Not all algorithms within a group are interchangeable.</p>
 <p>Scenarios: random = seeded uniform data; sorted/reverse = ascending/descending input; repeated = one value/long character run; boundary = alternating range endpoints/characters; default = stateful PRNG, size fixed to 1. For power, raw input maps to base 1 + input/size, exponent 7. Date inputs are bounded valid dates. Byte scenarios use lowercase text valid for RLE. Sorting restores input each operation. Accuracy references exist only where explicitly registered; hashes and PRNGs have no numerical-error metric.</p></section>"""
     experiment += (

@@ -17,6 +17,7 @@ clean:
 	$(RM) -r -- build bin
 
 help:
+	@echo 'make benchmark-report  Collect parallel native benchmarks + graphs + offline ZIP (BENCH_ARGS="--jobs 4 --processes 3")'
 	@echo 'make [all]       Build bin/theartoffun'
 	@echo 'make run ARGS="--help"'
 	@echo 'make test        Unit/property tests and CLI integration tests'

@@ -132,6 +132,29 @@ class Benchmarks(unittest.TestCase):
             self.assertFalse(set(functions) - names, option)
             self.assertTrue(functions or option in {"help", "exponent", "benchmark"})
 
+    def test_parallel_one_command_report(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            result = self.command(sys.executable, ROOT / "benchmarks/run.py", "--runner", RUNNER,
+                                  "--output", root / "csv", "--report-output", root / "site",
+                                  "--algorithms", "xorshift64", "pcg32", "--jobs", 2,
+                                  "--processes", 3, "--samples", 3, "--min-time-ms", 1,
+                                  "--iterations", 20, "--warmups", 1)
+            raw, index = map(Path, result.stdout.splitlines())
+            metadata = json.loads((raw / "metadata.json").read_text())
+            self.assertEqual(metadata["concurrency"]["effective_workers"], 2)
+            self.assertFalse(metadata["concurrency"]["timing_isolation"])
+            site = index.parent
+            with (site / "runs.csv").open() as stream:
+                runs = list(csv.DictReader(stream))
+            self.assertEqual(len(runs), 6)
+            self.assertEqual({r["process"] for r in runs}, {"1", "2", "3"})
+            self.assertTrue(all(r["samples"] == "3" for r in runs))
+            self.assertTrue((site / "prng/xorshift64/default/1-throughput.svg").exists())
+            self.assertTrue((site / "prng/xorshift64/default/1-runs.svg").exists())
+            report = json.loads((site / "report.json").read_text())
+            self.assertTrue(any("Parallel" in warning for warning in report["warnings"]))
+
     def test_invalid_worker_arguments(self):
         for name, size, count in [
             ("missing", 64, 1),
@@ -186,7 +209,7 @@ class Benchmarks(unittest.TestCase):
             )
             for image in output.rglob("*.svg"):
                 ET.parse(image)
-            self.assertEqual(len(list(output.rglob("*.svg"))), 3)
+            self.assertEqual(len(list(output.rglob("*.svg"))), 17)
             with zipfile.ZipFile(output / "site.zip") as archive:
                 self.assertIn("index.html", archive.namelist())
                 self.assertIn("data/metadata.json", archive.namelist())

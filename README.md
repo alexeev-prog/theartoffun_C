@@ -44,6 +44,7 @@ make test-examples            # Timeout-protected smoke tests
 make demo                     # Checked, deterministic CLI tour
 make docs                     # Requires Doxygen; build/docs/html/index.html
 make benchmark                # Save raw CSV samples and metadata in results/benchmarks/
+make benchmark-report         # Parallel native measurements + graphs + offline site/ZIP
 make benchmark-list           # List structured benchmark algorithms
 make test-benchmarks          # Test CSV collection and offline SVG generation
 make clean                    # Remove build/ and bin/

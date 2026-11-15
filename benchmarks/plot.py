@@ -107,6 +107,8 @@ def svg(
     left, top, plot_width, plot_height = 100, 70, 850, 370
 
     def x(size):
+        if len(sizes) == 1:
+            return left + plot_width / 2
         return (
             left + ((size - min(sizes)) / (max(sizes) - min(sizes) or 1)) * plot_width
         )

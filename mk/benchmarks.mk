@@ -2,7 +2,7 @@ BENCHMARK_TARGET := $(BIN_DIR)/benchmark
 BENCHMARK_OUTPUT ?= results/benchmarks
 PLOT_OUTPUT ?= results/plots
 
-.PHONY: benchmark benchmark-build benchmark-list benchmark-plots test-benchmarks clean-results
+.PHONY: benchmark benchmark-report benchmark-build benchmark-list benchmark-plots test-benchmarks clean-results
 clean-results:
 	$(RM) -r -- results
 
@@ -22,6 +22,9 @@ $(BENCHMARK_TARGET): $(BUILD_DIR)/benchmark-runner.o $(BUILD_DIR)/benchmark-exam
 
 benchmark: benchmark-build
 	BENCH_CC='$(CC)' BENCH_CFLAGS='$(CFLAGS)' BENCH_CPPFLAGS='$(CPPFLAGS)' python3 benchmarks/run.py --runner "$(BENCHMARK_TARGET)" --output "$(BENCHMARK_OUTPUT)" $(BENCH_ARGS)
+
+benchmark-report: benchmark-build
+	BENCH_CC='$(CC)' BENCH_CFLAGS='$(CFLAGS)' BENCH_CPPFLAGS='$(CPPFLAGS)' python3 benchmarks/run.py --runner "$(BENCHMARK_TARGET)" --output "$(BENCHMARK_OUTPUT)" --report-output "$(PLOT_OUTPUT)" $(BENCH_ARGS)
 
 benchmark-list: benchmark-build
 	$(BENCHMARK_TARGET) --list

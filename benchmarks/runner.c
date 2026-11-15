@@ -10,6 +10,7 @@
 #include "algos.h"
 #include "compressing.h"
 #include "example_algorithms.h"
+#include "benchmark_clock.h"
 #include "fib_algos.h"
 #include "levenshtein.h"
 #include "mortoncode.h"
@@ -358,12 +359,7 @@ static uint64_t number(const char* text, uint64_t max) {
 }
 
 static uint64_t now_ns(void) {
-    struct timespec t;
-    if (clock_gettime(CLOCK_MONOTONIC, &t)) {
-        perror("clock_gettime");
-        exit(1);
-    }
-    return (uint64_t)t.tv_sec * UINT64_C(1000000000) + (uint64_t)t.tv_nsec;
+    return benchmark_now_ns();
 }
 
 int main(int argc, char** argv) {

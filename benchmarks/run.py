@@ -16,6 +16,7 @@ import sys
 import tempfile
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from data import write_csv
 
 
@@ -100,12 +101,26 @@ def main():
         "--processes",
         type=positive,
         default=3,
-        help="independent sequential worker launches",
+        help="independent runs per workload",
     )
     parser.add_argument(
         "--min-time-ms", type=positive, default=20, help="calibration target per batch"
     )
     parser.add_argument("--list", action="store_true")
+    parser.add_argument(
+        "--jobs",
+        type=positive,
+        default=min(
+            4,
+            len(os.sched_getaffinity(0))
+            if hasattr(os, "sched_getaffinity")
+            else os.cpu_count() or 1,
+        ),
+        help="maximum concurrent C workers; use 1 for isolated timing",
+    )
+    parser.add_argument(
+        "--report-output", type=Path, help="also render site under this parent/RUN"
+    )
     args = parser.parse_args()
     runner = args.runner.resolve()
     catalog = subprocess.check_output([str(runner), "--catalog"], text=True, timeout=10)
@@ -130,6 +145,7 @@ def main():
         or args.seed > 4294967295
         or args.processes > 100
         or args.min_time_ms > 10000
+        or args.jobs > 128
     ):
         parser.error(
             "limits: unique sizes 1..65536, samples/warmups <=1000, iterations <=1e9, seed <=2^32-1"
@@ -171,7 +187,9 @@ def main():
         root = Path(temporary)
         started = time.time()
         collected, errors = {}, {}
-        for order, (name, size, scenario, process) in enumerate(jobs, 1):
+
+        def measure(item):
+            order, (name, size, scenario, process) = item
             group, _, _, accuracy, _ = available[name]
             command = [
                 str(runner),
@@ -202,13 +220,21 @@ def main():
             rows = invoke("timing")
             for row in rows:
                 row.update(process=str(process), order=str(order))
-            collected.setdefault(name, []).extend(rows)
-            if process == 1 and accuracy:
-                errors.setdefault(name, []).extend(invoke("accuracy"))
+            # Accuracy runs after timing within a worker job, never inside a timed batch.
+            accuracy_rows = invoke("accuracy") if process == 1 and accuracy else []
             print(
                 f"[{order}/{len(jobs)}] {group}/{name} {scenario} size={size} process={process}",
                 file=sys.stderr,
             )
+            return name, rows, accuracy_rows
+
+        # Threads only supervise independent native processes; CSV aggregation is
+        # single-threaded. Ordered results preserve deterministic file ordering.
+        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+            for name, rows, accuracy_rows in pool.map(measure, enumerate(jobs, 1)):
+                collected.setdefault(name, []).extend(rows)
+                if accuracy_rows:
+                    errors.setdefault(name, []).extend(accuracy_rows)
         for name, rows in collected.items():
             directory = root / available[name][0] / name
             write_csv(directory / "samples.csv", list(rows[0]), rows)
@@ -250,7 +276,7 @@ def main():
                 for key in ("BENCH_CC", "BENCH_CFLAGS", "BENCH_CPPFLAGS")
             },
             "parameters": {
-                key: value
+                key: str(value) if isinstance(value, Path) else value
                 for key, value in vars(args).items()
                 if key not in ("runner", "output", "list")
             },
@@ -264,7 +290,13 @@ def main():
                 )
                 for name in algorithms
             },
-            "method": "CLOCK_MONOTONIC; adaptive batch duration; excluded calibration/warmups; independent sequential processes; seeded shuffled order; no baseline subtraction; accuracy measured separately",
+            "method": "CLOCK_MONOTONIC; adaptive batch duration; excluded calibration/warmups; bounded concurrent native processes; seeded shuffled submission order; no baseline subtraction; accuracy measured separately",
+            "concurrency": {
+                "requested_workers": args.jobs,
+                "effective_workers": min(args.jobs, len(jobs)),
+                "timing_isolation": args.jobs == 1,
+                "note": "Concurrent workers share CPU/cache/memory; timings are under load, not isolated latency.",
+            },
             "coverage": {
                 name: json.loads(Path(__file__).with_name(name + ".json").read_text())
                 for name in ("coverage", "examples", "cli")
@@ -277,6 +309,12 @@ def main():
         root.rename(destination)
         # TemporaryDirectory tolerates the directory having been renamed.
     print(destination)
+    if args.report_output:
+        from plot import generate
+
+        site = args.report_output / run_id
+        generate(destination, site)
+        print(site / "index.html")
 
 
 if __name__ == "__main__":
