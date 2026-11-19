@@ -7,7 +7,6 @@ import datetime
 import io
 import json
 import os
-from pathlib import Path
 import platform
 import random
 import shlex
@@ -17,6 +16,8 @@ import tempfile
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
 from data import write_csv
 
 
@@ -83,11 +84,14 @@ def main():
         "--algorithms", nargs="+", help="exact algorithm names; default: all"
     )
     parser.add_argument(
-        "--sizes", nargs="+", type=positive, default=[64, 256, 1024, 4096]
+        "--sizes",
+        nargs="+",
+        type=positive,
+        default=[64, 256, 1024, 4096, 8192],
     )
     parser.add_argument("--iterations", type=positive, default=10000)
-    parser.add_argument("--samples", type=positive, default=7)
-    parser.add_argument("--warmups", type=positive, default=2)
+    parser.add_argument("--samples", type=positive, default=10)
+    parser.add_argument("--warmups", type=positive, default=3)
     parser.add_argument("--seed", type=positive, default=42)
     parser.add_argument(
         "--timeout", type=positive, default=120, help="seconds per worker"
@@ -100,11 +104,11 @@ def main():
     parser.add_argument(
         "--processes",
         type=positive,
-        default=3,
+        default=16,
         help="independent runs per workload",
     )
     parser.add_argument(
-        "--min-time-ms", type=positive, default=20, help="calibration target per batch"
+        "--min-time-ms", type=positive, default=1, help="calibration target per batch"
     )
     parser.add_argument("--list", action="store_true")
     parser.add_argument(

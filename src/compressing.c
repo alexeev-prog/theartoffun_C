@@ -1,9 +1,9 @@
-#include "compressing.h"
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+char* rle_decode_limit(const char* input, size_t max_output);
 
 void rle_encode(const char* input, char* output) {
     int input_len = strlen(input);
