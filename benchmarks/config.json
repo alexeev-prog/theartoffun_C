@@ -1,0 +1,43 @@
+{
+  "defaults": {
+    "sizes": [64, 256, 1024, 2048, 4096],
+    "iterations": 10000,
+    "samples": 7,
+    "warmups": 3,
+    "processes": 16,
+    "jobs": 4,
+    "min_time_ms": 1,
+    "report_output": "results/plots"
+  },
+  "profiles": {
+    "quick": {
+      "sizes": [64, 256, 1024, 2048, 4096],
+      "iterations": 10000,
+      "samples": 10,
+      "warmups": 7,
+      "processes": 16,
+      "jobs": 8,
+      "min_time_ms": 1,
+      "report_output": "results/plots"
+    },
+    "prng": {
+      "algorithms": ["xorshift64", "pcg32", "xoshiro256pp", "wyrand", "jsf32", "ranq1"],
+      "samples": 10,
+      "warmups": 7,
+      "processes": 16,
+      "jobs": 16,
+      "min_time_ms": 1,
+      "report_output": "results/plots"
+    },
+    "pow": {
+      "algorithms": ["binary_pow", "libm_pow", "fast_pow", "fastest_pow"],
+      "sizes": [64, 256, 1024, 4096],
+      "samples": 9,
+      "warmups": 3,
+      "processes": 5,
+      "jobs": 1,
+      "min_time_ms": 1,
+      "report_output": "results/plots"
+    }
+  }
+}

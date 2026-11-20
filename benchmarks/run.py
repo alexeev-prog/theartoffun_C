@@ -15,10 +15,38 @@ import sys
 import tempfile
 import time
 import uuid
+import hashlib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from data import write_csv
+
+
+def load_config(path, profile):
+    """Load a small JSON preset; command-line values still win."""
+    if not path:
+        return {}
+    config = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(config, dict):
+        raise ValueError("benchmark config must be a JSON object")
+    if profile:
+        profiles = config.get("profiles", {})
+        if profile not in profiles:
+            raise ValueError(f"unknown benchmark profile: {profile}")
+        values = profiles[profile]
+    else:
+        values = config.get("defaults", config)
+    if not isinstance(values, dict):
+        raise ValueError("benchmark profile must be a JSON object")
+    allowed = {
+        "algorithms", "sizes", "iterations", "samples", "warmups", "seed",
+        "timeout", "scenarios", "processes", "min_time_ms", "jobs",
+        "report_output",
+    }
+    unknown = set(values) - allowed
+    if unknown:
+        raise ValueError("unknown benchmark config keys: " + ", ".join(sorted(unknown)))
+    return values
 
 
 def environment():
@@ -78,54 +106,58 @@ def positive(text):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config", type=Path, help="JSON config/preset file")
+    parser.add_argument("--profile", help="profile name from --config")
+    preliminary, _ = parser.parse_known_args()
+    config = load_config(preliminary.config, preliminary.profile)
     parser.add_argument("--runner", type=Path, default=Path("bin/benchmark"))
     parser.add_argument("--output", type=Path, default=Path("results/benchmarks"))
     parser.add_argument(
-        "--algorithms", nargs="+", help="exact algorithm names; default: all"
+        "--algorithms", nargs="+", default=config.get("algorithms"), help="exact algorithm names; default: all"
     )
     parser.add_argument(
         "--sizes",
         nargs="+",
         type=positive,
-        default=[64, 256, 1024, 4096, 8192],
+        default=config.get("sizes", [64, 256, 1024]),
     )
-    parser.add_argument("--iterations", type=positive, default=10000)
-    parser.add_argument("--samples", type=positive, default=10)
-    parser.add_argument("--warmups", type=positive, default=3)
-    parser.add_argument("--seed", type=positive, default=42)
+    parser.add_argument("--iterations", type=positive, default=config.get("iterations", 1000))
+    parser.add_argument("--samples", type=positive, default=config.get("samples", 7))
+    parser.add_argument("--warmups", type=positive, default=config.get("warmups", 2))
+    parser.add_argument("--seed", type=positive, default=config.get("seed", 42))
     parser.add_argument(
-        "--timeout", type=positive, default=120, help="seconds per worker"
+        "--timeout", type=positive, default=config.get("timeout", 120), help="seconds per worker"
     )
     parser.add_argument(
         "--scenarios",
         nargs="+",
-        help="filter catalog scenarios; default: all supported",
+        default=config.get("scenarios"), help="filter catalog scenarios; default: all supported",
     )
     parser.add_argument(
         "--processes",
         type=positive,
-        default=16,
+        default=config.get("processes", 16),
         help="independent runs per workload",
     )
-    parser.add_argument(
-        "--min-time-ms", type=positive, default=1, help="calibration target per batch"
-    )
+    parser.add_argument("--min-time-ms", type=positive, default=config.get("min_time_ms", 1), help="calibration target per batch")
     parser.add_argument("--list", action="store_true")
     parser.add_argument(
         "--jobs",
         type=positive,
-        default=min(
+        default=config.get("jobs", min(
             4,
             len(os.sched_getaffinity(0))
             if hasattr(os, "sched_getaffinity")
             else os.cpu_count() or 1,
-        ),
+        )),
         help="maximum concurrent C workers; use 1 for isolated timing",
     )
-    parser.add_argument(
-        "--report-output", type=Path, help="also render site under this parent/RUN"
-    )
+    parser.add_argument("--report-output", type=Path, default=config.get("report_output"), help="also render site under this parent/RUN")
     args = parser.parse_args()
+    if args.profile and not args.config:
+        parser.error("--profile requires --config")
+    if args.report_output is not None:
+        args.report_output = Path(args.report_output)
     runner = args.runner.resolve()
     catalog = subprocess.check_output([str(runner), "--catalog"], text=True, timeout=10)
     if args.list:
@@ -260,8 +292,6 @@ def main():
             )
         except (OSError, subprocess.SubprocessError):
             revision, dirty = None, None
-        import hashlib
-
         metadata = {
             "schema_version": 2,
             "run_id": run_id,
@@ -283,6 +313,14 @@ def main():
                 key: str(value) if isinstance(value, Path) else value
                 for key, value in vars(args).items()
                 if key not in ("runner", "output", "list")
+            },
+            "config": {
+                "path": str(preliminary.config.resolve()) if preliminary.config else None,
+                "profile": preliminary.profile,
+                "values": config,
+                "sha256": hashlib.sha256(
+                    json.dumps(config, sort_keys=True).encode("utf-8")
+                ).hexdigest(),
             },
             "algorithms": algorithms,
             "catalog": {

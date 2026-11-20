@@ -2,6 +2,7 @@
 
 import csv
 import math
+import statistics
 from pathlib import Path
 
 TIMING = "schema_version group algorithm axis size sample iterations seed elapsed_ns ns_per_op checksum".split()
@@ -30,3 +31,17 @@ def finite(text, minimum=None):
     if not math.isfinite(value) or (minimum is not None and value < minimum):
         raise ValueError("non-finite or out-of-range value")
     return value
+
+
+def percentile(values, fraction):
+    """Nearest-rank percentile with a stable, dependency-free contract."""
+    ordered = sorted(values)
+    if not ordered or not 0 <= fraction <= 1:
+        raise ValueError("percentile requires values and a fraction in [0, 1]")
+    return ordered[min(len(ordered) - 1, math.ceil(fraction * len(ordered)) - 1)]
+
+
+def mad(values):
+    """Median absolute deviation, useful for noisy timing samples."""
+    middle = statistics.median(values)
+    return statistics.median(abs(value - middle) for value in values)

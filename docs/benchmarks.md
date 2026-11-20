@@ -52,6 +52,40 @@ make benchmark-plots BENCHMARK_INPUT=results/benchmarks/RUN PLOT_OUTPUT=results/
 # Open results/plots/RUN/index.html
 ```
 
+`make benchmark` and `make benchmark-report` automatically read
+`benchmarks/config.json`. The `defaults` section is used by default; select a
+focused profile with `BENCH_PROFILE`:
+
+```sh
+make benchmark-report
+make benchmark-report BENCH_PROFILE=prng
+make benchmark-report BENCH_PROFILE=pow
+```
+
+CLI values override profile values. The resolved profile, its hash and the
+effective parameters are saved in `metadata.json`. CLI values in `BENCH_ARGS`
+override values from the selected profile.
+
+Use another configuration file when needed:
+
+```sh
+make benchmark-report BENCHMARK_CONFIG=benchmarks/my-config.json
+```
+
+Reusable launch presets live in `benchmarks/config.json`. Select one preset and
+override any value from the command line:
+
+```sh
+python3 benchmarks/run.py --config benchmarks/config.json --profile prng \
+  --runner bin/benchmark --output results/benchmarks
+make benchmark-report BENCH_ARGS="--config benchmarks/config.json --profile pow"
+```
+
+Configuration keys are the same as the CLI options (`algorithms`, `sizes`,
+`samples`, `processes`, `jobs`, `min_time_ms` and so on). The C catalog remains
+the source of truth for group membership and supported scenarios, so adding a
+function cannot silently create an invalid comparison.
+
 Every report includes `site.zip`: extract it anywhere and open `index.html`.
 It contains the report, SVGs, raw CSV, metadata and statistical summaries,
 but not executables. The archive deliberately excludes itself; the download
@@ -130,7 +164,7 @@ results/plots/RUN/
   comparisons.html                   # links to group comparison SVGs
   accuracy.html                      # accuracy summary table
   report.json                        # machine-readable report
-  summary.csv                        # timing count, median, min/max, mean, stdev, CV
+  summary.csv                        # timing count, median, p10/p90, MAD, min/max, mean, stdev, CV
   accuracy-summary.csv               # per workload max/mean/median/p95 errors
   data/metadata.json
   data/GROUP/ALGORITHM/*.csv          # downloadable original data
@@ -208,6 +242,23 @@ Charts use actual linear numeric axes, medians and min–max whiskers (not confi
 intervals). Timing samples from independent processes are pooled. Error-at-input
 charts aggregate duplicate x values. Accuracy metrics are intentionally absent
 for algorithms without numerical references: hashes, PRNGs, sorting, dates, bits.
+Multi-algorithm comparisons with one x value (for example PRNGs, whose size is
+always 1) are rendered as ranked horizontal comparisons: one row per algorithm,
+a large median marker and a min–max whisker. This avoids fake lines and makes
+close results easy to scan.
+
+For comparing two saved runs:
+
+```sh
+make benchmark-compare \
+  BENCHMARK_INPUT=results/benchmarks/NEW \
+  BENCHMARK_BASELINE=results/benchmarks/BASELINE
+```
+
+This creates `comparison.csv` and `comparison.html` in the current run. The
+command exits with status 1 when a median regresses by at least 5 percent. Use
+`BENCH_COMPARE_ARGS="--threshold 10"` to change the threshold. Comparisons only
+match equal group, algorithm, scenario and size workloads.
 
 ## Measurement method and provenance
 
@@ -300,6 +351,11 @@ workloads without matching timing. It does not require a C executable to validat
    shared scenarios automatically. Use stable identifier names.
 3. For numerical accuracy, use `SCALAR` plus `ACC(reference_family, name)` instead
    of `CASE`; register a new `reference_FAMILY` only for a new operation family.
+
+To include an existing function in a comparison, add its single `CASE(group,
+name, axis)` entry in `runner.c`; all reports, comparison graphs, CSV summaries
+and config presets discover it automatically. Add the name to a JSON profile
+only when it should be part of a repeatable focused experiment.
 
 The collector, directory layout, summaries, charts, downloads, ZIP and all-worker
 tests discover catalog entries automatically. No Python algorithm-name lists are

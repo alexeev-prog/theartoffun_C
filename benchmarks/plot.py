@@ -89,6 +89,61 @@ def load(root):
 COLORS = ["#2563eb", "#dc2626", "#059669", "#9333ea", "#d97706", "#0891b2", "#475569"]
 
 
+def _chart_frame(title, ylabel, subtitle, width, height):
+    """Common SVG header; keep chart construction in one place."""
+    return [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img">',
+        f"<title>{escape(title)}</title>",
+        f'<desc>{escape(ylabel)}; {escape(subtitle)}</desc>',
+        '<rect width="100%" height="100%" fill="#ffffff"/>',
+        '<g font-family="serif" font-size="14" fill="#172033">',
+        f'<text x="32" y="32" font-size="22" font-weight="700">{escape(title)}</text>',
+        f'<text x="32" y="56" fill="#526173">{escape(ylabel)} · {escape(subtitle)}</text>',
+    ]
+
+
+def _single_value_chart(title, axis, lines, ylabel, subtitle):
+    """Readable ranking for comparisons where every series has one x value."""
+    rows = sorted(
+        ((name, size, statistics.median(samples), min(samples), max(samples))
+         for name, values in lines.items()
+         for size, samples in values.items()),
+        key=lambda row: row[2],
+    )
+    width, row_height = 1000, 34
+    top, bottom, left, right = 86, 28, 235, 42
+    height = top + bottom + row_height * max(1, len(rows))
+    maximum = max((row[4] for row in rows), default=1.0) * 1.12 or 1.0
+
+    def x(value):
+        return left + (value / maximum) * (width - left - right)
+
+    parts = _chart_frame(title, ylabel, subtitle, width, height)
+    plot_bottom = top + row_height * len(rows)
+    for tick in range(6):
+        value = maximum * tick / 5
+        px = x(value)
+        parts += [
+            f'<path d="M{px:.2f} {top - 8} V{plot_bottom}" stroke="#dbe3ec"/>',
+            f'<text x="{px:.2f}" y="{top - 18}" text-anchor="middle" fill="#526173">{value:.3g}</text>',
+        ]
+    for index, (name, size, median, low, high) in enumerate(rows):
+        y = top + index * row_height + row_height / 2
+        color = COLORS[index % len(COLORS)]
+        parts += [
+            f'<text x="{left - 14}" y="{y + 5:.2f}" text-anchor="end" font-weight="600">{escape(name)}</text>',
+            f'<path d="M{x(low):.2f} {y:.2f} H{x(high):.2f}" stroke="{color}" stroke-width="3" stroke-linecap="round"/>',
+            f'<path d="M{x(low):.2f} {y - 6:.2f} V{y + 6:.2f} M{x(high):.2f} {y - 6:.2f} V{y + 6:.2f}" stroke="{color}" stroke-width="2"/>',
+            f'<circle cx="{x(median):.2f}" cy="{y:.2f}" r="6" fill="{color}" stroke="white" stroke-width="2"><title>{escape(name)}: median={median:.6g}, min={low:.6g}, max={high:.6g}</title></circle>',
+        ]
+    parts += [
+        f'<path d="M{left} {top - 8} V{plot_bottom} H{width - right}" fill="none" stroke="#526173"/>',
+        f'<text x="{(left + width - right) / 2:.2f}" y="{height - 7}" text-anchor="middle">{escape(axis)} · ranked comparison</text>',
+        '</g></svg>\n',
+    ]
+    return "\n".join(parts)
+
+
 def svg(
     title,
     axis,
@@ -98,6 +153,10 @@ def svg(
     scatter=False,
 ):
     sizes = sorted({size for values in lines.values() for size in values})
+    # A line with one point is not a chart. Use a ranked comparison instead;
+    # this is the useful representation for PRNG and other fixed-size groups.
+    if len(sizes) == 1 and len(lines) > 1:
+        return _single_value_chart(title, axis, lines, ylabel, subtitle)
     maximum = (
         max(max(samples) for values in lines.values() for samples in values.values())
         * 1.1
@@ -116,20 +175,16 @@ def svg(
     def y(value):
         return top + plot_height * (1 - value / maximum)
 
-    parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img">',
-        f"<title>{escape(title)}</title>",
-        '<rect width="100%" height="100%" fill="white"/>',
-        '<g font-family="serif" font-size="14" fill="#172033">',
-        f'<text x="100" y="30" font-size="22">{escape(title)}</text>',
-        f'<text x="100" y="53">{escape(ylabel)} — {escape(subtitle)}</text>',
+    parts = _chart_frame(title, ylabel, subtitle, width, height)
+    parts += [
+        f'<rect x="{left}" y="{top}" width="{plot_width}" height="{plot_height}" fill="#f8fafc" stroke="#cbd5e1"/>',
     ]
     for tick in range(6):
         value = maximum * tick / 5
         py = y(value)
         parts += [
-            f'<path d="M100 {py:.2f} H950" stroke="#e2e8f0"/>',
-            f'<text x="90" y="{py + 5:.2f}" text-anchor="end">{value:.3g}</text>',
+            f'<path d="M{left} {py:.2f} H{left + plot_width}" stroke="#dbe3ec"/>',
+            f'<text x="{left - 12}" y="{py + 5:.2f}" text-anchor="end" fill="#526173">{value:.3g}</text>',
         ]
     ticks = (
         sizes
@@ -138,11 +193,12 @@ def svg(
     )
     for size in ticks:
         parts.append(
-            f'<text x="{x(size):.2f}" y="466" text-anchor="middle">{size:.4g}</text>'
+            f'<text x="{x(size):.2f}" y="466" text-anchor="middle" fill="#526173">{size:.4g}</text>'
         )
-    parts.append(
-        f'<text x="525" y="495" text-anchor="middle">{escape(axis)} (linear scale)</text>'
-    )
+    parts += [
+        f'<path d="M{left} {top + plot_height} V{top} M{left} {top + plot_height} H{left + plot_width}" fill="none" stroke="#526173"/>',
+        f'<text x="525" y="495" text-anchor="middle">{escape(axis)} · linear scale</text>'
+    ]
     for index, (name, values) in enumerate(sorted(lines.items())):
         color = COLORS[index % len(COLORS)]
         points = " ".join(
@@ -151,7 +207,7 @@ def svg(
         )
         if not scatter:
             parts.append(
-                f'<polyline points="{points}" fill="none" stroke="{color}" stroke-width="2"/>'
+                f'<polyline points="{points}" fill="none" stroke="{color}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'
             )
         for size, samples in sorted(values.items()):
             px, lo, hi, mid = (
@@ -161,8 +217,8 @@ def svg(
                 y(statistics.median(samples)),
             )
             parts += [
-                f'<path d="M{px:.2f} {lo:.2f} V{hi:.2f} M{px - 5:.2f} {lo:.2f} h10 M{px - 5:.2f} {hi:.2f} h10" stroke="{color}"/>',
-                f'<circle cx="{px:.2f}" cy="{mid:.2f}" r="4" fill="{color}"><title>{escape(name)}: x={size:.6g}, n={len(samples)}, median={statistics.median(samples):.6g}</title></circle>',
+                f'<path d="M{px:.2f} {lo:.2f} V{hi:.2f} M{px - 6:.2f} {lo:.2f} h12 M{px - 6:.2f} {hi:.2f} h12" stroke="{color}" stroke-width="2"/>',
+                f'<circle cx="{px:.2f}" cy="{mid:.2f}" r="5" fill="{color}" stroke="white" stroke-width="1.5"><title>{escape(name)}: x={size:.6g}, n={len(samples)}, median={statistics.median(samples):.6g}</title></circle>',
             ]
         parts.append(
             f'<text x="100" y="{535 + index * 24}" fill="{color}">{escape(name)}</text>'

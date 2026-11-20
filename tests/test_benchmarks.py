@@ -155,6 +155,37 @@ class Benchmarks(unittest.TestCase):
             report = json.loads((site / "report.json").read_text())
             self.assertTrue(any("Parallel" in warning for warning in report["warnings"]))
 
+    def test_config_profile_and_comparison(self):
+        from data import mad, percentile
+
+        self.assertEqual(percentile([1, 2, 3, 4], 0.5), 2)
+        self.assertEqual(mad([1, 2, 3]), 1)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config = root / "config.json"
+            config.write_text(json.dumps({"profiles": {"smoke": {
+                "algorithms": ["isqrt"], "sizes": [16], "samples": 2,
+                "processes": 1, "warmups": 1, "iterations": 20,
+                "min_time_ms": 1, "jobs": 1
+            }}}))
+            result = self.command(
+                sys.executable, ROOT / "benchmarks/run.py", "--config", config,
+                "--profile", "smoke", "--runner", RUNNER,
+                "--output", root / "runs", "--report-output", root / "plots",
+            )
+            run, index = map(Path, result.stdout.splitlines())
+            site = index.parent
+            metadata = json.loads((run / "metadata.json").read_text())
+            self.assertEqual(metadata["config"]["profile"], "smoke")
+            self.assertEqual(metadata["parameters"]["samples"], 2)
+            self.assertTrue((site / "summary.csv").exists())
+            comparison = self.command(
+                sys.executable, ROOT / "benchmarks/compare.py",
+                "--current", site, "--baseline", site,
+            )
+            self.assertIn("comparison.csv", comparison.stdout)
+            self.assertTrue((site / "comparison.csv").exists())
+
     def test_invalid_worker_arguments(self):
         for name, size, count in [
             ("missing", 64, 1),

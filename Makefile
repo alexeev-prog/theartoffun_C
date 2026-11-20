@@ -17,7 +17,7 @@ clean:
 	$(RM) -r -- build bin
 
 help:
-	@echo 'make benchmark-report  Collect parallel native benchmarks + graphs + offline ZIP (BENCH_ARGS="--jobs 4 --processes 3")'
+	@echo 'make benchmark-report  Read benchmarks/config.json, collect and render (BENCH_PROFILE=prng)'
 	@echo 'make [all]       Build bin/theartoffun'
 	@echo 'make run ARGS="--help"'
 	@echo 'make test        Unit/property tests and CLI integration tests'
@@ -35,6 +35,7 @@ help:
 	@echo 'make benchmark   Collect CSV samples (BENCH_ARGS="--samples 7 --sizes 64 256")'
 	@echo 'make benchmark-list  List benchmark algorithms'
 	@echo 'make benchmark-plots BENCHMARK_INPUT=results/benchmarks/RUN PLOT_OUTPUT=results/plots/RUN'
+	@echo 'make benchmark-compare BENCHMARK_INPUT=RUN BENCHMARK_BASELINE=RUN'
 	@echo 'make test-benchmarks  Validate benchmark collection and offline plotting'
 	@echo 'make clean       Remove generated build output'
 	@echo 'make clean-results  Delete all saved runs and reports in results/'

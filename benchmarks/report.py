@@ -11,7 +11,7 @@ import zipfile
 import posixpath
 import re
 
-from data import ACCURACY, finite, read_csv, write_csv
+from data import ACCURACY, finite, mad, percentile, read_csv, write_csv
 
 
 def page(title, body):
@@ -161,9 +161,12 @@ def build(source, output, series, chart):
                 mean_ns=mean,
                 stdev_ns=deviation,
                 cv=cv,
+                mad_ns=mad(samples),
+                p10_ns=percentile(samples, 0.10),
+                p90_ns=percentile(samples, 0.90),
             )
             timing_rows.append(row)
-            stats.append([size, len(samples), median, min(samples), max(samples), cv])
+            stats.append([size, len(samples), median, row["p10_ns"], row["p90_ns"], row["mad_ns"], cv])
             if cv > 0.1:
                 warnings.append(
                     f"{group}/{name}/{scenario}, size={size}: CV={cv:.1%}; unstable timing"
@@ -227,7 +230,7 @@ def build(source, output, series, chart):
                 tradeoffs[(group, scenario, size)][name] = {
                     median: [metrics["relative"]["max"]]
                 }
-        body += table(["Size", "Samples", "Median ns/op", "Min", "Max", "CV"], stats)
+        body += table(["Size", "Samples", "Median ns/op", "P10", "P90", "MAD", "CV"], stats)
         detail_path = base / "index.html"
         raw_path = Path("data") / group / name / "samples.csv"
         if (group, name) not in raw_samples:
